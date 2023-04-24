@@ -15,9 +15,9 @@ namespace Client.API.Controllers.V1
     [CustomException]
     public class ProductController : ControllerBase
     {
-        private readonly IProductServices _productService;
+        private readonly ProductServices _productService;
 
-        public ProductController(IProductServices productService)
+        public ProductController(ProductServices productService)
         {
             _productService = productService;
         }

@@ -2,18 +2,11 @@
 using UnitOfWork.Interface;
 using Common;
 using Models.ResponseModels;
+using Service.Interface;
 
 namespace Services
 {
-    public interface ICategoryServices
-    {
-        ResultModel GetAll();
-        ResultModel Get(int id);
-        ResultModel Create(CategoryRequestModel model);
-        ResultModel Update(CategoryRequestModel model, int CategoryID);
-        ResultModel Delete(int id);
-    }
-    public class CategoryServices : ICategoryServices
+    public class CategoryServices : IServices<CategoryRequestModel, int>
     {
         private IUnitOfWork _unitOfWork;
 
@@ -82,6 +75,11 @@ namespace Services
             }
         }
 
+        public ResultModel Delete(CategoryRequestModel model, int cartID)
+        {
+            throw new NotImplementedException();
+        }
+
         public ResultModel Get(int id)
         {
             try
@@ -107,6 +105,11 @@ namespace Services
             catch (Exception ex) { throw new Exception(ex.Message); }
         }
 
+        public ResultModel Get(int id, int pageIndex)
+        {
+            throw new NotImplementedException();
+        }
+
         public ResultModel GetAll()
         {
             try
@@ -130,6 +133,11 @@ namespace Services
                 }
             }
             catch (Exception ex) { throw new Exception(ex.Message); }
+        }
+
+        public ResultModel GetAll(int pageIndex)
+        {
+            throw new NotImplementedException();
         }
 
         public ResultModel Update(CategoryRequestModel item, int CategoryID)

@@ -10,9 +10,9 @@ namespace Client.API.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryServices _categoryService;
+        private readonly CategoryServices _categoryService;
 
-        public CategoryController(ICategoryServices categoryServices)
+        public CategoryController(CategoryServices categoryServices)
         {
             _categoryService = categoryServices;
         }

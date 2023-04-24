@@ -81,10 +81,10 @@ namespace Product.API.Extensions
         private static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
         {
             services.AddTransient<IUnitOfWork, UnitOfWorkDatabase>();
-            services.AddTransient<IProductServices, ProductServices>();
+            services.AddTransient<ProductServices>();
             services.AddTransient<IAccountServices, AccountServices>();
-            services.AddTransient<ICategoryServices, CategoryServices>();
-            services.AddTransient<ICartServices, CartServices>();
+            services.AddTransient<CategoryServices>();
+            services.AddTransient<CartServices>();
             return services;
         }
     }

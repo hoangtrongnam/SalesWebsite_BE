@@ -10,9 +10,9 @@ namespace Client.API.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        private readonly ICartServices _cartService;
+        private readonly CartServices _cartService;
 
-        public CartController(ICartServices cartService)
+        public CartController(CartServices cartService)
         {
             _cartService = cartService;
         }

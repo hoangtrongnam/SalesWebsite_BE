@@ -1,26 +1,19 @@
 ﻿using Models.RequestModel;
 using UnitOfWork.Interface;
 using Common;
+using Service.Interface;
 
 namespace Services
 {
-    public interface ICartServices
-    {
-        //ResultModel GetAll(int pageIndex);
-        ResultModel Get(int id, int pageIndex);
-        ResultModel Create(CartRequestModel model);
-        ResultModel Update(CartRequestModel model, int cartID);
-        ResultModel Delete(CartRequestModel model, int cartID);
-    }
-    public class CartServices : ICartServices
+    public class ProductServices : IServices<ProductRequestModel, int>
     {
         private IUnitOfWork _unitOfWork;
 
-        public CartServices(IUnitOfWork unitOfWork)
+        public ProductServices(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-        public ResultModel Create(CartRequestModel item)
+        public ResultModel Create(ProductRequestModel item)
         {
             try
             {
@@ -28,17 +21,16 @@ namespace Services
                 ResultModel outModel = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.CartRepository.Create(item);
+                    var result = context.Repositories.ProductRepository.Create(item);
                     if (result == 0)
                     {
-                        context.DeleteChanges();
-                        outModel.Message = "Thêm Cart thất bại";
+                        outModel.Message = "Thêm thất bại";
                         outModel.StatusCode = "999";
                     }
                     else
                     {
                         context.SaveChanges();
-                        outModel.Message = "Thêm Cart thành công";
+                        outModel.Message = "Thêm thành công";
                         outModel.StatusCode = "200";
                     }
                 }
@@ -50,7 +42,7 @@ namespace Services
             }
         }
 
-        public ResultModel Delete(CartRequestModel model, int cartID)
+        public ResultModel Delete(int id)
         {
             //throw new NotImplementedException();
             try
@@ -58,7 +50,7 @@ namespace Services
                 ResultModel outModel = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.CartRepository.Remove(model, cartID);
+                    var result = context.Repositories.ProductRepository.Remove(id);
                     if (result == 0)
                     {
                         outModel.Message = "Xóa thất bại";
@@ -79,22 +71,27 @@ namespace Services
             }
         }
 
-        public ResultModel Get(int customerID, int pageIndex)
+        public ResultModel Delete(ProductRequestModel model, int ID)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ResultModel Get(int id)
         {
             try
             {
                 ResultModel outModel = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.CartRepository.Get(customerID, pageIndex);
-                    if (result.CartID == 0)
+                    var result = context.Repositories.ProductRepository.Get(id);
+                    if (string.IsNullOrEmpty(result.ProductID))
                     {
-                        outModel.Message = "Tìm giỏ hàng thất bại";
+                        outModel.Message = "Tìm sản phấm thất bại";
                         outModel.StatusCode = "999";
                     }
                     else
                     {
-                        outModel.Message = "Tìm giỏ hàng thành công";
+                        outModel.Message = "Tìm sản phấm thành công";
                         outModel.StatusCode = "200";
                         outModel.DATA = result;
                     }
@@ -107,51 +104,61 @@ namespace Services
             }
         }
 
-        //public ResultModel GetAll(int pageIndex)
-        //{
-        //    try
-        //    {
-        //        ResultModel outModel = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            var result = context.Repositories.ProductRepository.GetAll(pageIndex);
-        //            if (result.Count == 0)
-        //            {
-        //                outModel.Message = "Tìm tất cả sản phấm thất bại";
-        //                outModel.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                outModel.Message = "Tìm tất cả sản phấm thành công";
-        //                outModel.StatusCode = "200";
-        //                outModel.DATA = result;
-        //            }
-        //        }
-        //        return outModel;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+        public ResultModel Get(int ID, int pageIndex)
+        {
+            throw new NotImplementedException();
+        }
 
-        public ResultModel Update(CartRequestModel item, int cartID)
+        public ResultModel GetAll(int pageIndex)
+        {
+            try
+            {
+                ResultModel outModel = new ResultModel();
+                using (var context = _unitOfWork.Create())
+                {
+                    var result = context.Repositories.ProductRepository.GetAll(pageIndex);
+                    if (result.Count == 0)
+                    {
+                        outModel.Message = "Tìm tất cả sản phấm thất bại";
+                        outModel.StatusCode = "999";
+                    }
+                    else
+                    {
+                        outModel.Message = "Tìm tất cả sản phấm thành công";
+                        outModel.StatusCode = "200";
+                        outModel.DATA = result;
+                    }
+                }
+                return outModel;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public ResultModel GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ResultModel Update(ProductRequestModel item, int productID)
         {
             try
             {
                 ResultModel res = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.CartRepository.Update(item, cartID);
+                    var result = context.Repositories.ProductRepository.Update(item, productID);
                     if (result == 0)
                     {
-                        res.Message = "Sửa giỏ hàng thất bại";
+                        res.Message = "Sửa thất bại";
                         res.StatusCode = "999";
                     }
                     else
                     {
                         context.SaveChanges();
-                        res.Message = "Sửa giỏ hàng thành công";
+                        res.Message = "Sửa thành công";
                         res.StatusCode = "200";
                     }
                     return res;
