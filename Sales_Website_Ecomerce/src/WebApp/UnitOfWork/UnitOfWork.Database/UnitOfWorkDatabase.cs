@@ -8,7 +8,7 @@ namespace UnitOfWork.Database
     {
         private readonly IConfiguration _configuration;
 
-        public UnitOfWorkDatabase(IConfiguration configuration = null)
+        public UnitOfWorkDatabase(IConfiguration configuration)
         {
             _configuration = configuration;
         }

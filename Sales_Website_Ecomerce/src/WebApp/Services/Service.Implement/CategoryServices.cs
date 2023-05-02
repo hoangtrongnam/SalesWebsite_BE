@@ -21,25 +21,33 @@ namespace Services
             {
                 using (var context = _unitOfWork.Create())
                 {
-                    ResultModel outModel = new ResultModel();
-                    var result = context.Repositories.CategoryRepository.Create(item);
-                    if (result == 0)
+                    try
                     {
-                        //Console.WriteLine("Add thất bại");
-                        outModel.Message = "Thêm thất bại";
-                        outModel.StatusCode = "999";
+                        ResultModel outModel = new ResultModel();
+                        var result = context.Repositories.CategoryRepository.Create(item);
+                        if (result == 0)
+                        {
+                            context.DeleteChanges();
+                            outModel.Message = "Thêm thất bại";
+                            outModel.StatusCode = "999";
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                            outModel.Message = "Thêm thành công";
+                            outModel.StatusCode = "200";
+                        }
+                        return outModel;
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        context.SaveChanges();
-                        //Console.WriteLine("Đã Add {0} bản ghi.", rowsAffected);
-                        outModel.Message = "Thêm thành công";
-                        outModel.StatusCode = "200";
+                        context.DeleteChanges();
+                        throw new Exception(ex.Message);
                     }
-                    return outModel;
+
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) //lỗi liên quan kết nối
             {
                 throw new Exception(ex.Message);
             }
@@ -52,20 +60,29 @@ namespace Services
             {
                 using (var context = _unitOfWork.Create())
                 {
-                    ResultModel outModel = new ResultModel();
-                    var result = context.Repositories.CategoryRepository.Remove(id);
-                    if (result == 0)
+                    try
                     {
-                        outModel.Message = "Xóa thất bại";
-                        outModel.StatusCode = "999";
+                        ResultModel outModel = new ResultModel();
+                        var result = context.Repositories.CategoryRepository.Remove(id);
+                        if (result == 0)
+                        {
+                            context.DeleteChanges();
+                            outModel.Message = "Xóa thất bại";
+                            outModel.StatusCode = "999";
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                            outModel.Message = "Xóa thành công";
+                            outModel.StatusCode = "200";
+                        }
+                        return outModel;
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        context.SaveChanges();
-                        outModel.Message = "Xóa thành công";
-                        outModel.StatusCode = "200";
+                        context.DeleteChanges();
+                        throw new Exception(ex.Message);
                     }
-                    return outModel;
                 }
 
             }
@@ -118,7 +135,7 @@ namespace Services
                 {
                     ResultModel outModel = new ResultModel();
                     List<CategoryResponseModel> result = context.Repositories.CategoryRepository.GetAll();
-                    if (result.Count ==0)
+                    if (result.Count == 0)
                     {
                         outModel.Message = "tìm danh sách sản phẩm thất bại";
                         outModel.StatusCode = "999";
@@ -146,20 +163,29 @@ namespace Services
             {
                 using (var context = _unitOfWork.Create())
                 {
-                    ResultModel outModel = new ResultModel();
-                    var result = context.Repositories.CategoryRepository.Update(item, CategoryID);
-                    if (result == 0)
+                    try
                     {
-                        outModel.Message = "Sửa thất bại";
-                        outModel.StatusCode = "999";
+                        ResultModel outModel = new ResultModel();
+                        var result = context.Repositories.CategoryRepository.Update(item, CategoryID);
+                        if (result == 0)
+                        {
+                            context.DeleteChanges();
+                            outModel.Message = "Sửa thất bại";
+                            outModel.StatusCode = "999";
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                            outModel.Message = "Sửa thành công";
+                            outModel.StatusCode = "200";
+                        }
+                        return outModel;
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        context.SaveChanges();
-                        outModel.Message = "Sửa thành công";
-                        outModel.StatusCode = "200";
+                        context.DeleteChanges();
+                        throw new Exception(ex.Message);
                     }
-                    return outModel;
                 }
             }
             catch (Exception ex)

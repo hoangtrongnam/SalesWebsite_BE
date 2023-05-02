@@ -21,17 +21,26 @@ namespace Services
                 ResultModel outModel = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.ProductRepository.Create(item);
-                    if (result == 0)
+                    try
                     {
-                        outModel.Message = "Thêm thất bại";
-                        outModel.StatusCode = "999";
+                        var result = context.Repositories.ProductRepository.Create(item);
+                        if (result == 0)
+                        {
+                            context.DeleteChanges();
+                            outModel.Message = "Thêm thất bại";
+                            outModel.StatusCode = "999";
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                            outModel.Message = "Thêm thành công";
+                            outModel.StatusCode = "200";
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        context.SaveChanges();
-                        outModel.Message = "Thêm thành công";
-                        outModel.StatusCode = "200";
+                        context.DeleteChanges();
+                        throw new Exception(ex.Message);
                     }
                 }
                 return outModel;
@@ -50,17 +59,26 @@ namespace Services
                 ResultModel outModel = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.ProductRepository.Remove(id);
-                    if (result == 0)
+                    try
                     {
-                        outModel.Message = "Xóa thất bại";
-                        outModel.StatusCode = "999";
+                        var result = context.Repositories.ProductRepository.Remove(id);
+                        if (result == 0)
+                        {
+                            context.DeleteChanges();
+                            outModel.Message = "Xóa thất bại";
+                            outModel.StatusCode = "999";
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                            outModel.Message = "Xóa thành công";
+                            outModel.StatusCode = "200";
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        context.SaveChanges();
-                        outModel.Message = "Xóa thành công";
-                        outModel.StatusCode = "200";
+                        context.DeleteChanges();
+                        throw new Exception(ex.Message);
                     }
                 }
                 return outModel;
@@ -149,19 +167,28 @@ namespace Services
                 ResultModel res = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.ProductRepository.Update(item, productID);
-                    if (result == 0)
+                    try
                     {
-                        res.Message = "Sửa thất bại";
-                        res.StatusCode = "999";
+                        var result = context.Repositories.ProductRepository.Update(item, productID);
+                        if (result == 0)
+                        {
+                            context.DeleteChanges();
+                            res.Message = "Sửa thất bại";
+                            res.StatusCode = "999";
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                            res.Message = "Sửa thành công";
+                            res.StatusCode = "200";
+                        }
+                        return res;
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        context.SaveChanges();
-                        res.Message = "Sửa thành công";
-                        res.StatusCode = "200";
+                        context.DeleteChanges();
+                        throw new Exception(ex.Message);
                     }
-                    return res;
                 }
             }
             catch (Exception ex)

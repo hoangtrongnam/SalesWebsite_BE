@@ -4,8 +4,8 @@ using Common;
 using Service.Interface;
 
 namespace Services
-{    
-    public class CartServices : IServices<CartRequestModel, int>    
+{
+    public class CartServices : IServices<CartRequestModel, int>
     {
         private IUnitOfWork _unitOfWork;
 
@@ -21,18 +21,26 @@ namespace Services
                 ResultModel outModel = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.CartRepository.Create(item);
-                    if (result == 0)
+                    try
+                    {
+                        var result = context.Repositories.CartRepository.Create(item);
+                        if (result == 0)
+                        {
+                            context.DeleteChanges();
+                            outModel.Message = "Thêm Cart thất bại";
+                            outModel.StatusCode = "999";
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                            outModel.Message = "Thêm Cart thành công";
+                            outModel.StatusCode = "200";
+                        }
+                    }
+                    catch (Exception ex)
                     {
                         context.DeleteChanges();
-                        outModel.Message = "Thêm Cart thất bại";
-                        outModel.StatusCode = "999";
-                    }
-                    else
-                    {
-                        context.SaveChanges();
-                        outModel.Message = "Thêm Cart thành công";
-                        outModel.StatusCode = "200";
+                        throw new Exception(ex.Message);
                     }
                 }
                 return outModel;
@@ -51,17 +59,26 @@ namespace Services
                 ResultModel outModel = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.CartRepository.Remove(model, cartID);
-                    if (result == 0)
+                    try
                     {
-                        outModel.Message = "Xóa thất bại";
-                        outModel.StatusCode = "999";
+                        var result = context.Repositories.CartRepository.Remove(model, cartID);
+                        if (result == 0)
+                        {
+                            context.DeleteChanges();
+                            outModel.Message = "Xóa thất bại";
+                            outModel.StatusCode = "999";
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                            outModel.Message = "Xóa thành công";
+                            outModel.StatusCode = "200";
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        context.SaveChanges();
-                        outModel.Message = "Xóa thành công";
-                        outModel.StatusCode = "200";
+                        context.DeleteChanges();
+                        throw new Exception(ex.Message);
                     }
                 }
                 return outModel;
@@ -155,19 +172,28 @@ namespace Services
                 ResultModel res = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    var result = context.Repositories.CartRepository.Update(item, cartID);
-                    if (result == 0)
+                    try
                     {
-                        res.Message = "Sửa giỏ hàng thất bại";
-                        res.StatusCode = "999";
+                        var result = context.Repositories.CartRepository.Update(item, cartID);
+                        if (result == 0)
+                        {
+                            context.DeleteChanges();
+                            res.Message = "Sửa giỏ hàng thất bại";
+                            res.StatusCode = "999";
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                            res.Message = "Sửa giỏ hàng thành công";
+                            res.StatusCode = "200";
+                        }
+                        return res;
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        context.SaveChanges();
-                        res.Message = "Sửa giỏ hàng thành công";
-                        res.StatusCode = "200";
+                        context.DeleteChanges();
+                        throw new Exception(ex.Message);
                     }
-                    return res;
                 }
             }
             catch (Exception ex)
