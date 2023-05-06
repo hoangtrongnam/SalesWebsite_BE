@@ -18,6 +18,7 @@ namespace UnitOfWork.Database
 
             Repositories = new UnitOfWorkDatabaseRepository(_context, _transaction);
         }
+
         public void Dispose()
         {
             if (_transaction != null)
@@ -30,14 +31,24 @@ namespace UnitOfWork.Database
                 _context.Close();
                 _context.Dispose();
             }
-
             Repositories = null;
         }
 
         public void SaveChanges()
         {
-            _transaction.Commit();
+            try
+            {
+                _transaction.Commit();
+            }
+            catch (Exception)
+            {
+                _transaction.Rollback();
+                throw;
+            }
         }
+
+
+
         public void DeleteChanges()
         {
             _transaction.Rollback();
