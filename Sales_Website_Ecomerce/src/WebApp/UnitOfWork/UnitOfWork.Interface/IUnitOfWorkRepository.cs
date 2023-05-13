@@ -8,5 +8,6 @@ namespace UnitOfWork.Interface
         IAccountRepository AccountRepository { get; }
         ICategoryRepository CategoryRepository { get; }
         ICartRepository CartRepository { get; }
+        IOrderRepository OrderRepository { get; }
     }
 }

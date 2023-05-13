@@ -22,7 +22,7 @@ namespace Repository.Implement
             if (CartID != 0) //Customer đã có cart
             {
                 //1.Check Product đã có trong Cart_Product
-                var reader = GetCartProduct(item.ProdutID, CartID);
+                var reader = GetCartProduct(item.ProductID, CartID);
 
                 reader.Read();
                 bool hasRows = reader.HasRows;
@@ -76,7 +76,7 @@ namespace Repository.Implement
         {
             SqlCommand command = CreateCommand("sp_UpdateCartProduct");
             command.Parameters.AddWithValue("@CartID", CartID);
-            command.Parameters.AddWithValue("@ProdutID", item.ProdutID);
+            command.Parameters.AddWithValue("@ProdutID", item.ProductID);
             command.Parameters.AddWithValue("@Quantity", item.Quantity);
             command.Parameters.AddWithValue("@StatusID", item.StatusID);
             command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -87,7 +87,7 @@ namespace Repository.Implement
         {
             SqlCommand command = CreateCommand("sp_InsertCartProduct");
             command.Parameters.AddWithValue("@CartID", CartID);
-            command.Parameters.AddWithValue("@ProdutID", item.ProdutID);
+            command.Parameters.AddWithValue("@ProdutID", item.ProductID);
             command.Parameters.AddWithValue("@Quantity", item.Quantity);
             command.Parameters.AddWithValue("@StatusID", item.StatusID);
             command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -146,6 +146,7 @@ namespace Repository.Implement
             while (reader.Read())
             {
                 var product = new CartModel();
+                product.ProductID = reader["ID"].ToString() ?? "";
                 product.ProductName = reader["Name"].ToString() ?? "";
                 product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
                 product.QuantityMax = string.IsNullOrEmpty(reader["QuantityMax"].ToString()) ? 0 : Convert.ToInt32(reader["QuantityMax"]);
@@ -161,13 +162,12 @@ namespace Repository.Implement
             return cart;
         }
 
-        public int Remove(CartRequestModel item, int cartID)
+        public int Remove(int ProdutID, int cartID)
         {
-            item.Quantity = 0;
             //1. Delete product in CartProduct
             var command = CreateCommand("sp_DeleteCartProduct");
             command.Parameters.AddWithValue("@CartID", cartID);
-            command.Parameters.AddWithValue("@ProdutID", item.ProdutID);
+            command.Parameters.AddWithValue("@ProdutID", ProdutID);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             if (command.ExecuteNonQuery() != 0)
             {

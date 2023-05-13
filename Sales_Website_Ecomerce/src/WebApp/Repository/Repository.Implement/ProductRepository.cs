@@ -43,7 +43,7 @@ namespace Repository.Implement
 
                 product=  new ProductResponeModel
                 {
-                    ProductID = reader["Name"].ToString() ?? "",
+                    ProductID = reader["ID"].ToString() ?? "",
                     Name = reader["Name"].ToString() ?? "",
                     Code = reader["Code"].ToString() ?? "",
                     Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]),

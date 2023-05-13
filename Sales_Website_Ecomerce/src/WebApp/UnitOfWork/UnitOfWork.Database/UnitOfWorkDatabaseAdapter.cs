@@ -1,5 +1,6 @@
 ﻿using System.Data.SqlClient;
 using UnitOfWork.Interface;
+using System.Runtime.Caching;
 
 namespace UnitOfWork.Database
 {
@@ -36,7 +37,13 @@ namespace UnitOfWork.Database
 
         public void SaveChanges()
         {
-            _transaction.Commit();
+            try
+            {
+                _transaction.Commit();
+            }
+            catch {
+                _transaction.Rollback();
+            }
         }
         public void DeleteChanges()
         {

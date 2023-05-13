@@ -51,7 +51,7 @@ namespace Services
             }
         }
 
-        public ResultModel Delete(CartRequestModel model, int cartID)
+        public ResultModel Delete(CartRequestModel item, int cartID)
         {
             //throw new NotImplementedException();
             try
@@ -61,7 +61,7 @@ namespace Services
                 {
                     try
                     {
-                        var result = context.Repositories.CartRepository.Remove(model, cartID);
+                        var result = context.Repositories.CartRepository.Remove(item.ProductID, cartID);
                         if (result == 0)
                         {
                             context.DeleteChanges();
