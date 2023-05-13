@@ -19,6 +19,13 @@ namespace Services
             {
                 //throw new NotImplementedException();
                 ResultModel outModel = new ResultModel();
+                if (item.Quantity <= 0)
+                {
+                    outModel.Message = "Hết hàng";
+                    outModel.StatusCode = "999";
+                    return outModel;
+                }
+
                 using (var context = _unitOfWork.Create())
                 {
                     try
