@@ -8,8 +8,6 @@ namespace Services
     public class OrderServices : IServices<OrderRequestModel, int>
     {
         private IUnitOfWork _unitOfWork;
-        private IUnitOfWorkAdapter context;
-
         public OrderServices(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -23,8 +21,8 @@ namespace Services
                 using (var context = _unitOfWork.Create())
                 {
                     //1. Insert table Order and OrderProduct
-                    var result = context.Repositories.OrderRepository.Create(model);
-                    if (result == 0)
+                    var OrderID = context.Repositories.OrderRepository.Create(model);
+                    if (OrderID <= 0)
                     {
                         context.DeleteChanges();
                         outModel.Message = "Thêm thất bại";
@@ -47,7 +45,11 @@ namespace Services
                             context.Repositories.ProductRepository.Update(productRequestModel, item.ProductID);
                         }
                         //5. Insert table notifications
-
+                        NotificationRequestModel notificationRequestModel = new NotificationRequestModel();
+                        notificationRequestModel.Status = 20;
+                        notificationRequestModel.Content = "Đơn hàng: " + OrderID + " cần xử lý.";
+                        context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                        //
 
                         context.SaveChanges();
                         outModel.Message = "Thêm thành công";

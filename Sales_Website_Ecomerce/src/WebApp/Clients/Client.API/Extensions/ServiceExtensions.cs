@@ -86,6 +86,7 @@ namespace Product.API.Extensions
             services.AddTransient<CategoryServices>();
             services.AddTransient<CartServices>();
             services.AddTransient<OrderServices>();
+            services.AddTransient<NotificationServices>();
             return services;
         }
     }

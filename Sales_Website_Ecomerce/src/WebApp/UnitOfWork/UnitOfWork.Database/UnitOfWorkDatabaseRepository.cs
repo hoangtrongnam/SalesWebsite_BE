@@ -12,7 +12,7 @@ namespace UnitOfWork.Database
         public ICategoryRepository CategoryRepository { get; }
         public ICartRepository CartRepository { get; }
         public IOrderRepository OrderRepository { get; }
-
+        public INotificationRepository NotificationRepository { get; }
 
         public UnitOfWorkDatabaseRepository(SqlConnection context, SqlTransaction transaction)
         {          
@@ -21,6 +21,7 @@ namespace UnitOfWork.Database
             CategoryRepository = new CategoryRepository(context, transaction);
             CartRepository = new CartRepository(context, transaction);
             OrderRepository = new OrderRepository(context, transaction);
+            NotificationRepository = new NotificationRepository(context, transaction);
         }
     }
 }

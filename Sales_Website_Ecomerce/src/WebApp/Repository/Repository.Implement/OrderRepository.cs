@@ -20,7 +20,7 @@ namespace Repository.Implement
             #region 1.1 Insert into table Order
             var command = CreateCommand("sp_InsertOrder");
             command.Parameters.AddWithValue("@CustomerID", item.CustomerID);
-            command.Parameters.AddWithValue("@Status", 1);
+            command.Parameters.AddWithValue("@Status", 10); //Có dơn hàng mới cần sale xác nhận
 
             //Thêm tham số đầu ra cho stored procedure
             SqlParameter outputParam = new SqlParameter("@OrderID", SqlDbType.Int);
@@ -58,7 +58,7 @@ namespace Repository.Implement
             parameter.SqlDbType = SqlDbType.Structured;
             #endregion
 
-            return command.ExecuteNonQuery();
+            return command.ExecuteNonQuery() > 0 ? orderID : command.ExecuteNonQuery();
         }
 
         //public CategoryResponseModel Get(int id)
