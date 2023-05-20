@@ -46,12 +46,5 @@ namespace UnitOfWork.Database
                 throw;
             }
         }
-
-
-
-        public void DeleteChanges()
-        {
-            _transaction.Rollback();
-        }
     }
 }

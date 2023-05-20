@@ -1,9 +1,10 @@
 ﻿using Models.RequestModel;
-using Repository.Interface.Actions;
+using Models.ResponseModels;
+using Repository.Interfaces.Actions;
 
 namespace Repository.Interface
 {
-    public interface IAccountRepository: ISignInRepository<SignInRequestModel,bool>
+    public interface IAccountRepository: ICreateRepository<UserRegisterRequestModel, int>, IUpdateRepository<UpdateUserCommonRequestModel, int>, IReadRepository<UserResponseModel, string>
     {
     }
 }

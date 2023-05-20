@@ -17,34 +17,34 @@ namespace Client.API.Controllers
             _cartService = cartService;
         }
 
-        [HttpGet("/FindCart/{CustomerID}")]
-        public ActionResult<ProductResponeModel> Get([Required] int CustomerID, [Required] int pageIndex)
-        {
-            return Ok(_cartService.Get(CustomerID, pageIndex));
-        }
-
-        //[HttpGet("/GetListProduct")]
-        //public ActionResult<ProductResponeModel> GetALL([Required] int pageIndex)
+        //[HttpGet("/FindCart/{CustomerID}")]
+        //public ActionResult<ProductResponeModel> Get([Required] int CustomerID, [Required] int pageIndex)
         //{
-        //    return Ok(_productService.GetAll(pageIndex));
+        //    return Ok(_cartService.Get(CustomerID, pageIndex));
         //}
 
-        [HttpPost("/AddCart")]
-        public ActionResult AddCart([FromBody][Required] CartRequestModel cart)
-        {
-            return Ok(_cartService.Create(cart));
-        }
+        ////[HttpGet("/GetListProduct")]
+        ////public ActionResult<ProductResponeModel> GetALL([Required] int pageIndex)
+        ////{
+        ////    return Ok(_productService.GetAll(pageIndex));
+        ////}
 
-        [HttpPut("/UpdateCart")]
-        public ActionResult UpdateCart([FromBody][Required] CartRequestModel item, [Required] int cartID)
-        {
-            return Ok(_cartService.Update(item, cartID));
-        }
+        //[HttpPost("/AddCart")]
+        //public ActionResult AddCart([FromBody][Required] CartRequestModel cart)
+        //{
+        //    return Ok(_cartService.Create(cart));
+        //}
 
-        [HttpDelete("/DeleteCart")]
-        public ActionResult DeleteCart([FromBody][Required] CartRequestModel item, [Required] int cartID)
-        {
-            return Ok(_cartService.Delete(item, cartID));
-        }
+        //[HttpPut("/UpdateCart")]
+        //public ActionResult UpdateCart([FromBody][Required] CartRequestModel item, [Required] int cartID)
+        //{
+        //    return Ok(_cartService.Update(item, cartID));
+        //}
+
+        //[HttpDelete("/DeleteCart")]
+        //public ActionResult DeleteCart([FromBody][Required] CartRequestModel item, [Required] int cartID)
+        //{
+        //    return Ok(_cartService.Delete(item, cartID));
+        //}
     }
 }

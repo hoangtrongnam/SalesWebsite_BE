@@ -1,7 +1,7 @@
 ﻿namespace Repository.Interfaces.Actions
 {
-    public interface ICreateRepository<T> where T : class
+    public interface ICreateRepository<T, Y> where T : class
     {
-        int Create(T item);
+        Y Create(T item);
     }
 }

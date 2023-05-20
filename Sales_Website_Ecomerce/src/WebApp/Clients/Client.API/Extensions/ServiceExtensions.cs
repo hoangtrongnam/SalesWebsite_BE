@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Services;
+using Services.Automapper;
 using System.Text;
 using UnitOfWork.Database;
 using UnitOfWork.Interface;
@@ -75,6 +77,8 @@ namespace Product.API.Extensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
                 };
             });
+
+            services.AddAutoMapper(typeof(MappingProfile));
             return services;
         }
 

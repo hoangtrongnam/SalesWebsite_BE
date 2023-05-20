@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Models.RequestModel;
-using Models.ResponseModels;
+using Models.RequestModel.Category;
 using Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace Client.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryServices _categoryService;
@@ -17,34 +17,25 @@ namespace Client.API.Controllers
             _categoryService = categoryServices;
         }
 
-        [HttpGet("/FindCategory/{id}")]
-        public ActionResult Get([Required] int id)
+        [HttpGet("GetCategoryByCondition")]
+        public async Task<ActionResult> GetCategoryByCondition([FromQuery] GetCategoryByID_ParentTenantRequestModel model)
         {
-            return Ok(_categoryService.Get(id));
+            var result = _categoryService.GetCategoryByID(model);
+            return Ok(result);
         }
 
-        [HttpGet("/GetListCategory")]
-        public ActionResult GetALL()
+        [HttpGet("GetCategotyTenantParent")]
+        public async Task<ActionResult> GetCategotyTenantParent([Required] int TenantID, [Required] int Parent)
         {
-            return Ok(_categoryService.GetAll());
+            var result = _categoryService.GetCategoryByTenantParent(TenantID, Parent);
+            return Ok(result);
         }
-
-        [HttpPost("/AddCategory")]
-        public ActionResult AddProduct([FromBody] CategoryRequestModel cate)
+        
+        [HttpPost("CreateCategory")]
+        public ActionResult CreateCategory([FromBody] CreateCategoryRequestModel model)
         {
-            return Ok(_categoryService.Create(cate));
-        }
-
-        [HttpPut("/UpdateCategory")]
-        public ActionResult UpdateProduct([FromBody] CategoryRequestModel cate, [Required] int CategoryID)
-        {
-            return Ok(_categoryService.Update(cate, CategoryID));
-        }
-
-        [HttpDelete("/DeleteCategory")]
-        public ActionResult DeleteProduct([Required] int id)
-        {
-            return Ok(_categoryService.Delete(id));
+            var result = _categoryService.CreateCategory(model);
+            return Ok(result);
         }
     }
 }

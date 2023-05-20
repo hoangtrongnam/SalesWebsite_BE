@@ -4,6 +4,5 @@
     {
         IUnitOfWorkRepository Repositories { get; }
         void SaveChanges();
-        void DeleteChanges();
     }
 }

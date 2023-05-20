@@ -1,162 +1,99 @@
-﻿using Models.RequestModel;
-using UnitOfWork.Interface;
+﻿using UnitOfWork.Interface;
 using Common;
 using Models.ResponseModels;
+using Models.RequestModel.Category;
+using AutoMapper;
 
 namespace Services
 {
     public interface ICategoryServices
     {
-        ResultModel GetAll();
-        ResultModel Get(int id);
-        ResultModel Create(CategoryRequestModel model);
-        ResultModel Update(CategoryRequestModel model, int CategoryID);
-        ResultModel Delete(int id);
+        ApiResponse<CategoryResponseModel> CreateCategory(CreateCategoryRequestModel model);
+        ApiResponse<CategoryResponseModel> GetCategoryByID(GetCategoryByID_ParentTenantRequestModel model);
+        ApiResponse<List<CategoryResponseModel>> GetCategoryByTenantParent(int TenantId, int Parent);
     }
     public class CategoryServices : ICategoryServices
     {
         private IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public CategoryServices(IUnitOfWork unitOfWork)
+        public CategoryServices(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
-        public ResultModel Create(CategoryRequestModel item)
+        /// <summary>
+        /// CreateCategory Service
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public ApiResponse<CategoryResponseModel> CreateCategory(CreateCategoryRequestModel model)
         {
-            //throw new NotImplementedException();
-            try
+            using (var context = _unitOfWork.Create())
             {
-                using (var context = _unitOfWork.Create())
+                var modelGetCategoryByName = new GetCategoryCommonRequestModel()
                 {
-                    ResultModel outModel = new ResultModel();
-                    var result = context.Repositories.CategoryRepository.Create(item);
-                    if (result == 0)
-                    {
-                        //Console.WriteLine("Add thất bại");
-                        outModel.Message = "Thêm thất bại";
-                        outModel.StatusCode = "999";
-                    }
-                    else
-                    {
-                        context.SaveChanges();
-                        //Console.WriteLine("Đã Add {0} bản ghi.", rowsAffected);
-                        outModel.Message = "Thêm thành công";
-                        outModel.StatusCode = "200";
-                    }
-                    return outModel;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+                    Name = model.Name,
+                    TenantID = model.TenantID,
+                    Parent = model.Parent
+                };
+                var tenant = context.Repositories.TenantRepository.Get(model.TenantID);
+                if(tenant == null)
+                    return ApiResponse<CategoryResponseModel>.ErrorResponse("Tenant Doest not Exists");
 
-        public ResultModel Delete(int id)
-        {
-            //throw new NotImplementedException();
-            try
-            {
-                using (var context = _unitOfWork.Create())
-                {
-                    ResultModel outModel = new ResultModel();
-                    var result = context.Repositories.CategoryRepository.Remove(id);
-                    if (result == 0)
-                    {
-                        outModel.Message = "Xóa thất bại";
-                        outModel.StatusCode = "999";
-                    }
-                    else
-                    {
-                        context.SaveChanges();
-                        outModel.Message = "Xóa thành công";
-                        outModel.StatusCode = "200";
-                    }
-                    return outModel;
-                }
+                var category = context.Repositories.CategoryRepository.Get(modelGetCategoryByName);
+                if(category != null)
+                    return ApiResponse<CategoryResponseModel>.ErrorResponse("Category Already Exists");
 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
+                var result = context.Repositories.CategoryRepository.Create(model);
+                context.SaveChanges();
+
+                if(result == null)
+                    return ApiResponse<CategoryResponseModel>.ErrorResponse("Create Categoty Fail");
+                
+                return ApiResponse<CategoryResponseModel>.SuccessResponse(result);
             }
         }
-
-        public ResultModel Get(int id)
+        /// <summary>
+        /// Get category by ID
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public ApiResponse<CategoryResponseModel> GetCategoryByID(GetCategoryByID_ParentTenantRequestModel model)
         {
-            try
+            var modelMap = _mapper.Map<GetCategoryCommonRequestModel>(model);
+            using (var context = _unitOfWork.Create())
             {
-                using (var context = _unitOfWork.Create())
+                var result = context.Repositories.CategoryRepository.Get(modelMap);
+                if (result == null)
                 {
-                    ResultModel outModel = new ResultModel();
-                    CategoryResponseModel result = context.Repositories.CategoryRepository.Get(id);
-                    if (string.IsNullOrEmpty(result.Name))
-                    {
-                        outModel.Message = "tìm sản phẩm thất bại";
-                        outModel.StatusCode = "999";
-                    }
-                    else
-                    {
-                        outModel.Message = "tìm sản phẩm thành công";
-                        outModel.StatusCode = "200";
-                        outModel.DATA = result.Name;
-                    }
-                    return outModel;
+                    return ApiResponse<CategoryResponseModel>.ErrorResponse("Category is not found");
                 }
+
+                return ApiResponse<CategoryResponseModel>.SuccessResponse(result);
             }
-            catch (Exception ex) { throw new Exception(ex.Message); }
         }
-
-        public ResultModel GetAll()
+        /// <summary>
+        /// GetCategoryByTenantParent service
+        /// </summary>
+        /// <param name="TenantId"></param>
+        /// <param name="Parent"></param>
+        /// <returns></returns>
+        public ApiResponse<List<CategoryResponseModel>> GetCategoryByTenantParent(int TenantId, int Parent)
         {
-            try
+            using (var context = _unitOfWork.Create())
             {
-                using (var context = _unitOfWork.Create())
+                var modelGetCategoryTenantParent = new GetCategoryCommonRequestModel()
                 {
-                    ResultModel outModel = new ResultModel();
-                    List<CategoryResponseModel> result = context.Repositories.CategoryRepository.GetAll();
-                    if (result.Count ==0)
-                    {
-                        outModel.Message = "tìm danh sách sản phẩm thất bại";
-                        outModel.StatusCode = "999";
-                    }
-                    else
-                    {
-                        outModel.Message = "tìm danh sáchsản phẩm thành công";
-                        outModel.StatusCode = "200";
-                        outModel.DATA = result;
-                    }
-                    return outModel;
-                }
-            }
-            catch (Exception ex) { throw new Exception(ex.Message); }
-        }
+                    TenantID = TenantId,
+                    Parent = Parent
+                };
+                var result = context.Repositories.CategoryRepository.GetAll(modelGetCategoryTenantParent);
 
-        public ResultModel Update(CategoryRequestModel item, int CategoryID)
-        {
-            try
-            {
-                using (var context = _unitOfWork.Create())
-                {
-                    ResultModel outModel = new ResultModel();
-                    var result = context.Repositories.CategoryRepository.Update(item, CategoryID);
-                    if (result == 0)
-                    {
-                        outModel.Message = "Sửa thất bại";
-                        outModel.StatusCode = "999";
-                    }
-                    else
-                    {
-                        context.SaveChanges();
-                        outModel.Message = "Sửa thành công";
-                        outModel.StatusCode = "200";
-                    }
-                    return outModel;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
+                if (result == null)
+                    return ApiResponse<List<CategoryResponseModel>>.ErrorResponse("No Data");
+
+                return ApiResponse<List<CategoryResponseModel>>.SuccessResponse(result);
             }
         }
     }

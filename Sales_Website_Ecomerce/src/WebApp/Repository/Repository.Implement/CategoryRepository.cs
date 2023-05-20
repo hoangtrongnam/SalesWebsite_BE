@@ -1,7 +1,8 @@
-﻿using Models.RequestModel;
+﻿using Dapper;
+using Models.RequestModel.Category;
 using Models.ResponseModels;
 using Repository.Interface;
-using Repository.Interfaces.Actions;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace Repository.Implement
@@ -13,90 +14,63 @@ namespace Repository.Implement
             this._context = context;
             this._transaction = _transaction;
         }
-
-        public int Create(CategoryRequestModel item)
+        /// <summary>
+        /// Create Category
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public CategoryResponseModel Create(CreateCategoryRequestModel item)
         {
-            //throw new NotImplementedException();
-            var command = CreateCommand("sp_InsertCategory");
-            command.Parameters.AddWithValue("@Name", item.Name);
-
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-
-            return command.ExecuteNonQuery();
-        }
-
-        public CategoryResponseModel Get(int id)
-        {
-            var command = CreateCommand("sp_GetCategoryById");
-            command.Parameters.AddWithValue("@categoryId", id);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-
-            using (var reader = command.ExecuteReader())
+            var parameters = new DynamicParameters(new
             {
-                reader.Read();
-                //ResultModel result = new ResultModel();
-                CategoryResponseModel categoryResponseModel = new CategoryResponseModel();
-                categoryResponseModel.Name = reader["Name"].ToString() ?? "";
+                Parent = item.Parent,
+                Name = item.Name,
+                TenantID = item.TenantID,
+                Description = item.Description,
+                CreateBy = item.CreateBy
+            });
 
-                return categoryResponseModel;
-            };
+            var result = QueryFirstOrDefault<CategoryResponseModel>("SP_Create_Category", parameters, commandType: CommandType.StoredProcedure);
+
+            return result;
         }
-
-        public CategoryResponseModel Get(int id, int pageIndex)
+        /// <summary>
+        /// Get categoy by condition
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public CategoryResponseModel Get(GetCategoryCommonRequestModel item)
         {
-            throw new NotImplementedException();
-        }
-
-        public List<CategoryResponseModel> GetAll()
-        {
-            var command = CreateCommand("sp_GetAllCategory");
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-
-            var lstCate = new List<CategoryResponseModel>();
-
-            using (var reader = command.ExecuteReader())
+            var parameters = new DynamicParameters(new
             {
-                while (reader.Read())
-                {
-                    CategoryResponseModel categoryResponseModel = new CategoryResponseModel();
-                    categoryResponseModel.Name = reader["Name"].ToString(); 
-                    lstCate.Add(categoryResponseModel);
-                }
-            };
-            return lstCate;
+                Parent = item.Parent,
+                Name = item.Name,
+                TenantID = item.TenantID,
+                ID = item.ID,
+            });
+            var result = QueryFirstOrDefault<CategoryResponseModel>("SP_Get_CategoryTenantByID_Or_Name", parameters, commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+        /// <summary>
+        /// Get category by tenant, parent
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public List<CategoryResponseModel> GetAll(GetCategoryCommonRequestModel item)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                Parent = item.Parent,              
+                TenantID = item.TenantID,             
+            });
+            var result = Query<CategoryResponseModel>("SP_Get_CategoryTenantParent", parameters, commandType: CommandType.StoredProcedure).ToList();
+            return result;
         }
 
-        public List<CategoryResponseModel> GetAll(int pageIndex)
+        public CategoryResponseModel Get(GetCategoryCommonRequestModel id, GetCategoryCommonRequestModel pageIndex)
         {
             throw new NotImplementedException();
-        }
-
-        public int Remove(int id)
-        {
-            //throw new NotImplementedException();
-            var command = CreateCommand("sp_DeleteCategoryAndProducts");
-            command.Parameters.AddWithValue("@CategoryId", id);
-
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-
-            return command.ExecuteNonQuery();
-        }
-
-        public int Remove(CategoryRequestModel item, int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Update(CategoryRequestModel item, int CategoryID)
-        {
-            //throw new NotImplementedException();
-            var command = CreateCommand("sp_UpdateCategory");
-            command.Parameters.AddWithValue("@categoryId", CategoryID);
-            command.Parameters.AddWithValue("@Name", item.Name);
-
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-
-            return command.ExecuteNonQuery();
         }
     }
 }
