@@ -4,6 +4,8 @@ using Repository.Interface;
 using Repository.Interfaces.Actions;
 using System.Data;
 using System.Data.SqlClient;
+using System.Reflection.PortableExecutable;
+using static Models.ResponseModels.OrderResponseModel;
 
 namespace Repository.Implement
 {
@@ -61,78 +63,134 @@ namespace Repository.Implement
             return command.ExecuteNonQuery() > 0 ? orderID : command.ExecuteNonQuery();
         }
 
-        //public CategoryResponseModel Get(int id)
-        //{
-        //    var command = CreateCommand("sp_GetCategoryById");
-        //    command.Parameters.AddWithValue("@categoryId", id);
-        //    command.CommandType = System.Data.CommandType.StoredProcedure;
+        public OrderResponseModel Get(int orderID)
+        {
+            OrderResponseModel orderResponseModel = new OrderResponseModel();
+            //1. Get customer info
 
-        //    using (var reader = command.ExecuteReader())
-        //    {
-        //        reader.Read();
-        //        //ResultModel result = new ResultModel();
-        //        CategoryResponseModel categoryResponseModel = new CategoryResponseModel();
-        //        categoryResponseModel.Name = reader["Name"].ToString() ?? "";
+            //2. Get Oder Info
+            orderResponseModel = GetOrderInfo(orderID);
 
-        //        return categoryResponseModel;
-        //    };
-        //}
+            //3. Get Order Detail
+            orderResponseModel.lstProduct = GetOrderDetail(orderID, out decimal totalPayment).lstProduct;
+            orderResponseModel.TotalPayment = totalPayment;
 
-        //public CategoryResponseModel Get(int id, int pageIndex)
-        //{
-        //    throw new NotImplementedException();
-        //}
+            return orderResponseModel;
+        }
 
-        //public List<CategoryResponseModel> GetAll()
-        //{
-        //    var command = CreateCommand("sp_GetAllCategory");
-        //    command.CommandType = System.Data.CommandType.StoredProcedure;
+        public OrderResponseModel GetOrderInfo(int orderID)
+        {
+            var command = CreateCommand("sp_GetOrderById");
+            command.Parameters.AddWithValue("@OrderID", orderID);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            OrderResponseModel orderResponseModel = new OrderResponseModel();
 
-        //    var lstCate = new List<CategoryResponseModel>();
+            using (var reader = command.ExecuteReader())
+            {
+                reader.Read();
+                //ResultModel result = new ResultModel();
+                orderResponseModel.OrderID = reader["OrderID"].ToString() ?? "";
+                orderResponseModel.CustomerID = reader["CustomerID"].ToString() ?? "";
+                orderResponseModel.DepositAmount = reader["DepositAmount"].ToString() ?? "";
+                orderResponseModel.Note = reader["Note"].ToString() ?? "";
+                orderResponseModel.Status = reader["Status"].ToString() ?? "";
+                orderResponseModel.CreateDate = reader["CreateDate"].ToString() ?? "";
 
-        //    using (var reader = command.ExecuteReader())
-        //    {
-        //        while (reader.Read())
-        //        {
-        //            CategoryResponseModel categoryResponseModel = new CategoryResponseModel();
-        //            categoryResponseModel.Name = reader["Name"].ToString();
-        //            lstCate.Add(categoryResponseModel);
-        //        }
-        //    };
-        //    return lstCate;
-        //}
+                reader.Close();
+            };
+            return orderResponseModel;
+        }
 
-        //public List<CategoryResponseModel> GetAll(int pageIndex)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public OrderResponseModel GetOrderDetail(int orderID, out decimal totalPayment)
+        {
+            OrderResponseModel orderResponseModel = GetOrderProduct(orderID);
+            totalPayment = orderResponseModel.TotalPayment;
 
-        //public int Remove(int id)
-        //{
-        //    //throw new NotImplementedException();
-        //    var command = CreateCommand("sp_DeleteCategoryAndProducts");
-        //    command.Parameters.AddWithValue("@CategoryId", id);
+            return orderResponseModel;
+        }
 
-        //    command.CommandType = System.Data.CommandType.StoredProcedure;
+        public List<OrderResponseModel> GetAll(int pageIndex)
+        {
+            throw new NotImplementedException();
+        }
 
-        //    return command.ExecuteNonQuery();
-        //}
+        public List<OrderResponseModel> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public OrderResponseModel Get(int id, int pageIndex)
+        {
+            throw new NotImplementedException();
+        }
+        public int Remove(int OrderID)
+        {
+            //1. Delete OrderProducts
+            var command = CreateCommand("sp_DeleteOrderProducts");
+            command.Parameters.AddWithValue("@OrderID", OrderID);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            if (command.ExecuteNonQuery() > 0)
+            {
+                //2. Delete Orders
+                command = CreateCommand("sp_DeleteOrders");
+                command.Parameters.AddWithValue("@OrderID", OrderID);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                return command.ExecuteNonQuery();
+            }
+            else return 0; //Delete OrderProducts: Error
+        }
 
         //public int Remove(CategoryRequestModel item, int id)
         //{
         //    throw new NotImplementedException();
         //}
 
-        //public int Update(CategoryRequestModel item, int CategoryID)
-        //{
-        //    //throw new NotImplementedException();
-        //    var command = CreateCommand("sp_UpdateCategory");
-        //    command.Parameters.AddWithValue("@categoryId", CategoryID);
-        //    command.Parameters.AddWithValue("@Name", item.Name);
+        public int Update(OrderRequestModel item, int orderID)
+        {
+            var command = CreateCommand("sp_UpdateOrder");
+            command.Parameters.AddWithValue("@DepositAmount", item.DepositAmount);
+            command.Parameters.AddWithValue("@Note", item.Note);
+            command.Parameters.AddWithValue("@Status", item.Status);
+            command.Parameters.AddWithValue("@OrderID", orderID);
 
-        //    command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.CommandType = System.Data.CommandType.StoredProcedure;
 
-        //    return command.ExecuteNonQuery();
-        //}
+            return command.ExecuteNonQuery();
+        }
+
+        private OrderResponseModel GetOrderProduct(int orderID)
+        {
+            var command = CreateCommand("sp_GetOrderDetailById");
+            command.Parameters.AddWithValue("@OrderID", orderID);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            OrderResponseModel orderResponseModel = new OrderResponseModel();
+
+            List<Product> lstProduct = new List<Product>();
+            decimal totalPayment = 0;
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Product product = new Product();
+                    product.ProductID = string.IsNullOrEmpty(reader["ProductID"].ToString()) ? 0 : Convert.ToInt32(reader["ProductID"]);
+                    //product.Name = reader["Name"].ToString() ?? "";
+                    //product.Code = reader["Code"].ToString() ?? "";
+                    product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
+                    product.Price = string.IsNullOrEmpty(reader["Price"].ToString()) ? 0 : Convert.ToDecimal(reader["Price"]);
+                    totalPayment += product.Quantity * product.Price;
+
+                    lstProduct.Add(product);
+                }
+                reader.Close();
+            }
+            orderResponseModel.TotalPayment = totalPayment;
+            orderResponseModel.lstProduct = lstProduct;
+
+            return orderResponseModel;
+        }
+        public int Remove(OrderRequestModel item, int OrderID)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

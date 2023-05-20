@@ -60,32 +60,23 @@ namespace Services
 
         public ResultModel Delete(CartRequestModel item, int cartID)
         {
-            //throw new NotImplementedException();
             try
             {
                 ResultModel outModel = new ResultModel();
                 using (var context = _unitOfWork.Create())
                 {
-                    try
-                    {
-                        var result = context.Repositories.CartRepository.Remove(item.ProductID, cartID);
-                        if (result == 0)
-                        {
-                            context.DeleteChanges();
-                            outModel.Message = "Xóa thất bại";
-                            outModel.StatusCode = "999";
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-                            outModel.Message = "Xóa thành công";
-                            outModel.StatusCode = "200";
-                        }
-                    }
-                    catch (Exception ex)
+                    var result = context.Repositories.CartRepository.Remove(item.ProductID, cartID);
+                    if (result <= 0)
                     {
                         context.DeleteChanges();
-                        throw new Exception(ex.Message);
+                        outModel.Message = "Xóa thất bại";
+                        outModel.StatusCode = "999";
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                        outModel.Message = "Xóa thành công";
+                        outModel.StatusCode = "200";
                     }
                 }
                 return outModel;

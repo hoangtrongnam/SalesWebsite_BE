@@ -3,6 +3,9 @@ using Models.RequestModel;
 using Models.ResponseModels;
 using Services;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Client.API.Controllers
 {
@@ -17,11 +20,11 @@ namespace Client.API.Controllers
             _orderService = orderServices;
         }
 
-        //[HttpGet("/FindCategory/{id}")]
-        //public ActionResult Get([Required] int id)
-        //{
-        //    return Ok(_categoryService.Get(id));
-        //}
+        [HttpGet("/FindOrder/{OrderID}")]
+        public ActionResult Get([Required] int OrderID)
+        {
+            return Ok(_orderService.Get(OrderID));
+        }
 
         //[HttpGet("/GetListCategory")]
         //public ActionResult GetALL()
@@ -30,21 +33,41 @@ namespace Client.API.Controllers
         //}
 
         [HttpPost("/AddOrder")]
-        public ActionResult AddProduct([FromBody] OrderRequestModel cate)
+        public ActionResult AddOrder([FromBody] OrderRequestModel item)
         {
-            return Ok(_orderService.Create(cate));
+            return Ok(_orderService.Create(item));
         }
 
-        //[HttpPut("/UpdateCategory")]
-        //public ActionResult UpdateProduct([FromBody] CategoryRequestModel cate, [Required] int CategoryID)
-        //{
-        //    return Ok(_categoryService.Update(cate, CategoryID));
-        //}
+        [HttpPut("/UpdateOrder")]
+        public ActionResult UpdateOrder([FromBody] OrderRequestModel item, [Required] int OrderID)
+        {
+            /*
+            10	Có dơn hàng mới cần xác nhận
+            11	Sale xác nhận tiền cọc và đợn hàng thành công
+            12	Sale không liên hệ được với KH
+            13	số tiền cọc không đúng (kế toán)
+            14	Kế toán xác nhận đủ tiền cọc
+             	Sale hủy Đơn hàng 
+             */
 
-        //[HttpDelete("/DeleteCategory")]
-        //public ActionResult DeleteProduct([Required] int id)
-        //{
-        //    return Ok(_categoryService.Delete(id));
-        //}
+            return Ok(_orderService.Update(item, OrderID));
+        }
+
+        [HttpDelete("/DeleteOrder")]
+        public ActionResult DeleteOrder([Required] int OrderID)
+        {
+            OrderResponseModel orderResponseModel = _orderService.GetlistProduct(OrderID);
+            OrderRequestModel orderRequestModel = new OrderRequestModel();
+            var lstProduct = new List<ProductModel>();
+            foreach (var item in orderResponseModel.lstProduct)
+            {
+                var product = new ProductModel();
+                product.ProductID = item.ProductID;
+                product.Quantity = item.Quantity;
+                lstProduct.Add(product);
+            }
+            orderRequestModel.lstProduct = lstProduct;
+            return Ok(_orderService.Delete(orderRequestModel, OrderID));
+        }
     }
 }

@@ -5,6 +5,7 @@ using Models.RequestModel;
 using Models.ResponseModels;
 using Services;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 
 namespace Client.API.Controllers.V1
 {
@@ -40,10 +41,23 @@ namespace Client.API.Controllers.V1
         {
             //Note: 1: sale, 2: accountant, 3: warehouse staff, 4: customer
             NotificationRequestModel model = new NotificationRequestModel();
-            if (role == 1) model.Status = 21;
-            else if (role == 2) model.Status = 23;
-            else if (role == 3) model.Status = 24;
-            else if (role == 4) model.Status = 25;
+           
+            switch (role)
+            {
+                case 1:
+                    model.Status = 21;
+                    break;
+                case 2:
+                    model.Status = 23;
+                    break;
+                case 3:
+                    model.Status = 25;
+                    break;
+                case 4:
+                    model.Status = 27;
+                    break;
+            }
+
             return Ok(_notificationService.Update(model, notificationID));
         }
     }

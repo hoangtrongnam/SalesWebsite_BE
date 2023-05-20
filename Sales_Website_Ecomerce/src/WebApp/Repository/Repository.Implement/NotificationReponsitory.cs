@@ -19,7 +19,7 @@ namespace Repository.Implement
 
         public int Create(NotificationRequestModel item)
         {
-            var command = CreateCommand("sp_Notification");
+            var command = CreateCommand("sp_InsertNotification");
             command.Parameters.AddWithValue("@Note", item.Note);
             command.Parameters.AddWithValue("@Content", item.Content);
             command.Parameters.AddWithValue("@Status", item.Status);
@@ -36,7 +36,7 @@ namespace Repository.Implement
 
         public NotificationResponseModel Get(int role, int pageIndex)
         {
-            //Note: 1: sale, 2: accountant, 3: warehouse staff, 4: customer
+            //Note: Role = 1: sale, 2: accountant, 3: warehouse staff, 4: customer
             var command = CreateCommand("sp_GetPagedNotifications");
             command.Parameters.AddWithValue("@Role", role);
             command.Parameters.AddWithValue("@PageIndex", pageIndex);
@@ -56,12 +56,14 @@ namespace Repository.Implement
             using (var reader = command.ExecuteReader())
             {
                 var lstNotification = new List<Notification>();
+                List<int> lstStatusNew = new List<int> { 20, 22, 24, 26 };
                 while (reader.Read())
                 {
                     var notification = new Notification
                     {
                         NotificationID = string.IsNullOrEmpty(reader["NotificationID"].ToString()) ? 0 : Convert.ToInt32(reader["NotificationID"]),
                         Content = reader["Content"].ToString() ?? "",
+                        NewNotification = lstStatusNew.Contains(string.IsNullOrEmpty(reader["Status"].ToString()) ? 0 : Convert.ToInt32(reader["Status"])),
                     };
                     lstNotification.Add(notification);
                 }

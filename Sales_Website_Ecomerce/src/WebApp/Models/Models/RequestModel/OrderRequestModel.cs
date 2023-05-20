@@ -10,7 +10,6 @@ namespace Models.RequestModel
         public int Quantity { get; set; }
         [Required]
         public decimal Price { get; set; }
-        //public decimal TotalPrice { get; set; }
     }
     public class OrderRequestModel
     {
@@ -18,7 +17,10 @@ namespace Models.RequestModel
         public int CartID { get; set; }
         [Required]
         public int CustomerID { get; set; }
-        //public decimal TotalPayment { get; set; }
+        public decimal DepositAmount { get; set; }
+        public string Note { get; set; }
+        [Required]
+        public int Status { get; set; }
         [Required]
         public List<ProductModel> lstProduct { get; set; }
     }

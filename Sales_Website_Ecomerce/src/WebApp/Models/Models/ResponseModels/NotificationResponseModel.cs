@@ -9,6 +9,7 @@
         {
             public int NotificationID { get; set; }
             public string? Content { get; set; }
+            public Boolean? NewNotification { get; set; }
 
         }
     }
