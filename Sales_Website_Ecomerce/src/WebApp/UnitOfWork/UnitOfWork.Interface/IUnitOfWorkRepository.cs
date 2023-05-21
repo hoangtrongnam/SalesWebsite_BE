@@ -10,5 +10,6 @@ namespace UnitOfWork.Interface
         ICartRepository CartRepository { get; }
         IOrderRepository OrderRepository { get; }
         INotificationRepository NotificationRepository { get; }
+        IJobScheduleRepository JobScheduleRepository { get; }
     }
 }

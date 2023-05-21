@@ -13,7 +13,7 @@ namespace UnitOfWork.Database
         public ICartRepository CartRepository { get; }
         public IOrderRepository OrderRepository { get; }
         public INotificationRepository NotificationRepository { get; }
-
+        public IJobScheduleRepository JobScheduleRepository { get; }
         public UnitOfWorkDatabaseRepository(SqlConnection context, SqlTransaction transaction)
         {          
             ProductRepository = new ProductRepository(context, transaction);
@@ -22,6 +22,7 @@ namespace UnitOfWork.Database
             CartRepository = new CartRepository(context, transaction);
             OrderRepository = new OrderRepository(context, transaction);
             NotificationRepository = new NotificationRepository(context, transaction);
+            JobScheduleRepository = new JobScheduleRepository(context, transaction);
         }
     }
 }

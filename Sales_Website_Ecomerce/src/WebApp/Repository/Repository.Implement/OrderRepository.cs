@@ -1,10 +1,8 @@
 ﻿using Models.RequestModel;
 using Models.ResponseModels;
 using Repository.Interface;
-using Repository.Interfaces.Actions;
 using System.Data;
 using System.Data.SqlClient;
-using System.Reflection.PortableExecutable;
 using static Models.ResponseModels.OrderResponseModel;
 
 namespace Repository.Implement
@@ -82,6 +80,7 @@ namespace Repository.Implement
         {
             var command = CreateCommand("sp_GetOrderById");
             command.Parameters.AddWithValue("@OrderID", orderID);
+            command.Parameters.AddWithValue("@Status", -1);//get all
             command.CommandType = System.Data.CommandType.StoredProcedure;
             OrderResponseModel orderResponseModel = new OrderResponseModel();
 
@@ -96,6 +95,42 @@ namespace Repository.Implement
                 orderResponseModel.Status = reader["Status"].ToString() ?? "";
                 orderResponseModel.CreateDate = reader["CreateDate"].ToString() ?? "";
 
+                reader.Close();
+            };
+            return orderResponseModel;
+        }
+
+        public OrderResponseModel GetLstOrder(int Status)
+        {
+            var command = CreateCommand("sp_GetListOrder");
+            command.Parameters.AddWithValue("@Status", Status);
+
+            //Thêm tham số đầu ra cho stored procedure
+            SqlParameter outputParam = new SqlParameter("@OrderList", SqlDbType.VarChar, 8000);
+            outputParam.Direction = ParameterDirection.Output;
+            command.Parameters.Add(outputParam);
+
+            command.CommandType = CommandType.StoredProcedure;
+            command.ExecuteNonQuery();
+
+            OrderResponseModel orderResponseModel = new OrderResponseModel();
+            List<Product> lstProducts = new List<Product>();
+
+            //Lấy giá trị đầu ra từ tham số đầu ra
+            orderResponseModel.OrderID = (string)outputParam.Value;
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Product product = new Product();
+                    product.ProductID = string.IsNullOrEmpty(reader["ProductID"].ToString()) ? 0 : Convert.ToInt32(reader["ProductID"]);
+                    product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
+
+                    lstProducts.Add(product);
+                }
+                orderResponseModel.lstProduct = lstProducts;
+                
                 reader.Close();
             };
             return orderResponseModel;
@@ -119,7 +154,7 @@ namespace Repository.Implement
             throw new NotImplementedException();
         }
 
-        public OrderResponseModel Get(int id, int pageIndex)
+        public OrderResponseModel Get(int orderID, int pageIndex)
         {
             throw new NotImplementedException();
         }
