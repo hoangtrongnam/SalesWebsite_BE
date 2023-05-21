@@ -82,6 +82,17 @@ namespace Services
             if (nameJob == JobName.RejectOrder.ToString())
             {
                 await scheduler.UnscheduleJob(new TriggerKey("TriggerRejectOrder", "OrderGroup"));
+
+                using (var contextUOF = _unitOfWork.Create())
+                {
+                    JobRequestModel jobRequestModel = new JobRequestModel();
+                    jobRequestModel.Status = ConstParamClass.StatusSuccess;
+                    jobRequestModel.JobName = JobName.RejectOrder.ToString();
+                    jobRequestModel.Content = "Stopped";
+                    contextUOF.Repositories.JobScheduleRepository.Create(jobRequestModel);
+
+                    contextUOF.SaveChanges();
+                }
             }
             else
             {
@@ -154,6 +165,7 @@ namespace Services
                     //5. Ghi table history Job (Status = thanh cong)
                     jobRequestModel.Status = ConstParamClass.StatusSuccess;
                     jobRequestModel.JobName = JobName.RejectOrder.ToString();
+                    jobRequestModel.Content = "Started";
                     contextUOF.Repositories.JobScheduleRepository.Create(jobRequestModel);
 
                     contextUOF.SaveChanges();
