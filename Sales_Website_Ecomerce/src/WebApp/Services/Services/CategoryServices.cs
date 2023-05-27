@@ -1,8 +1,8 @@
 ﻿using UnitOfWork.Interface;
 using Common;
-using Models.ResponseModels;
 using Models.RequestModel.Category;
 using AutoMapper;
+using Models.ResponseModels.Category;
 
 namespace Services
 {

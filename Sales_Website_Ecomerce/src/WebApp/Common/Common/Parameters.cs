@@ -2,7 +2,7 @@
 {
     public class Parameters
     {
-        public const string ConnectionString = "Server=W010900136619\\MSSQLSERVER02;Initial Catalog=Sales_Website_DB;Integrated Security=True;";
+        public const string ConnectionString = "Data Source=156.67.216.141;Initial Catalog=Sales_Website_DB_Dev;User ID=sa;Password=Ban@180296";
 
         //login information demo
         public const string EmailAddress = "admin@gmail.com";

@@ -1,165 +1,161 @@
-﻿using Models.RequestModel;
-using UnitOfWork.Interface;
+﻿using UnitOfWork.Interface;
 using Common;
+using Models.RequestModel.Product;
+using Models.RequestModel.Category;
+using Models.ResponseModels.Product;
+using AutoMapper;
 
 namespace Services
 {
     public interface IProductServices
     {
-        //ResultModel GetAll(int pageIndex);
-        //ResultModel Get(int id);
-        //ResultModel Create(ProductRequestModel model);
-        //ResultModel Update(ProductRequestModel model, int productID);
-        //ResultModel Delete(int id);
+        ApiResponse<int> CreateProduct(CreateOnlyProductRequestModel model);
+        ApiResponse<int> CreateImages(List<ImageRequestModel> listImage);
+        ApiResponse<int> CreatePrices(List<PriceRequestModel> listPrice);
+        ApiResponse<ProductResponseModel> GetProductByID(int id);
+        ApiResponse<List<ImageResponseModel>> GetImagesByProductID(int ProductID);
+        ApiResponse<List<PriceResponseModel>> GetPricesByProductID(int ProductID);
     }
     public class ProductServices : IProductServices
     {
         private IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public ProductServices(IUnitOfWork unitOfWork)
+        public ProductServices(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
-        //public ResultModel Create(ProductRequestModel item)
-        //{
-        //    try
-        //    {
-        //        //throw new NotImplementedException();
-        //        ResultModel outModel = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            var result = context.Repositories.ProductRepository.Create(item);
-        //            if (result == 0)
-        //            {
-        //                outModel.Message = "Thêm thất bại";
-        //                outModel.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                context.SaveChanges();
-        //                outModel.Message = "Thêm thành công";
-        //                outModel.StatusCode = "200";
-        //            }
-        //        }
-        //        return outModel;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+        /// <summary>
+        /// Create multiple images
+        /// </summary>
+        /// <param name="listImage"></param>
+        /// <returns></returns>
+        public ApiResponse<int> CreateImages(List<ImageRequestModel> listImage)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                foreach(var item in listImage)
+                {
+                    var product = context.Repositories.ProductRepository.Get(item.ProductID);
+                    if(product == null)
+                        return ApiResponse<int>.ErrorResponse($"Product {item.ProductID} does not exists.");
+                }
+                
+                //Create multiple image 
+                var result = context.Repositories.ProductRepository.Create(listImage);
+                if (result <= 0)
+                    return ApiResponse<int>.ErrorResponse("Create images Fail");
 
-        //public ResultModel Delete(int id)
-        //{
-        //    //throw new NotImplementedException();
-        //    try
-        //    {
-        //        ResultModel outModel = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            var result = context.Repositories.ProductRepository.Remove(id);
-        //            if (result == 0)
-        //            {
-        //                outModel.Message = "Xóa thất bại";
-        //                outModel.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                context.SaveChanges();
-        //                outModel.Message = "Xóa thành công";
-        //                outModel.StatusCode = "200";
-        //            }
-        //        }
-        //        return outModel;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+                context.SaveChanges();
+                return ApiResponse<int>.SuccessResponse(result);
+            }
+        }
+        /// <summary>
+        /// Create multiple prices
+        /// </summary>
+        /// <param name="listPrice"></param>
+        /// <returns></returns>
+        public ApiResponse<int> CreatePrices(List<PriceRequestModel> listPrice)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                foreach (var item in listPrice)
+                {
+                    var product = context.Repositories.ProductRepository.Get(item.ProductID);
+                    if (product == null)
+                        return ApiResponse<int>.ErrorResponse($"Product {item.ProductID} does not exists.");
+                }
 
-        //public ResultModel Get(int id)
-        //{
-        //    try
-        //    {
-        //        ResultModel outModel = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            var result = context.Repositories.ProductRepository.Get(id);
-        //            if (string.IsNullOrEmpty(result.ProductID))
-        //            {
-        //                outModel.Message = "Tìm sản phấm thất bại";
-        //                outModel.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                outModel.Message = "Tìm sản phấm thành công";
-        //                outModel.StatusCode = "200";
-        //                outModel.DATA = result;
-        //            }
-        //        }
-        //        return outModel;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+                //Create multiple Price 
+                var result = context.Repositories.ProductRepository.Create(listPrice);
+                if (result <= 0)
+                    return ApiResponse<int>.ErrorResponse("Create prices Fail");
 
-        //public ResultModel GetAll(int pageIndex)
-        //{
-        //    try
-        //    {
-        //        ResultModel outModel = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            var result = context.Repositories.ProductRepository.GetAll(pageIndex);
-        //            if (result.Count == 0)
-        //            {
-        //                outModel.Message = "Tìm tất cả sản phấm thất bại";
-        //                outModel.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                outModel.Message = "Tìm tất cả sản phấm thành công";
-        //                outModel.StatusCode = "200";
-        //                outModel.DATA = result;
-        //            }
-        //        }
-        //        return outModel;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+                context.SaveChanges();
+                return ApiResponse<int>.SuccessResponse(result);
+            }
+        }
 
-        //public ResultModel Update(ProductRequestModel item, int productID)
-        //{
-        //    try
-        //    {
-        //        ResultModel res = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            var result = context.Repositories.ProductRepository.Update(item, productID);
-        //            if (result == 0)
-        //            {
-        //                res.Message = "Sửa thất bại";
-        //                res.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                context.SaveChanges();
-        //                res.Message = "Sửa thành công";
-        //                res.StatusCode = "200";
-        //            }
-        //            return res;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+        /// <summary>
+        /// Create product
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public ApiResponse<int> CreateProduct(CreateOnlyProductRequestModel model)
+        {
+            using(var context = _unitOfWork.Create())
+            {
+                var getCategotyByIDModel = new GetCategoryCommonRequestModel()
+                {
+                    ID = model.CategoryID,
+                    TenantID = model.TenantID
+                };
+                var category = context.Repositories.CategoryRepository.Get(getCategotyByIDModel);
+                if(category == null)
+                    return ApiResponse<int>.ErrorResponse("Category Doest not Exists");
+                
+                //Insert Only Prroduct
+                var productID = context.Repositories.ProductRepository.Create(model);
+                if(productID <= 0)
+                    return ApiResponse<int>.ErrorResponse("Create Product Fail");
+
+                context.SaveChanges();
+                return ApiResponse<int>.SuccessResponse(productID);
+            }
+        }
+        /// <summary>
+        /// get list image by product
+        /// </summary>
+        /// <param name="ProductID"></param>
+        /// <returns></returns>
+        public ApiResponse<List<ImageResponseModel>> GetImagesByProductID(int ProductID)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var result = context.Repositories.ProductRepository.GetImages(ProductID);
+                return ApiResponse<List<ImageResponseModel>>.SuccessResponse(result);
+            }
+        }
+        /// <summary>
+        /// get list price by product
+        /// </summary>
+        /// <param name="ProductID"></param>
+        /// <returns></returns>
+        public ApiResponse<List<PriceResponseModel>> GetPricesByProductID(int ProductID)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var result = context.Repositories.ProductRepository.GetPrices(ProductID);
+                return ApiResponse<List<PriceResponseModel>>.SuccessResponse(result);
+            }
+        }
+
+        /// <summary>
+        /// get product by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ApiResponse<ProductResponseModel> GetProductByID(int id)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var result = context.Repositories.ProductRepository.Get(id);
+                var images = context.Repositories.ProductRepository.GetImages(id);
+                var prices = context.Repositories.ProductRepository.GetPrices(id);
+                if (images.Any())
+                {
+                    var image = images.OrderByDescending(obj => obj.ID).FirstOrDefault();
+                    _mapper.Map(image, result);
+                }
+                if (prices.Any())
+                {
+                    var price = prices.OrderByDescending(obj => obj.ID).FirstOrDefault();
+                    _mapper.Map(price, result);
+                }
+                
+                return ApiResponse<ProductResponseModel>.SuccessResponse(result);
+            }
+        }
     }
 }

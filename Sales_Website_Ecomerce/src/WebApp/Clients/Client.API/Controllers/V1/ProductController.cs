@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Models.RequestModel.Category;
+using Models.RequestModel.Product;
+using Models.ResponseModels.Product;
 using Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace Client.API.Controllers.V1
 {
@@ -17,35 +21,43 @@ namespace Client.API.Controllers.V1
             _productService = productService;
         }
 
-        //[HttpGet("GetProductById")]
+        [HttpPost("CreateProduct")]
+        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model)
+        {
+            var result = _productService.CreateProduct(model);
+            return Ok(result);
+        }
+        [HttpPost("CreateImages")]
+        public async Task<ActionResult> CreateImages([FromBody] List<ImageRequestModel> model)
+        {
+            var result = _productService.CreateImages(model);
+            return Ok(result);
+        }
+        [HttpPost("CreatePrices")]
+        public async Task<ActionResult> CreatePrices([FromBody] List<PriceRequestModel> model)
+        {
+            var result = _productService.CreatePrices(model);
+            return Ok(result);
+        }
+
+        [HttpGet("GetProductById")]
         //[Authorize]
-        //public ActionResult<ProductResponeModel> Get([Required] int id)
-        //{
-        //    return Ok(_productService.Get(id));
-        //}
-        //[HttpGet("GetListProduct")]
-        //public ActionResult<ProductResponeModel> GetALL([Required] int pageIndex)
-        //{
-        //    return Ok(_productService.GetAll(pageIndex));
-        //}
-
-        //[HttpPost("CreateProduct")]
-        //public ActionResult AddProduct([FromBody] ProductRequestModel product)
-        //{
-        //    return Ok(_productService.Create(product));
-        //}
-
-        //[HttpPut("UpdateProduct")]
-        //public ActionResult UpdateProduct([FromBody] ProductRequestModel item, [Required] int productID)
-        //{
-        //    return Ok(_productService.Update(item, productID));
-        //}
-
-        //[HttpDelete("DeleteProduct")]
-        //public ActionResult DeleteProduct([Required] int id)
-        //{
-        //    return Ok(_productService.Delete(id));
-        //}
-
+        public async Task<ActionResult> GetProductById([Required] int id)
+        {
+            var result = _productService.GetProductByID(id);
+            return Ok(result);
+        }
+        [HttpGet("GetImagesByProductId")]
+        public async Task<ActionResult> GetImagesByProductId([Required] int ProductId)
+        {
+            var result = _productService.GetImagesByProductID(ProductId);
+            return Ok(result);
+        }
+        [HttpGet("GetPricesByProductId")]
+        public async Task<ActionResult> GetPricesByProductId([Required] int ProductId)
+        {
+            var result = _productService.GetPricesByProductID(ProductId);
+            return Ok(result);
+        }
     }
 }

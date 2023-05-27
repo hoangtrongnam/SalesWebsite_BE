@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using Models.RequestModel.Category;
-using Models.ResponseModels;
+using Models.ResponseModels.Category;
 using Repository.Interface;
 using System.Data;
 using System.Data.SqlClient;
@@ -68,7 +68,7 @@ namespace Repository.Implement
             return result;
         }
 
-        public CategoryResponseModel Get(GetCategoryCommonRequestModel id, GetCategoryCommonRequestModel pageIndex)
+        public CategoryResponseModel GetByCondition(params int[] values)
         {
             throw new NotImplementedException();
         }

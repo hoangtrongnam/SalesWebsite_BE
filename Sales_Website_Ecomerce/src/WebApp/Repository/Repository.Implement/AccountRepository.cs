@@ -51,20 +51,21 @@ namespace Repository.Implement
                     new { UserName = userName }, commandType: CommandType.StoredProcedure);
         }
 
-        public UserResponseModel Get(string id, string pageIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<UserResponseModel> GetAll(string pageIndex)
-        {
-            throw new NotImplementedException();
-        }
-
         public List<UserResponseModel> GetAll()
         {
             throw new NotImplementedException();
         }
+
+        public List<UserResponseModel> GetAll(string item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public UserResponseModel GetByCondition(params int[] values)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Update User Common
         /// </summary>

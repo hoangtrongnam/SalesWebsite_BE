@@ -1,5 +1,5 @@
 ﻿using Models.RequestModel.Category;
-using Models.ResponseModels;
+using Models.ResponseModels.Category;
 using Repository.Interfaces.Actions;
 
 namespace Repository.Interface

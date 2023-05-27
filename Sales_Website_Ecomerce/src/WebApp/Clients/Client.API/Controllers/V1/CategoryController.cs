@@ -32,7 +32,7 @@ namespace Client.API.Controllers
         }
         
         [HttpPost("CreateCategory")]
-        public ActionResult CreateCategory([FromBody] CreateCategoryRequestModel model)
+        public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryRequestModel model)
         {
             var result = _categoryService.CreateCategory(model);
             return Ok(result);
