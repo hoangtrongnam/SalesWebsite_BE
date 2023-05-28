@@ -69,7 +69,6 @@ namespace Services
                 {
                     return ApiResponse<CategoryResponseModel>.ErrorResponse("Category is not found");
                 }
-
                 return ApiResponse<CategoryResponseModel>.SuccessResponse(result);
             }
         }

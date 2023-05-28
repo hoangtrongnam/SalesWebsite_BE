@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Models.RequestModel.Category;
 using Models.RequestModel.Product;
-using Models.ResponseModels.Product;
 using Services;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,7 +18,6 @@ namespace Client.API.Controllers.V1
         {
             _productService = productService;
         }
-
         [HttpPost("CreateProduct")]
         public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model)
         {
@@ -39,7 +36,6 @@ namespace Client.API.Controllers.V1
             var result = _productService.CreatePrices(model);
             return Ok(result);
         }
-
         [HttpGet("GetProductById")]
         //[Authorize]
         public async Task<ActionResult> GetProductById([Required] int id)

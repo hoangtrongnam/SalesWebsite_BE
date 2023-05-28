@@ -130,7 +130,6 @@ namespace Services
                 return ApiResponse<List<PriceResponseModel>>.SuccessResponse(result);
             }
         }
-
         /// <summary>
         /// get product by id
         /// </summary>
@@ -143,6 +142,7 @@ namespace Services
                 var result = context.Repositories.ProductRepository.Get(id);
                 var images = context.Repositories.ProductRepository.GetImages(id);
                 var prices = context.Repositories.ProductRepository.GetPrices(id);
+
                 if (images.Any())
                 {
                     var image = images.OrderByDescending(obj => obj.ID).FirstOrDefault();

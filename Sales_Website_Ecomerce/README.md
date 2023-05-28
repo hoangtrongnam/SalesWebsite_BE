@@ -1,7 +1,7 @@
 
 ## Prepare environment
 
-* Install dotnet core version 6.0
+* Install dotnet core version 7.0
 * IDE: Visual Studio 2022+, Rider, Visual Studio Code
 * Database: IDE: SQLServer managerment studio 2018,  Version: Microsoft SQL Server 2019
 
