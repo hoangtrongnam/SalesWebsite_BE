@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.IdentityModel.Tokens;
@@ -89,6 +88,9 @@ namespace Product.API.Extensions
             services.AddTransient<IAccountServices, AccountServices>();
             services.AddTransient<ICategoryServices, CategoryServices>();
             services.AddTransient<ICartServices, CartServices>();
+            services.AddTransient<IWareHouseServices, WareHouseServices>();
+            services.AddTransient<ISupplierServices, SupplierServices>();
+            services.AddTransient<IProductStockService, ProductStockService>();
             return services;
         }
     }

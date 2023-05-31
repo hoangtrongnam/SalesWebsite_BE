@@ -50,22 +50,6 @@ namespace Repository.Implement
             return QueryFirstOrDefault<UserResponseModel>("Sp_Get_User_By_UserName", 
                     new { UserName = userName }, commandType: CommandType.StoredProcedure);
         }
-
-        public List<UserResponseModel> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<UserResponseModel> GetAll(string item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public UserResponseModel GetByCondition(params int[] values)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Update User Common
         /// </summary>

@@ -9,5 +9,8 @@ namespace UnitOfWork.Interface
         ICategoryRepository CategoryRepository { get; }
         ICartRepository CartRepository { get; }
         ITenantRepository TenantRepository { get; }
+        ISupplierRepository SupplierRepository { get; }
+        IWareHouseRepository WareHouseRepository { get; }
+        IProductStockRepository ProductStockRepository { get; }
     }
 }

@@ -48,7 +48,7 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public int Create(List<ImageRequestModel> item)
+        public int CreateImages(List<ImageRequestModel> item)
         {
             var parameters = new DynamicParameters(new
             {
@@ -66,7 +66,7 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public int Create(List<PriceRequestModel> item)
+        public int CreatePrices(List<PriceRequestModel> item)
         {
             var parameters = new DynamicParameters(new
             {
@@ -109,22 +109,16 @@ namespace Repository.Implement
             var result = Query<PriceResponseModel>("SP_GetPricesByProductID", new { ProductID = ProductID }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
-
-        public ProductResponseModel Get(int id, int pageIndex)
+        /// <summary>
+        /// Get product by category repository
+        /// </summary>
+        /// <param name="CategoryID"></param>
+        /// <returns></returns>
+        public List<ProductResponseModel> GetProductCategory(int CategoryID)
         {
-            throw new NotImplementedException();
+            var result = Query<ProductResponseModel>("SP_GetProductByCategory", new { CategoryID = CategoryID }, commandType: CommandType.StoredProcedure).ToList();
+            return result;
         }
-
-        public List<ProductResponseModel> GetAll(int item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ProductResponseModel GetByCondition(params int[] values)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }
  

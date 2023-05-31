@@ -43,7 +43,7 @@ namespace Services
                 }
                 
                 //Create multiple image 
-                var result = context.Repositories.ProductRepository.Create(listImage);
+                var result = context.Repositories.ProductRepository.CreateImages(listImage);
                 if (result <= 0)
                     return ApiResponse<int>.ErrorResponse("Create images Fail");
 
@@ -68,7 +68,7 @@ namespace Services
                 }
 
                 //Create multiple Price 
-                var result = context.Repositories.ProductRepository.Create(listPrice);
+                var result = context.Repositories.ProductRepository.CreatePrices(listPrice);
                 if (result <= 0)
                     return ApiResponse<int>.ErrorResponse("Create prices Fail");
 
@@ -76,7 +76,6 @@ namespace Services
                 return ApiResponse<int>.SuccessResponse(result);
             }
         }
-
         /// <summary>
         /// Create product
         /// </summary>
@@ -91,7 +90,7 @@ namespace Services
                     ID = model.CategoryID,
                     TenantID = model.TenantID
                 };
-                var category = context.Repositories.CategoryRepository.Get(getCategotyByIDModel);
+                var category = context.Repositories.CategoryRepository.GetByCondition(getCategotyByIDModel);
                 if(category == null)
                     return ApiResponse<int>.ErrorResponse("Category Doest not Exists");
                 

@@ -21,13 +21,5 @@ namespace Repository.Implement
         {
             return QueryFirstOrDefault<TenantResponseModel>("SP_GetTenantByID", new { ID = id }, commandType: CommandType.StoredProcedure);
         }
-        public List<TenantResponseModel> GetAll(int item)
-        {
-            throw new NotImplementedException();
-        }
-        public TenantResponseModel GetByCondition(params int[] values)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -37,5 +37,17 @@ namespace Client.API.Controllers
             var result = _categoryService.CreateCategory(model);
             return Ok(result);
         }
+        [HttpPut("UpdateCategory")]
+        public async Task<ActionResult> UpdateCategory([FromBody] UpdateCategoryRequestModel model, [Required] int id)
+        {
+            var result = _categoryService.UpdateCategoryByID(model,id);
+            return Ok(result);
+        }
+        [HttpDelete("RemoveCategory")]
+        public async Task<ActionResult> RemoveCategory([Required] int id)
+        {
+            var result = _categoryService.RemoveCategoryByID(id);
+            return Ok(result);
+        }
     }
 }

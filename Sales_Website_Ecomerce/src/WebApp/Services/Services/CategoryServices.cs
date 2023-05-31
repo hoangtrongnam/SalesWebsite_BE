@@ -11,6 +11,8 @@ namespace Services
         ApiResponse<CategoryResponseModel> CreateCategory(CreateCategoryRequestModel model);
         ApiResponse<CategoryResponseModel> GetCategoryByID(GetCategoryByID_ParentTenantRequestModel model);
         ApiResponse<List<CategoryResponseModel>> GetCategoryByTenantParent(int TenantId, int Parent);
+        ApiResponse<int> UpdateCategoryByID(UpdateCategoryRequestModel item, int id);
+        ApiResponse<int> RemoveCategoryByID(int id);
     }
     public class CategoryServices : ICategoryServices
     {
@@ -41,7 +43,7 @@ namespace Services
                 if(tenant == null)
                     return ApiResponse<CategoryResponseModel>.ErrorResponse("Tenant Doest not Exists");
 
-                var category = context.Repositories.CategoryRepository.Get(modelGetCategoryByName);
+                var category = context.Repositories.CategoryRepository.GetByCondition(modelGetCategoryByName);
                 if(category != null)
                     return ApiResponse<CategoryResponseModel>.ErrorResponse("Category Already Exists");
 
@@ -64,7 +66,7 @@ namespace Services
             var modelMap = _mapper.Map<GetCategoryCommonRequestModel>(model);
             using (var context = _unitOfWork.Create())
             {
-                var result = context.Repositories.CategoryRepository.Get(modelMap);
+                var result = context.Repositories.CategoryRepository.GetByCondition(modelMap);
                 if (result == null)
                 {
                     return ApiResponse<CategoryResponseModel>.ErrorResponse("Category is not found");
@@ -87,12 +89,58 @@ namespace Services
                     TenantID = TenantId,
                     Parent = Parent
                 };
-                var result = context.Repositories.CategoryRepository.GetAll(modelGetCategoryTenantParent);
+                var result = context.Repositories.CategoryRepository.GetCategoryTenantParent(modelGetCategoryTenantParent);
 
                 if (result == null)
                     return ApiResponse<List<CategoryResponseModel>>.ErrorResponse("No Data");
 
                 return ApiResponse<List<CategoryResponseModel>>.SuccessResponse(result);
+            }
+        }
+        /// <summary>
+        /// Update category service
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ApiResponse<int> UpdateCategoryByID(UpdateCategoryRequestModel item, int id)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var category = context.Repositories.CategoryRepository.Get(id);
+                if (category == null)
+                    return ApiResponse<int>.ErrorResponse($"Category {item.Name} doesn't exists.");
+                var result = context.Repositories.CategoryRepository.Update(item, id);
+                if(result <= 0)
+                    return ApiResponse<int>.ErrorResponse("Update category fail.");
+
+                context.SaveChanges();
+                return ApiResponse<int>.SuccessResponse(result);
+            }
+        }
+        /// <summary>
+        /// Remove Category service
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ApiResponse<int> RemoveCategoryByID(int id)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var category = context.Repositories.CategoryRepository.Get(id);
+                if (category == null)
+                    return ApiResponse<int>.ErrorResponse($"Category doesn't exists.");
+                
+                var products = context.Repositories.ProductRepository.GetProductCategory(id);
+                if(products.Any())
+                    return ApiResponse<int>.ErrorResponse("Catalog has products.");
+              
+                var result = context.Repositories.CategoryRepository.Remove(id);
+                if (result <= 0)
+                    return ApiResponse<int>.ErrorResponse("Remove category fail.");
+
+                context.SaveChanges();
+                return ApiResponse<int>.SuccessResponse(result);
             }
         }
     }

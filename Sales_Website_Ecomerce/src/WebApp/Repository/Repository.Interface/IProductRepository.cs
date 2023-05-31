@@ -4,10 +4,13 @@ using Repository.Interfaces.Actions;
 
 namespace Repository.Interface
 {
-    public interface IProductRepository: ICreateRepository<CreateOnlyProductRequestModel, int>,ICreateRepository<List<ImageRequestModel>, int>, ICreateRepository<List<PriceRequestModel>, int>
+    public interface IProductRepository: ICreateRepository<CreateOnlyProductRequestModel, int>
         ,IReadRepository<ProductResponseModel,int>
     {
         List<ImageResponseModel> GetImages(int ProductID);
         List<PriceResponseModel> GetPrices(int ProductID);
+        int CreatePrices(List<PriceRequestModel> item);
+        int CreateImages(List<ImageRequestModel> item);
+        List<ProductResponseModel> GetProductCategory(int CategoryID);
     }
 }

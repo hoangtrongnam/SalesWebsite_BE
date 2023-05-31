@@ -12,6 +12,9 @@ namespace UnitOfWork.Database
         public ICategoryRepository CategoryRepository { get; }
         public ICartRepository CartRepository { get; }
         public ITenantRepository TenantRepository { get; }
+        public ISupplierRepository SupplierRepository { get; }
+        public IWareHouseRepository WareHouseRepository { get; }
+        public IProductStockRepository ProductStockRepository { get; }
 
         public UnitOfWorkDatabaseRepository(SqlConnection context, SqlTransaction transaction)
         {          
@@ -20,6 +23,9 @@ namespace UnitOfWork.Database
             CategoryRepository = new CategoryRepository(context, transaction);
             CartRepository = new CartRepository(context, transaction);
             TenantRepository = new TenantRepository(context, transaction);
+            SupplierRepository = new SupplierRepository(context, transaction);
+            WareHouseRepository = new WareHouseRepository(context, transaction);
+            ProductStockRepository = new ProductStockRepository(context, transaction);
         }
     }
 }
