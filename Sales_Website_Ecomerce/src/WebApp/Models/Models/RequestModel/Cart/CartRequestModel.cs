@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Models.RequestModel
+namespace Models.RequestModel.Cart
 {
     public class CartRequestModel
     {
@@ -12,5 +12,7 @@ namespace Models.RequestModel
         public int Quantity { get; set; }
         [Required]
         public int StatusID { get; set; }
+        [Required]
+        public int WarehouseID { get; set; }
     }
 }

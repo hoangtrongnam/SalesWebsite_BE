@@ -17,11 +17,11 @@ namespace Client.API.Controllers
             _cartService = cartService;
         }
 
-        //[HttpGet("/FindCart/{CustomerID}")]
-        //public ActionResult<ProductResponeModel> Get([Required] int CustomerID, [Required] int pageIndex)
-        //{
-        //    return Ok(_cartService.Get(CustomerID, pageIndex));
-        //}
+        [HttpGet("/FindCart/{CustomerID}")]
+        public ActionResult<ProductResponeModel> Get([Required] int CustomerID, [Required] int pageIndex)
+        {
+            return Ok(_cartService.Get(CustomerID, pageIndex));
+        }
 
         ////[HttpGet("/GetListProduct")]
         ////public ActionResult<ProductResponeModel> GetALL([Required] int pageIndex)

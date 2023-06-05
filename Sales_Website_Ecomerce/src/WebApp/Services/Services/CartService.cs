@@ -1,13 +1,17 @@
 ﻿using Models.RequestModel;
 using UnitOfWork.Interface;
 using Common;
+using Models.RequestModel.Product;
+using Models.ResponseModels.Cart;
+using Models.ResponseModels.Product;
 
 namespace Services
 {
     public interface ICartServices
     {
         //ResultModel GetAll(int pageIndex);
-        //ResultModel Get(int id, int pageIndex);
+        ApiResponse<CartResponeModel> Get(int customerID, int pageIndex);
+
         //ResultModel Create(CartRequestModel model);
         //ResultModel Update(CartRequestModel model, int cartID);
         //ResultModel Delete(CartRequestModel model, int cartID);
@@ -79,33 +83,28 @@ namespace Services
         //    }
         //}
 
-        //public ResultModel Get(int customerID, int pageIndex)
-        //{
-        //    try
-        //    {
-        //        ResultModel outModel = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            var result = context.Repositories.CartRepository.Get(customerID, pageIndex);
-        //            if (result.CartID == 0)
-        //            {
-        //                outModel.Message = "Tìm giỏ hàng thất bại";
-        //                outModel.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                outModel.Message = "Tìm giỏ hàng thành công";
-        //                outModel.StatusCode = "200";
-        //                outModel.DATA = result;
-        //            }
-        //        }
-        //        return outModel;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+        public ApiResponse<CartResponeModel> Get(int customerID, int pageIndex)
+        {
+            try
+            {
+                using (var context = _unitOfWork.Create())
+                {
+                    var result = context.Repositories.CartRepository.Get(customerID, pageIndex);
+                    if (result.CartID == 0)
+                    {
+                        return ApiResponse<CartResponeModel>.SuccessResponse(result);
+                    }
+                    else
+                    {
+                        return ApiResponse<CartResponeModel>.ErrorResponse();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         ////public ResultModel GetAll(int pageIndex)
         ////{
