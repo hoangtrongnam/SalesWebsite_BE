@@ -11,7 +11,7 @@ namespace Services
         ApiResponse<CartResponeModel> Get(int customerID, int pageIndex);
 
         ApiResponse<int> Create(CartRequestModel model);
-        //ResultModel Update(CartRequestModel model, int cartID);
+        ApiResponse<int> Update(CartRequestModel model, int cartID);
         ApiResponse<int> Delete(int cartID);
     }
     public class CartServices : ICartServices
@@ -63,7 +63,7 @@ namespace Services
 
                             //1.1.2.2. Update giỏ hàng (UpdateCartProduct) so luong, status
                             item.Quantity = oldQuantity + item.Quantity;
-                            efectRow = context.Repositories.CartRepository.UpdateCartProduct(item, CartID, Parameters.StatusQuantityCartProductUpdateSuccess);
+                            efectRow = context.Repositories.CartRepository.UpdateCartProduct(item, CartID, Parameters.StatusQuantityCartProductUpdate);
 
                             if (efectRow < 1)
                                 return ApiResponse<int>.ErrorResponse("Sửa giỏ hàng thất bại");
@@ -108,7 +108,7 @@ namespace Services
         public bool QuantityValid(int newQuantity, int oldQuantity, int productID, int wareHouseID, IUnitOfWorkAdapter context)
         {
             var productQuantityInStock = context.Repositories.CartRepository.GetProductInStock(productID, wareHouseID);
-            if (oldQuantity + newQuantity < productQuantityInStock)
+            if (oldQuantity + newQuantity <= productQuantityInStock)
                 return true;//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
 
             return false;
@@ -188,32 +188,56 @@ namespace Services
         ////    }
         ////}
 
-        //public ResultModel Update(CartRequestModel item, int cartID)
-        //{
-        //    try
-        //    {
-        //        ResultModel res = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            var result = context.Repositories.CartRepository.Update(item, cartID);
-        //            if (result == 0)
-        //            {
-        //                res.Message = "Sửa giỏ hàng thất bại";
-        //                res.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                context.SaveChanges();
-        //                res.Message = "Sửa giỏ hàng thành công";
-        //                res.StatusCode = "200";
-        //            }
-        //            return res;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+        public ApiResponse<int> Update(CartRequestModel item, int cartID)
+        {
+            try
+            {
+                using (var context = _unitOfWork.Create())
+                {
+                    //note chưa làm case khác Warehouse
+
+                    //get thông tin cart_product them ProductID và cartID
+                    var product = context.Repositories.CartRepository.GetCartProduct(item.ProdutID, cartID).FirstOrDefault();
+
+                    //1. Kiểm tra là xóa 1 product hay chỉ update Quantity
+                    if (item.Quantity == 0)
+                    {
+                        //1.1. Xóa 1 Product trong giỏ háng
+                        item.WarehouseID = product.WareHouseID;
+                        item.Quantity = 0;
+                        int efectRow = context.Repositories.CartRepository.UpdateCartProduct(item, cartID, Parameters.StatusDeleteCartProduct);
+
+                        if (efectRow < 1)
+                            return ApiResponse<int>.ErrorResponse("Xóa 1 sản phẩm trong giỏ hàng thất bại");
+
+                        context.SaveChanges();
+
+                        return ApiResponse<int>.SuccessResponse(efectRow, "Xóa 1 sản phẩm trong giỏ hàng thành công");
+                    }
+                    else if(item.Quantity > 0) //1.2 Update số lượng của 1 product trong giỏ hàng
+                    { 
+                        //1.2.1. Check số lượng hàng trong kho còn đủ không
+                        if (!QuantityValid(item.Quantity, 0, item.ProdutID, product.WareHouseID, context))
+                            return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
+
+                        //1.2.2 Update giỏ hàng (UpdateCartProduct) so luong, status
+                        item.WarehouseID = product.WareHouseID;
+                        int efectRow = context.Repositories.CartRepository.UpdateCartProduct(item, cartID, Parameters.StatusQuantityCartProductUpdate);
+
+                        if (efectRow < 1)
+                            return ApiResponse<int>.ErrorResponse("Cập nhật số lượng 1 product trong giỏ hàng thất bại");
+
+                        context.SaveChanges();
+
+                        return ApiResponse<int>.SuccessResponse(efectRow, "Cập nhật số lượng 1 product trong giỏ hàng thành công");
+                    }
+                    return ApiResponse<int>.ErrorResponse("Cập nhật giỏ hàng thất bại");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

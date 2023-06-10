@@ -165,6 +165,7 @@ namespace Repository.Implement
             int updateCart = UpdateCart(item, cartID, Parameters.StatusDeleteCart);
 
             //2. Update status table cart_product
+            item.ProdutID = -1;
             int updateCartProdct = UpdateCartProduct(item, cartID, Parameters.StatusDeleteCartProduct);
 
             if (updateCartProdct > 0 && updateCart > 0)

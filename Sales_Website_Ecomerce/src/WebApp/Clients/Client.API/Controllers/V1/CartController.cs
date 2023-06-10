@@ -36,11 +36,11 @@ namespace Client.API.Controllers
             return Ok(_cartService.Create(cart));
         }
 
-        //[HttpPut("/UpdateCart")]
-        //public ActionResult UpdateCart([FromBody][Required] CartRequestModel item, [Required] int cartID)
-        //{
-        //    return Ok(_cartService.Update(item, cartID));
-        //}
+        [HttpPut("/UpdateCart")]
+        public ActionResult UpdateCart([FromBody][Required] CartRequestModel item, [Required] int cartID)
+        {
+            return Ok(_cartService.Update(item, cartID));
+        }
 
         [HttpDelete("/DeleteCart")]
         public ActionResult DeleteCart([Required] int cartID)
