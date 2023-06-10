@@ -144,13 +144,13 @@ namespace Services
                 using (var context = _unitOfWork.Create())
                 {
                     var result = context.Repositories.CartRepository.Get(customerID, pageIndex);
-                    if (result.CartID == 0)
+                    if (result.CartID > 0)
                     {
                         return ApiResponse<CartResponeModel>.SuccessResponse(result);
                     }
                     else
                     {
-                        return ApiResponse<CartResponeModel>.ErrorResponse();
+                        return ApiResponse<CartResponeModel>.ErrorResponse("CustomerID: " + customerID + " chưa có giỏ hàng");
                     }
                 }
             }
@@ -214,8 +214,8 @@ namespace Services
 
                         return ApiResponse<int>.SuccessResponse(efectRow, "Xóa 1 sản phẩm trong giỏ hàng thành công");
                     }
-                    else if(item.Quantity > 0) //1.2 Update số lượng của 1 product trong giỏ hàng
-                    { 
+                    else if (item.Quantity > 0) //1.2 Update số lượng của 1 product trong giỏ hàng
+                    {
                         //1.2.1. Check số lượng hàng trong kho còn đủ không
                         if (!QuantityValid(item.Quantity, 0, item.ProdutID, product.WareHouseID, context))
                             return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)

@@ -133,25 +133,15 @@ namespace Repository.Implement
 
         public CartResponeModel Get(int customerID, int pageIndex = 1)
         {
+            //chua lam case lay gia cua product
             CartResponeModel cart = new CartResponeModel();
             //1 get cartID
             int CartID = GetCartIDByCustomerID(customerID);
+            cart.CartID = CartID;
 
             //2 get CartProduct
             var lstProduct = GetCartProduct(0, CartID);
 
-
-            //while (reader.Read())
-            //{
-            //    var product = new CartModel();
-            //    product.ProductName = reader["Name"].ToString() ?? "";
-            //    product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
-            //    product.QuantityMax = string.IsNullOrEmpty(reader["QuantityMax"].ToString()) ? 0 : Convert.ToInt32(reader["QuantityMax"]);
-            //    product.Price = string.IsNullOrEmpty(reader["Price"].ToString()) ? 0 : Convert.ToDecimal(reader["Price"]);
-            //    product.TotalPrice = product.Quantity * product.Price;
-            //    lstProduct.Add(product);
-            //}
-            //cart.CartID = CartID;
             cart.lstProduct = lstProduct;
 
             //reader.Close();

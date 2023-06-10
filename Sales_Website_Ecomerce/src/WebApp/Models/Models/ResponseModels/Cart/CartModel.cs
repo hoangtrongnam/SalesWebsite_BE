@@ -8,6 +8,6 @@
         public decimal Price { get; set; }
         public decimal TotalPrice { get; set; }
         public int WareHouseID { get; set; }
-        public int TotalProductInWareHouse { get;}
+        public int QuantityMaxInWareHouse { get;}
     }
 }
