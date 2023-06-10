@@ -10,8 +10,8 @@ namespace Models.RequestModel.Cart
         public int CustomerID { get; set; }
         [Required]
         public int Quantity { get; set; }
-        [Required]
-        public int StatusID { get; set; }
+        //[Required]
+        //public int StatusID { get; set; }
         [Required]
         public int WarehouseID { get; set; }
     }

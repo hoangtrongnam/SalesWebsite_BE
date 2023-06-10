@@ -1,11 +1,7 @@
-﻿using Models.RequestModel;
-using UnitOfWork.Interface;
+﻿using UnitOfWork.Interface;
 using Common;
-using Models.RequestModel.Product;
 using Models.ResponseModels.Cart;
-using Models.ResponseModels.Product;
 using Models.RequestModel.Cart;
-using System.Data;
 
 namespace Services
 {
@@ -16,7 +12,7 @@ namespace Services
 
         ApiResponse<int> Create(CartRequestModel model);
         //ResultModel Update(CartRequestModel model, int cartID);
-        //ResultModel Delete(CartRequestModel model, int cartID);
+        ApiResponse<int> Delete(int cartID);
     }
     public class CartServices : ICartServices
     {
@@ -67,8 +63,7 @@ namespace Services
 
                             //1.1.2.2. Update giỏ hàng (UpdateCartProduct) so luong, status
                             item.Quantity = oldQuantity + item.Quantity;
-                            item.StatusID = 005; //cập nhật gio hàng (status UpdateCartProduct)
-                            efectRow = context.Repositories.CartRepository.UpdateCartProduct(item, CartID);
+                            efectRow = context.Repositories.CartRepository.UpdateCartProduct(item, CartID, Parameters.StatusQuantityCartProductUpdateSuccess);
 
                             if (efectRow < 1)
                                 return ApiResponse<int>.ErrorResponse("Sửa giỏ hàng thất bại");
@@ -83,7 +78,7 @@ namespace Services
                         //2.1. check số lượng trong kho còn đủ không
                         if (!QuantityValid(item.Quantity, 0, item.ProdutID, item.WarehouseID, context))
                             return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
-                        
+
                         //2.2. tạo cart
                         int cartID = context.Repositories.CartRepository.CreateCart(item.CustomerID);
                         if (cartID > 1)
@@ -98,7 +93,7 @@ namespace Services
 
                             return ApiResponse<int>.SuccessResponse(efectRow, "Thêm giỏ hàng thành công");
                         }
-                        else return ApiResponse<int>.ErrorResponse("Thêm giỏ hàng thất bại");                        
+                        else return ApiResponse<int>.ErrorResponse("Thêm giỏ hàng thất bại");
                     }
 
                     //return ApiResponse<int>.ErrorResponse("Thêm giỏ hàng thất bại.");
@@ -119,34 +114,28 @@ namespace Services
             return false;
         }
 
-        //public ResultModel Delete(CartRequestModel model, int cartID)
-        //{
-        //    //throw new NotImplementedException();
-        //    try
-        //    {
-        //        ResultModel outModel = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            var result = context.Repositories.CartRepository.Remove(model, cartID);
-        //            if (result == 0)
-        //            {
-        //                outModel.Message = "Xóa thất bại";
-        //                outModel.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                context.SaveChanges();
-        //                outModel.Message = "Xóa thành công";
-        //                outModel.StatusCode = "200";
-        //            }
-        //        }
-        //        return outModel;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+        public ApiResponse<int> Delete(int cartID)
+        {
+            //throw new NotImplementedException();
+            try
+            {
+                using (var context = _unitOfWork.Create())
+                {
+                    CartRequestModel model = new CartRequestModel();
+                    var result = context.Repositories.CartRepository.Remove(model, cartID);
+                    if (result > 0)
+                    {
+                        context.SaveChanges();
+                        return ApiResponse<int>.SuccessResponse(result, "Xóa thành công");
+                    }
+                    else return ApiResponse<int>.ErrorResponse("Xóa thất bại");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         public ApiResponse<CartResponeModel> Get(int customerID, int pageIndex)
         {

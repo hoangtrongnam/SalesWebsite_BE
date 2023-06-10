@@ -2,12 +2,9 @@
 using Dapper;
 using Models.RequestModel.Cart;
 using Models.ResponseModels.Cart;
-using Models.ResponseModels.WareHouse;
 using Repository.Interface;
-using Repository.Interfaces.Actions;
 using System.Data;
 using System.Data.SqlClient;
-using System.Reflection.PortableExecutable;
 
 namespace Repository.Implement
 {
@@ -37,7 +34,7 @@ namespace Repository.Implement
             var parameters = new DynamicParameters(new
             {
                 CustomerID = customerID,
-                Stautus = 10 //New cart
+                Stautus = Parameters.StatusCartInsert //New cart
             });
             parameters.Add("@CartID", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var result = Execute("sp_InsertCart", parameters, commandType: CommandType.StoredProcedure);
@@ -45,14 +42,14 @@ namespace Repository.Implement
             return result > 0 ? parameters.Get<int>("CartID") : 0;
         }
 
-        public int UpdateCartProduct(CartRequestModel item, int cartID)
+        public int UpdateCartProduct(CartRequestModel item, int cartID, int status)
         {
             var parameters = new DynamicParameters(new
             {
                 CartID = cartID,
                 ProdutID = item.ProdutID,
                 Quantity = item.Quantity,
-                StatusID = item.StatusID, //status update
+                StatusID = status,
                 WareHouseID = item.WarehouseID
             });
 
@@ -70,6 +67,18 @@ namespace Repository.Implement
             //return command.ExecuteNonQuery();
         }
 
+        public int UpdateCart(CartRequestModel item, int cartID, int status)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                CartID = cartID,
+                StatusID = status
+            });
+
+            var result = Execute("sp_UpdateCart", parameters, commandType: CommandType.StoredProcedure);
+            return result;
+        }
+
         public int InsertCartProduct(CartRequestModel item, int cartID)
         {
             var parameters = new DynamicParameters(new
@@ -77,7 +86,7 @@ namespace Repository.Implement
                 CartID = cartID,
                 ProdutID = item.ProdutID,
                 Quantity = item.Quantity,
-                StatusID = item.StatusID, //status them moi
+                StatusID = Parameters.StatusCartProductInsert, //status them moi
                 WareHouseID = item.WarehouseID
             });
 
@@ -117,19 +126,9 @@ namespace Repository.Implement
             return result == null ? 0 : result.CartID;
         }
 
-        //public int Remove(int id)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
         //public int Update(CartRequestModel item, int CartID)
         //{
         //    return UpdateCartProduct(item, CartID);
-        //}
-
-        //CartResponeModel IReadRepository<CartResponeModel, int>.Get(int id)
-        //{
-        //    throw new NotImplementedException();
         //}
 
         public CartResponeModel Get(int customerID, int pageIndex = 1)
@@ -160,7 +159,21 @@ namespace Repository.Implement
             return cart;
         }
 
-        //public int Remove(CartRequestModel item, int cartID)
+        public int Remove(CartRequestModel item, int cartID) //xóa mềm
+        {
+            //1. Update status table cart
+            int updateCart = UpdateCart(item, cartID, Parameters.StatusDeleteCart);
+
+            //2. Update status table cart_product
+            int updateCartProdct = UpdateCartProduct(item, cartID, Parameters.StatusDeleteCartProduct);
+
+            if (updateCartProdct > 0 && updateCart > 0)
+                return 1;
+
+            return 0;
+        }
+
+        //public int Remove(CartRequestModel item, int cartID) //xóa cứng
         //{
         //    item.Quantity = 0;
         //    //1. Delete product in CartProduct

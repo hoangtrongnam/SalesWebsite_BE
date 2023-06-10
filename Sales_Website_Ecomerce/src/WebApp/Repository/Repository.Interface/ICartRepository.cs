@@ -10,9 +10,11 @@ namespace Repository.Interface
         CartResponeModel Get(int customerID, int pageIndex = 1);
         int GetCartIDByCustomerID(int customerID);
         List<CartModel> GetCartProduct(int produtID, int cartID);
-        int UpdateCartProduct(CartRequestModel item, int cartID);
         int GetProductInStock(int productID, int wareHouseID);
         int InsertCartProduct(CartRequestModel item, int cartID);
+        int UpdateCartProduct(CartRequestModel item, int cartID, int status);
         int CreateCart(int customerID);
+        int UpdateCart(CartRequestModel item, int cartID, int status);
+        int Remove(CartRequestModel item, int cartID);
     }
 }
