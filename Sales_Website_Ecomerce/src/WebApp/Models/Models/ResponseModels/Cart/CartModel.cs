@@ -2,7 +2,7 @@
 {
     public class CartModel
     {
-        public string? ProductName { get; set; }
+        public string? Name { get; set; }
         public int Quantity { get; set; }
         public int QuantityMax { get; set; }
         public decimal Price { get; set; }
