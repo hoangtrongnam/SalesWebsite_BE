@@ -12,5 +12,9 @@ namespace UnitOfWork.Interface
         ISupplierRepository SupplierRepository { get; }
         IWareHouseRepository WareHouseRepository { get; }
         IProductStockRepository ProductStockRepository { get; }
+        IOrderRepository OrderRepository { get; }
+        INotificationRepository NotificationRepository { get; }
+        //IJobScheduleRepository JobScheduleRepository { get; }
+
     }
 }

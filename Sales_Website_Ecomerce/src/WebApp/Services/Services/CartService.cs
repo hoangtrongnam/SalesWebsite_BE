@@ -7,9 +7,7 @@ namespace Services
 {
     public interface ICartServices
     {
-        //ResultModel GetAll(int pageIndex);
         ApiResponse<CartResponeModel> Get(int customerID, int pageIndex);
-
         ApiResponse<int> Create(CartRequestModel model);
         ApiResponse<int> Update(CartRequestModel model, int cartID);
         ApiResponse<int> Delete(int cartID);
@@ -116,7 +114,6 @@ namespace Services
 
         public ApiResponse<int> Delete(int cartID)
         {
-            //throw new NotImplementedException();
             try
             {
                 using (var context = _unitOfWork.Create())
