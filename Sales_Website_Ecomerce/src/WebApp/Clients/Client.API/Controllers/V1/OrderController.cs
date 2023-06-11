@@ -17,17 +17,11 @@ namespace Client.API.Controllers
             _orderService = orderServices;
         }
 
-        //[HttpGet("/FindOrder/{OrderID}")]
-        //public ActionResult Get([Required] int OrderID)
-        //{
-        //    return Ok(_orderService.Get(OrderID));
-        //}
-
-        //[HttpGet("/GetListCategory")]
-        //public ActionResult GetALL()
-        //{
-        //    return Ok(_categoryService.GetAll());
-        //}
+        [HttpGet("/FindOrder/{OrderID}")]
+        public ActionResult Get([Required] int OrderID)
+        {
+            return Ok(_orderService.Get(OrderID));
+        }
 
         [HttpPost("/AddOrder")]
         public ActionResult AddOrder([FromBody] OrderRequestModel item)

@@ -2,6 +2,7 @@
 using Dapper;
 using Models.RequestModel;
 using Models.ResponseModels;
+using Models.ResponseModels.Cart;
 using Repository.Interface;
 using System.Collections.Generic;
 using System.Data;
@@ -62,40 +63,31 @@ namespace Repository.Implement
         public OrderResponseModel Get(int orderID)
         {
             OrderResponseModel orderResponseModel = new OrderResponseModel();
-            //1. Get customer info
+            //1. Get customer info: chưa làm
 
             //2. Get Oder Info
             orderResponseModel = GetOrderInfo(orderID);
 
             //3. Get Order Detail
-            orderResponseModel.lstProduct = GetOrderDetail(orderID, out decimal totalPayment).lstProduct;
-            orderResponseModel.TotalPayment = totalPayment;
-
-            return orderResponseModel;
+            var lstProduct = GetOrderDetail(orderID, out decimal totalPayment);
+            if (lstProduct.lstProduct.Count() > 0)
+            {
+                orderResponseModel.lstProduct = lstProduct.lstProduct;
+                orderResponseModel.TotalPayment = totalPayment;
+                return orderResponseModel;
+            }
+            return null;
         }
 
         public OrderResponseModel GetOrderInfo(int orderID)
         {
-            var command = CreateCommand("sp_GetOrderById");
-            command.Parameters.AddWithValue("@OrderID", orderID);
-            command.Parameters.AddWithValue("@Status", -1);//get all
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-            OrderResponseModel orderResponseModel = new OrderResponseModel();
-
-            using (var reader = command.ExecuteReader())
+            var parameters = new DynamicParameters(new
             {
-                reader.Read();
-                //ResultModel result = new ResultModel();
-                orderResponseModel.OrderID = reader["OrderID"].ToString() ?? "";
-                orderResponseModel.CustomerID = reader["CustomerID"].ToString() ?? "";
-                orderResponseModel.DepositAmount = reader["DepositAmount"].ToString() ?? "";
-                orderResponseModel.Note = reader["Note"].ToString() ?? "";
-                orderResponseModel.Status = reader["Status"].ToString() ?? "";
-                orderResponseModel.CreateDate = reader["CreateDate"].ToString() ?? "";
-
-                reader.Close();
-            };
-            return orderResponseModel;
+                OrderID = orderID,
+                Status = -1 //get all
+            });
+            var result = QueryFirstOrDefault<OrderResponseModel>("sp_GetOrderById", parameters, commandType: CommandType.StoredProcedure);
+            return result;
         }
 
         public OrderResponseModel GetLstOrder(int Status)
@@ -187,7 +179,7 @@ namespace Repository.Implement
                 {
                     Product product = new Product();
                     product.ProductID = string.IsNullOrEmpty(reader["ProductID"].ToString()) ? 0 : Convert.ToInt32(reader["ProductID"]);
-                    //product.Name = reader["Name"].ToString() ?? "";
+                    product.Name = reader["Name"].ToString() ?? "";
                     //product.Code = reader["Code"].ToString() ?? "";
                     product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
                     product.Price = string.IsNullOrEmpty(reader["Price"].ToString()) ? 0 : Convert.ToDecimal(reader["Price"]);

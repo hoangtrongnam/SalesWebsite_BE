@@ -10,7 +10,7 @@ namespace Services
     {
         ApiResponse<int> Create(OrderRequestModel model);
         //ApiResponse<int> Delete(OrderRequestModel model, int OrderID);
-        //ApiResponse<int> Get(int orderID);
+        ApiResponse<OrderResponseModel> Get(int orderID);
         //ApiResponse<int> Update(OrderRequestModel item, int orderID);
         //OrderResponseModel GetlistProduct(int orderID);
     }
@@ -64,8 +64,8 @@ namespace Services
                         notificationRequestModel.Content = "Đơn hàng: " + OrderID + " đặt thành công.";
                         context.Repositories.NotificationRepository.Create(notificationRequestModel);
                         //
-                        
-                       
+
+
                         context.SaveChanges();
                         return ApiResponse<int>.SuccessResponse(1, "Dặt hàng thành công");
                     }
@@ -130,31 +130,20 @@ namespace Services
         //    }
         //}
 
-        //public ApiResponse<int> Get(int orderID)
-        //{
-        //    try
-        //    {
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            ResultModel outModel = new ResultModel();
-        //            OrderResponseModel result = context.Repositories.OrderRepository.Get(orderID);
-        //            if (string.IsNullOrEmpty(result.TotalPayment.ToString()))
-        //            {
-        //                outModel.Message = "tìm sản phẩm thất bại";
-        //                outModel.StatusCode = "999";
-        //                outModel.DATA = result;
-        //            }
-        //            else
-        //            {
-        //                outModel.Message = "tìm sản phẩm thành công";
-        //                outModel.StatusCode = "200";
-        //                outModel.DATA = result;
-        //            }
-        //            return outModel;
-        //        }
-        //    }
-        //    catch (Exception ex) { throw new Exception(ex.Message); }
-        //}
+        public ApiResponse<OrderResponseModel> Get(int orderID)
+        {
+            try
+            {
+                using (var context = _unitOfWork.Create())
+                {
+                    OrderResponseModel result = context.Repositories.OrderRepository.Get(orderID);
+                    if (result == null)
+                        return ApiResponse<OrderResponseModel>.ErrorResponse("Tìm đơn hàng thất bại");
+                    return ApiResponse<OrderResponseModel>.SuccessResponse(result, "Tìm đơn hàng thành công");
+                }
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
+        }
         //public ApiResponse<int> Update(OrderRequestModel item, int orderID)
         //{
         //    try
