@@ -29,20 +29,21 @@ namespace Client.API.Controllers
             return Ok(_orderService.Create(item));
         }
 
-        //[HttpPut("/UpdateOrder")]
-        //public ActionResult UpdateOrder([FromBody] OrderRequestModel item, [Required] int OrderID)
-        //{
-        //    /*
-        //    10	Có dơn hàng mới cần xác nhận
-        //    11	Sale xác nhận tiền cọc và đợn hàng thành công
-        //    12	Sale không liên hệ được với KH
-        //    13	số tiền cọc không đúng (kế toán)
-        //    14	Kế toán xác nhận đủ tiền cọc
-        //     	Sale hủy Đơn hàng 
-        //     */
+        [HttpPut("/UpdateOrder")]
+        public ActionResult UpdateOrder([FromBody] OrderRequestModel item, [Required] int OrderID)
+        {
+            //Sẽ làm update thông tin product trong giỏ hàng sau
+            /*
+            10	Có dơn hàng mới cần xác nhận
+            11	Sale xác nhận tiền cọc và đợn hàng thành công
+            12	Sale không liên hệ được với KH
+            13	số tiền cọc không đúng (kế toán)
+            14	Kế toán xác nhận đủ tiền cọc
+             	Sale hủy Đơn hàng 
+             */
 
-        //    return Ok(_orderService.Update(item, OrderID));
-        //}
+            return Ok(_orderService.Update(item, OrderID));
+        }
 
         [HttpDelete("/DeleteOrder")]
         public ActionResult DeleteOrder([Required] int orderID, [Required] int customerID)

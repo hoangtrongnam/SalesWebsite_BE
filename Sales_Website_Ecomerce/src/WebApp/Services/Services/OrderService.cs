@@ -11,7 +11,7 @@ namespace Services
         ApiResponse<int> Create(OrderRequestModel model);
         ApiResponse<int> Delete(int orderID, int customerID);
         ApiResponse<OrderResponseModel> Get(int orderID);
-        //ApiResponse<int> Update(OrderRequestModel item, int orderID);
+        ApiResponse<int> Update(OrderRequestModel item, int orderID);
         //OrderResponseModel GetlistProduct(int orderID);
     }
     public class OrderServices : IOrderServices
@@ -130,7 +130,7 @@ namespace Services
                     notificationRequestModel.Content = "Đơn hàng: " + orderID + " đã bị hủy.";
                     notificationRequestModel.CreateBy = customerID;
                     var notifyNV = context.Repositories.NotificationRepository.Create(notificationRequestModel);
-                    if(notifyNV < 1)
+                    if (notifyNV < 1)
                         return ApiResponse<int>.ErrorResponse("Thông báo NV thất bại");
 
                     context.SaveChanges();
@@ -157,64 +157,62 @@ namespace Services
             }
             catch (Exception ex) { throw new Exception(ex.Message); }
         }
-        //public ApiResponse<int> Update(OrderRequestModel item, int orderID)
-        //{
-        //    try
-        //    {
-        //        ResultModel outModel = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            //1. Update table Orders
-        //            var result = context.Repositories.OrderRepository.Update(item, orderID);
-        //            if (result <= 0)
-        //            {
-        //                context.DeleteChanges();
-        //                outModel.Message = "Sửa thất bại";
-        //                outModel.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                //5. Insert table notifications
-        //                NotificationRequestModel notificationRequestModel = new NotificationRequestModel();
+        public ApiResponse<int> Update(OrderRequestModel item, int orderID)
+        {
+            try
+            {
+                using (var context = _unitOfWork.Create())
+                {
+                    //chua lam hold product trong productstock
+                    //1. Update table Orders
+                    var result = context.Repositories.OrderRepository.Update(item, orderID);
+                    if (result < 1)
+                        return ApiResponse<int>.ErrorResponse("Cập nhật đơn hàng thất bại");
+                    else
+                    {
+                        //2. Insert table notifications
+                        NotificationRequestModel notificationRequestModel = new NotificationRequestModel();
 
-        //                switch (item.Status)
-        //                {
-        //                    case 11: //Sale xác nhận tiền cọc và đợn hàng thành công
-        //                        notificationRequestModel.Status = 22; //thông báo mới cho kế toán
-        //                        notificationRequestModel.Content = "Đơn hàng: " + orderID + " cần xử lý.";
-        //                        context.Repositories.NotificationRepository.Create(notificationRequestModel);
-        //                        break;
-        //                    case 12: //Sale không liên hệ được với KH (cần thông báo cho KH)
-        //                        notificationRequestModel.Status = 26; //thông báo mới cho KH
-        //                        notificationRequestModel.Content = item.CustomerID + "!@#" + "Chúng tôi không liên hệ được với bạn để xác nhận đơn hàng: " + orderID + ". Vui lòng hệ hệ với chúng tôi trong vòng 3 ngày nếu không đơn hàng sẽ bị hủy . Cám ơn!";
-        //                        context.Repositories.NotificationRepository.Create(notificationRequestModel);
-        //                        break;
-        //                    case 13: //số tiền cọc không đúng (kế toán)
-        //                        notificationRequestModel.Status = 20; //KT phản hồi: thông báo mới cho sale (add thông báo mới)
-        //                        notificationRequestModel.Content = "Đơn hàng: " + orderID + " - số tiền cột không đúng";
-        //                        context.Repositories.NotificationRepository.Create(notificationRequestModel);
-        //                        break;
-        //                    case 14: //Kế toán xác nhận đủ tiền cọc
-        //                        notificationRequestModel.Status = 24; //thông báo cho nhân viên kho
-        //                        notificationRequestModel.Content = "Đơn hàng: " + orderID + " cần xử lý";
-        //                        context.Repositories.NotificationRepository.Create(notificationRequestModel);
-        //                        break;
-        //                }
+                        switch (item.Status)
+                        {
+                            case 11: //Sale xác nhận tiền cọc và đợn hàng thành công
+                                notificationRequestModel.Status = Parameters.StatusKTNotify; //thông báo mới cho kế toán
+                                notificationRequestModel.Content = "Đơn hàng: " + orderID + " cần xử lý.";
+                                var notifyKT = context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                                if (notifyKT < 1) return ApiResponse<int>.ErrorResponse("Thông báo cho kế toán thất bại");
+                                break;
+                            case 12: //Sale không liên hệ được với KH (cần thông báo cho KH)
+                                notificationRequestModel.Status = Parameters.StatusKHNotify; //thông báo mới cho KH
+                                notificationRequestModel.Content = item.CustomerID + "!@#" + "Chúng tôi không liên hệ được với bạn để xác nhận đơn hàng: " + orderID + ". Vui lòng hệ hệ với chúng tôi trong vòng 3 ngày nếu không đơn hàng sẽ bị hủy . Cám ơn!";
+                                var notifyKH = context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                                if (notifyKH < 1) return ApiResponse<int>.ErrorResponse("Thông báo cho KH thất bại");
+                                break;
+                            case 13: //số tiền cọc không đúng (kế toán)
+                                notificationRequestModel.Status = Parameters.StatusNVNotify; //KT phản hồi: thông báo mới cho sale (add thông báo mới)
+                                notificationRequestModel.Content = "Đơn hàng: " + orderID + " - số tiền cột không đúng";
+                                var notifyNV = context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                                if (notifyNV < 1) return ApiResponse<int>.ErrorResponse("Thông báo cho NV thất bại");
+                                break;
+                            case 14: //Kế toán xác nhận đủ tiền cọc
+                                //chua lam hold product trong productstock
+                                notificationRequestModel.Status = Parameters.StatusKhoNotify; //thông báo cho nhân viên kho
+                                notificationRequestModel.Content = "Đơn hàng: " + orderID + " cần xử lý";
+                                var notifyKho = context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                                if (notifyKho < 1) return ApiResponse<int>.ErrorResponse("Thông báo cho NV kho thất bại");
+                                break;
+                        }
 
-        //                //
-        //                context.SaveChanges();
-        //                outModel.Message = "Sửa thành công";
-        //                outModel.StatusCode = "200";
-        //            }
-        //        }
-        //        return outModel;
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+                        //
+                        context.SaveChanges();
+                        return ApiResponse<int>.SuccessResponse(1, "Cập nhật đơn hàng thành công");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         //public OrderResponseModel GetlistProduct(int orderID)
         //{
