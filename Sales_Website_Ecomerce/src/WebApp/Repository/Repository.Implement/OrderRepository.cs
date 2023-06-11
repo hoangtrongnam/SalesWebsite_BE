@@ -68,13 +68,16 @@ namespace Repository.Implement
             //2. Get Oder Info
             orderResponseModel = GetOrderInfo(orderID);
 
-            //3. Get Order Detail
-            var lstProduct = GetOrderDetail(orderID, out decimal totalPayment);
-            if (lstProduct.lstProduct.Count() > 0)
+            if (!(orderResponseModel == null))
             {
-                orderResponseModel.lstProduct = lstProduct.lstProduct;
-                orderResponseModel.TotalPayment = totalPayment;
-                return orderResponseModel;
+                //3. Get Order Detail
+                var lstProduct = GetOrderDetail(orderID, out decimal totalPayment);
+                if (lstProduct.lstProduct.Count() > 0)
+                {
+                    orderResponseModel.lstProduct = lstProduct.lstProduct;
+                    orderResponseModel.TotalPayment = totalPayment;
+                    return orderResponseModel;
+                }
             }
             return null;
         }
@@ -134,34 +137,36 @@ namespace Repository.Implement
             return orderResponseModel;
         }
 
-        public int Remove(int OrderID)
-        {
-            //1. Delete OrderProducts
-            var command = CreateCommand("sp_DeleteOrderProducts");
-            command.Parameters.AddWithValue("@OrderID", OrderID);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-            if (command.ExecuteNonQuery() > 0)
-            {
-                //2. Delete Orders
-                command = CreateCommand("sp_DeleteOrders");
-                command.Parameters.AddWithValue("@OrderID", OrderID);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                return command.ExecuteNonQuery();
-            }
-            else return 0; //Delete OrderProducts: Error
-        }
+        //public int Remove(int OrderID)
+        //{
+        //    //1. Delete OrderProducts
+        //    var command = CreateCommand("sp_DeleteOrderProducts");
+        //    command.Parameters.AddWithValue("@OrderID", OrderID);
+        //    command.CommandType = System.Data.CommandType.StoredProcedure;
+        //    if (command.ExecuteNonQuery() > 0)
+        //    {
+        //        //2. Delete Orders
+        //        command = CreateCommand("sp_DeleteOrders");
+        //        command.Parameters.AddWithValue("@OrderID", OrderID);
+        //        command.CommandType = System.Data.CommandType.StoredProcedure;
+        //        return command.ExecuteNonQuery();
+        //    }
+        //    else return 0; //Delete OrderProducts: Error
+        //}
 
         public int Update(OrderRequestModel item, int orderID)
         {
-            var command = CreateCommand("sp_UpdateOrder");
-            command.Parameters.AddWithValue("@DepositAmount", item.DepositAmount);
-            command.Parameters.AddWithValue("@Note", item.Note);
-            command.Parameters.AddWithValue("@Status", item.Status);
-            command.Parameters.AddWithValue("@OrderID", orderID);
+            var parameters = new DynamicParameters(new
+            {
+                DepositAmount = item.DepositAmount,
+                Note = item.Note,
+                Status = item.Status,
+                OrderID = orderID
+            });
 
-            command.CommandType = System.Data.CommandType.StoredProcedure;
+            var result = Execute("sp_UpdateOrder", parameters, commandType: CommandType.StoredProcedure);
 
-            return command.ExecuteNonQuery();
+            return result;
         }
 
         private OrderResponseModel GetOrderProduct(int orderID)

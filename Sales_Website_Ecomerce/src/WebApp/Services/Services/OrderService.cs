@@ -9,7 +9,7 @@ namespace Services
     public interface IOrderServices
     {
         ApiResponse<int> Create(OrderRequestModel model);
-        //ApiResponse<int> Delete(OrderRequestModel model, int OrderID);
+        ApiResponse<int> Delete(int orderID, int customerID);
         ApiResponse<OrderResponseModel> Get(int orderID);
         //ApiResponse<int> Update(OrderRequestModel item, int orderID);
         //OrderResponseModel GetlistProduct(int orderID);
@@ -47,7 +47,9 @@ namespace Services
                             CartRequestModel cartModel = new CartRequestModel();
                             cartModel.ProdutID = item.ProductID;
 
-                            context.Repositories.CartRepository.Remove(cartModel, model.CartID);
+                            var removecart = context.Repositories.CartRepository.Remove(cartModel, model.CartID);
+                            if (removecart < 1)
+                                return ApiResponse<int>.ErrorResponse("Xóa giỏ hàng thất bại");
 
                             ////3. Get Product Info
                             //var product = context.Repositories.ProductRepository.Get(item.ProductID);
@@ -63,15 +65,18 @@ namespace Services
                         notificationRequestModel.Status = Parameters.StatusNVNotify;
                         notificationRequestModel.CreateBy = model.CustomerID;
                         notificationRequestModel.Content = "Đơn hàng: " + OrderID + " cần xử lý.";
-                        context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                        var notifyNV = context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                        if (notifyNV < 1)
+                            return ApiResponse<int>.ErrorResponse("Thông báo NV thất bại");
 
                         //5. Insert table notifications (KH)
                         notificationRequestModel.Status = Parameters.StatusKHNotify;
                         notificationRequestModel.CreateBy = model.CustomerID;
                         notificationRequestModel.Content = "Đơn hàng: " + OrderID + " đặt thành công.";
-                        context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                        var notifyKH = context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                        if (notifyKH < 1)
+                            return ApiResponse<int>.ErrorResponse("Thông báo KH thất bại");
                         //
-
 
                         context.SaveChanges();
                         return ApiResponse<int>.SuccessResponse(1, "Dặt hàng thành công");
@@ -85,57 +90,58 @@ namespace Services
             }
         }
 
-        //public ApiResponse<int> Delete(OrderRequestModel model, int OrderID)
-        //{
-        //    try
-        //    {
-        //        ResultModel outModel = new ResultModel();
-        //        using (var context = _unitOfWork.Create())
-        //        {
-        //            //1. Delete Orders and OrderProducts
-        //            var step1 = context.Repositories.OrderRepository.Remove(OrderID);
-        //            //2. Revert Quantity Product
-        //            foreach (var item in model.lstProduct)
-        //            {
-        //                //2.1. Get Product
-        //                var product = context.Repositories.ProductRepository.Get(item.ProductID);
-        //                ProductRequestModel productRequestModel = new ProductRequestModel();
-        //                productRequestModel.Quantity = product.Quantity + item.Quantity;
+        public ApiResponse<int> Delete(int orderID, int customerID)
+        {
+            try
+            {
+                using (var context = _unitOfWork.Create())
+                {
+                    //1. Delete Orders (chỉ cần xóa order vì xóa đơn hàng là xóa tất cả product trong order)
+                    OrderRequestModel model = new OrderRequestModel();
+                    model.Status = Parameters.StatusOrderDelete;
+                    model.Note = "Nhân viên hủy đơn hàng";
+                    var deleteOrder = context.Repositories.OrderRepository.Update(model, orderID);
+                    if (deleteOrder < 1)
+                        return ApiResponse<int>.ErrorResponse("Xóa đơn hàng thất bại");
 
-        //                //2.2. Update Product Quantity
-        //                context.Repositories.ProductRepository.Update(productRequestModel, item.ProductID);
-        //            }
+                    //2. Revert Quantity Product (chờ api của Toai)
+                    //foreach (var item in model.lstProduct)
+                    //{
+                    //    //2.1. Get Product
+                    //    var product = context.Repositories.ProductRepository.Get(item.ProductID);
+                    //    ProductRequestModel productRequestModel = new ProductRequestModel();
+                    //    productRequestModel.Quantity = product.Quantity + item.Quantity;
 
-        //            //3.1 Insert table notifications (KH)
-        //            NotificationRequestModel notificationRequestModel = new NotificationRequestModel();
-        //            notificationRequestModel.Status = 24;
-        //            notificationRequestModel.Content = "Đơn hàng: " + OrderID + " đã bị hủy";
-        //            var step3 = context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                    //    //2.2. Update Product Quantity 
+                    //    context.Repositories.ProductRepository.Update(productRequestModel, item.ProductID);
+                    //}
 
-        //            //3.2. Insert table notifications (NV)
-        //            notificationRequestModel.Status = 20;
-        //            notificationRequestModel.Content = "Đơn hàng: " + OrderID + " đã bị hủy.";
-        //            context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                    //3.1 Insert table notifications (KH)
+                    NotificationRequestModel notificationRequestModel = new NotificationRequestModel();
+                    notificationRequestModel.Status = Parameters.StatusKHNotify;
+                    notificationRequestModel.Content = "Đơn hàng: " + orderID + " đã bị hủy";
+                    notificationRequestModel.CreateBy = customerID;
+                    var notifyKH = context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                    if (notifyKH < 1)
+                        return ApiResponse<int>.ErrorResponse("Thông báo KH thất bại");
 
-        //            if (step1 <= 0 || step3 <= 0)
-        //            {
-        //                outModel.Message = "Xóa thất bại";
-        //                outModel.StatusCode = "999";
-        //            }
-        //            else
-        //            {
-        //                context.SaveChanges();
-        //                outModel.Message = "Xóa thành công";
-        //                outModel.StatusCode = "200";
-        //            }
-        //        }
-        //        return outModel;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
+                    //3.2. Insert table notifications (NV)
+                    notificationRequestModel.Status = Parameters.StatusNVNotify;
+                    notificationRequestModel.Content = "Đơn hàng: " + orderID + " đã bị hủy.";
+                    notificationRequestModel.CreateBy = customerID;
+                    var notifyNV = context.Repositories.NotificationRepository.Create(notificationRequestModel);
+                    if(notifyNV < 1)
+                        return ApiResponse<int>.ErrorResponse("Thông báo NV thất bại");
+
+                    context.SaveChanges();
+                    return ApiResponse<int>.SuccessResponse(1, "Hủy đơn hàng thành công");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         public ApiResponse<OrderResponseModel> Get(int orderID)
         {

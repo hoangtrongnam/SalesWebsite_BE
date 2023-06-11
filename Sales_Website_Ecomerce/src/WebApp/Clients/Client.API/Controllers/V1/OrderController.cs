@@ -44,21 +44,21 @@ namespace Client.API.Controllers
         //    return Ok(_orderService.Update(item, OrderID));
         //}
 
-        //[HttpDelete("/DeleteOrder")]
-        //public ActionResult DeleteOrder([Required] int OrderID)
-        //{
-        //    OrderResponseModel orderResponseModel = _orderService.GetlistProduct(OrderID);
-        //    OrderRequestModel orderRequestModel = new OrderRequestModel();
-        //    var lstProduct = new List<ProductModel>();
-        //    foreach (var item in orderResponseModel.lstProduct)
-        //    {
-        //        var product = new ProductModel();
-        //        product.ProductID = item.ProductID;
-        //        product.Quantity = item.Quantity;
-        //        lstProduct.Add(product);
-        //    }
-        //    orderRequestModel.lstProduct = lstProduct;
-        //    return Ok(_orderService.Delete(orderRequestModel, OrderID));
-        //}
+        [HttpDelete("/DeleteOrder")]
+        public ActionResult DeleteOrder([Required] int orderID, [Required] int customerID)
+        {
+            //OrderResponseModel orderResponseModel = _orderService.GetlistProduct(OrderID);
+            //OrderRequestModel orderRequestModel = new OrderRequestModel();
+            //var lstProduct = new List<ProductModel>();
+            //foreach (var item in orderResponseModel.lstProduct)
+            //{
+            //    var product = new ProductModel();
+            //    product.ProductID = item.ProductID;
+            //    product.Quantity = item.Quantity;
+            //    lstProduct.Add(product);
+            //}
+            //orderRequestModel.lstProduct = lstProduct;
+            return Ok(_orderService.Delete(orderID, customerID));
+        }
     }
 }

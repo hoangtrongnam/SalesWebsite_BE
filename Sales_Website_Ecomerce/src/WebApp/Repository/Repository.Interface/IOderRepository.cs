@@ -11,7 +11,7 @@ namespace Repository.Interface
         OrderResponseModel GetLstOrder(int Status); //hỗ trợ hủy đơn hàng đã hết hạng
         OrderResponseModel GetOrderDetail(int orderID, out decimal totalPayment);
         int Create(OrderRequestModel item);
-        int Remove(int OrderID);
+        //int Remove(int OrderID);
         int Update(OrderRequestModel item, int orderID);
     }
 }
