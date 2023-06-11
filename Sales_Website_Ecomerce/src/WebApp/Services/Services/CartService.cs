@@ -11,6 +11,7 @@ namespace Services
         ApiResponse<int> Create(CartRequestModel model);
         ApiResponse<int> Update(CartRequestModel model, int cartID);
         ApiResponse<int> Delete(int cartID);
+        bool QuantityValid(int newQuantity, int oldQuantity, int productID, int wareHouseID, IUnitOfWorkAdapter context);
     }
     public class CartServices : ICartServices
     {

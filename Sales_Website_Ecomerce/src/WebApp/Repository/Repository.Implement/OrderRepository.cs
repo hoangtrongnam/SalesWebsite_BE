@@ -183,6 +183,7 @@ namespace Repository.Implement
                     //product.Code = reader["Code"].ToString() ?? "";
                     product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
                     product.Price = string.IsNullOrEmpty(reader["Price"].ToString()) ? 0 : Convert.ToDecimal(reader["Price"]);
+                    product.WarehouseID = string.IsNullOrEmpty(reader["WarehouseID"].ToString()) ? 0 : Convert.ToInt32(reader["WarehouseID"]);
                     totalPayment += product.Quantity * product.Price;
 
                     lstProduct.Add(product);

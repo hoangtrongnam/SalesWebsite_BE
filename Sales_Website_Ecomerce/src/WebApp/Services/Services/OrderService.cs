@@ -17,9 +17,12 @@ namespace Services
     public class OrderServices : IOrderServices
     {
         private IUnitOfWork _unitOfWork;
-        public OrderServices(IUnitOfWork unitOfWork)
+        private readonly ICartServices cartServices;
+
+        public OrderServices(IUnitOfWork unitOfWork, ICartServices cartServices)
         {
             _unitOfWork = unitOfWork;
+            this.cartServices = cartServices;
         }
         public ApiResponse<int> Create(OrderRequestModel model)
         {
@@ -36,7 +39,11 @@ namespace Services
                     {
                         foreach (var item in model.lstProduct)
                         {
-                            //2. Delete Product from Cart
+                            //2. Check SL đủ không
+                            if (!cartServices.QuantityValid(item.Quantity, 0, item.ProductID, item.WareHouseID, context))
+                                return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
+
+                            //3. Delete Product from Cart
                             CartRequestModel cartModel = new CartRequestModel();
                             cartModel.ProdutID = item.ProductID;
 
@@ -51,14 +58,14 @@ namespace Services
                             ////4. Update Prodcut Quantity
                             //context.Repositories.ProductRepository.Update(productRequestModel, item.ProductID);
                         }
-                        //3. Insert table notifications (NV)
+                        //4. Insert table notifications (NV)
                         NotificationRequestModel notificationRequestModel = new NotificationRequestModel();
                         notificationRequestModel.Status = Parameters.StatusNVNotify;
                         notificationRequestModel.CreateBy = model.CustomerID;
                         notificationRequestModel.Content = "Đơn hàng: " + OrderID + " cần xử lý.";
                         context.Repositories.NotificationRepository.Create(notificationRequestModel);
 
-                        //4. Insert table notifications (KH)
+                        //5. Insert table notifications (KH)
                         notificationRequestModel.Status = Parameters.StatusKHNotify;
                         notificationRequestModel.CreateBy = model.CustomerID;
                         notificationRequestModel.Content = "Đơn hàng: " + OrderID + " đặt thành công.";
