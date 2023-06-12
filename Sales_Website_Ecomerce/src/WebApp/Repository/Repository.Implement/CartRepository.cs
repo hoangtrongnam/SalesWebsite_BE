@@ -1,9 +1,10 @@
-﻿using Models.RequestModel;
-using Models.ResponseModels;
+﻿using Common;
+using Dapper;
+using Models.RequestModel.Cart;
+using Models.ResponseModels.Cart;
 using Repository.Interface;
-using Repository.Interfaces.Actions;
+using System.Data;
 using System.Data.SqlClient;
-using System.Reflection.PortableExecutable;
 
 namespace Repository.Implement
 {
@@ -15,153 +16,155 @@ namespace Repository.Implement
             this._transaction = _transaction;
         }
 
-        //public int Create(CartRequestModel item)
-        //{
-        //    //throw new NotImplementedException();
-        //    int CartID = GetCartIDByIDCustomer(item.CustomerID);
-        //    if (CartID != 0) //Customer đã có cart
-        //    {
-        //        //1.Check Product đã có trong Cart_Product
-        //        var reader = GetCartProduct(item.ProdutID, CartID);
+        public int GetProductInStock(int productID, int wareHouseID)
+        {
+            //var parameters = new DynamicParameters(new
+            //{
+            //    ProductID = productID,
+            //    WareHouseID = wareHouseID,
+            //    status = 1
+            //});
+            var result = Query<object>("SP_Get_ProductStock", new { ProductID = productID, WareHouseID = wareHouseID }, commandType: CommandType.StoredProcedure).ToList();
 
-        //        reader.Read();
-        //        bool hasRows = reader.HasRows;
-        //        int oldQuantity = hasRows ? string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]) : 0;
-        //        reader.Close();
+            return result.Count();
+        }
 
-        //        if (hasRows) //Product đã có cart
-        //        {
-        //            item.Quantity = oldQuantity + item.Quantity;
-        //            //1.1 update lại so luong, status
-        //            return UpdateCartProduct(item, CartID);
-        //        }
-        //        else
-        //        {
-        //            //2.Add Cart_Product
-        //            return InsertCartProduct(item, CartID);
-        //        }
-        //    }
-        //    else //Customer chưa có cart
-        //    {
-        //        SqlCommand command = CreateCommand("sp_InsertCart");
-        //        command.Parameters.AddWithValue("@CustomerID", item.CustomerID);
-        //        command.CommandType = System.Data.CommandType.StoredProcedure;
+        public int CreateCart(int customerID)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                CustomerID = customerID,
+                Stautus = Parameters.StatusCartInsert //New cart
+            });
+            parameters.Add("@CartID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var result = Execute("sp_InsertCart", parameters, commandType: CommandType.StoredProcedure);
 
-        //        if (command.ExecuteNonQuery() != 0) //add cart success
-        //        {
-        //            #region Process cart_product
-        //            //1. Get CartID
-        //            CartID = GetCartIDByIDCustomer(item.CustomerID);
+            return result > 0 ? parameters.Get<int>("CartID") : 0;
+        }
 
-        //            //2. Add Cart_Product
-        //            return InsertCartProduct(item, CartID);
+        public int UpdateCartProduct(CartRequestModel item, int cartID, int status)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                CartID = cartID,
+                ProdutID = item.ProdutID,
+                Quantity = item.Quantity,
+                StatusID = status,
+                WareHouseID = item.WarehouseID
+            });
 
-        //            #endregion
-        //        }
-        //    }
-        //    return 0;
-        //}
+            var result = Execute("sp_UpdateCartProduct", parameters, commandType: CommandType.StoredProcedure);
+            return result;
 
-        //public List<CartResponeModel> GetAll(int pageIndex)
-        //{
-        //    throw new NotImplementedException();
-        //}
+            //return Query<object>("SP_Get_ProductStock", new { ID = productID, WareHouseID = wareHouseID }, commandType: CommandType.StoredProcedure).ToList().Count();
 
-        //public List<CartResponeModel> GetAll()
-        //{
-        //    throw new NotImplementedException();
-        //}
+            //SqlCommand command = CreateCommand("sp_UpdateCartProduct");
+            //command.Parameters.AddWithValue("@CartID", CartID);
+            //command.Parameters.AddWithValue("@ProdutID", item.ProdutID);
+            //command.Parameters.AddWithValue("@Quantity", item.Quantity);
+            //command.Parameters.AddWithValue("@StatusID", item.StatusID);
+            //command.CommandType = System.Data.CommandType.StoredProcedure;
+            //return command.ExecuteNonQuery();
+        }
 
-        //private int UpdateCartProduct(CartRequestModel item, int CartID)
-        //{
-        //    SqlCommand command = CreateCommand("sp_UpdateCartProduct");
-        //    command.Parameters.AddWithValue("@CartID", CartID);
-        //    command.Parameters.AddWithValue("@ProdutID", item.ProdutID);
-        //    command.Parameters.AddWithValue("@Quantity", item.Quantity);
-        //    command.Parameters.AddWithValue("@StatusID", item.StatusID);
-        //    command.CommandType = System.Data.CommandType.StoredProcedure;
-        //    return command.ExecuteNonQuery();
-        //}
+        public int UpdateCart(CartRequestModel item, int cartID, int status)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                CartID = cartID,
+                StatusID = status
+            });
 
-        //private int InsertCartProduct(CartRequestModel item, int CartID)
-        //{
-        //    SqlCommand command = CreateCommand("sp_InsertCartProduct");
-        //    command.Parameters.AddWithValue("@CartID", CartID);
-        //    command.Parameters.AddWithValue("@ProdutID", item.ProdutID);
-        //    command.Parameters.AddWithValue("@Quantity", item.Quantity);
-        //    command.Parameters.AddWithValue("@StatusID", item.StatusID);
-        //    command.CommandType = System.Data.CommandType.StoredProcedure;
-        //    return command.ExecuteNonQuery();
-        //}
+            var result = Execute("sp_UpdateCart", parameters, commandType: CommandType.StoredProcedure);
+            return result;
+        }
 
-        //private SqlDataReader GetCartProduct(int produtID, int CartID)
-        //{
-        //    SqlCommand command = CreateCommand("sp_GetCartProduct");
-        //    command.Parameters.AddWithValue("@CartID", CartID);
-        //    command.Parameters.AddWithValue("@ProductID", produtID);
-        //    command.CommandType = System.Data.CommandType.StoredProcedure;
-        //    return command.ExecuteReader();
-        //}
+        public int InsertCartProduct(CartRequestModel item, int cartID)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                CartID = cartID,
+                ProdutID = item.ProdutID,
+                Quantity = item.Quantity,
+                StatusID = Parameters.StatusCartProductInsert, //status them moi
+                WareHouseID = item.WarehouseID
+            });
 
-        //private int GetCartIDByIDCustomer(int customerID)
-        //{
-        //    SqlCommand command = CreateCommand("sp_GetCartByIDCustomer");
-        //    command.Parameters.AddWithValue("@CustomerID", customerID);
-        //    command.CommandType = System.Data.CommandType.StoredProcedure;
-        //    var reader = command.ExecuteReader();
+            var result = Execute("sp_InsertCartProduct", parameters, commandType: CommandType.StoredProcedure);
+            return result;
 
-        //    reader.Read();
-        //    int CartID = reader.HasRows ? string.IsNullOrEmpty(reader["CartID"].ToString()) ? 0 : Convert.ToInt32(reader["CartID"]) : 0;
+            //SqlCommand command = CreateCommand("sp_InsertCartProduct");
+            //command.Parameters.AddWithValue("@CartID", CartID);
+            //command.Parameters.AddWithValue("@ProdutID", item.ProdutID);
+            //command.Parameters.AddWithValue("@Quantity", item.Quantity);
+            //command.Parameters.AddWithValue("@StatusID", item.StatusID);
+            //command.CommandType = System.Data.CommandType.StoredProcedure;
+            //return command.ExecuteNonQuery();
+        }
 
-        //    reader.Close();
+        public List<CartModel> GetCartProduct(int produtID, int cartID)
+        {
+            var param = new DynamicParameters(new
+            {
+                CartID = cartID,
+                ProductID = produtID
+            });
 
-        //    return CartID;
-        //}
+            var result = Query<CartModel>("sp_GetCartProduct", param, commandType: CommandType.StoredProcedure).ToList();
 
-        //public int Remove(int id)
-        //{
-        //    throw new NotImplementedException();
-        //}
+            return result;
+        }
+
+        /// <summary>
+        /// Get CartID By CustomerID
+        /// </summary>
+        /// <param name="customerID"></param>
+        /// <returns></returns>
+        public int GetCartIDByCustomerID(int customerID)
+        {
+            var result = QueryFirstOrDefault<CartResponeModel>("sp_GetCartByIDCustomer", new { CustomerID = customerID }, commandType: CommandType.StoredProcedure);
+            return result == null ? 0 : result.CartID;
+        }
 
         //public int Update(CartRequestModel item, int CartID)
         //{
         //    return UpdateCartProduct(item, CartID);
         //}
 
-        //CartResponeModel IReadRepository<CartResponeModel, int>.Get(int id)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public CartResponeModel Get(int customerID, int pageIndex = 1)
+        {
+            //chua lam case lay gia cua product
+            CartResponeModel cart = new CartResponeModel();
+            //1 get cartID
+            int CartID = GetCartIDByCustomerID(customerID);
+            cart.CartID = CartID;
 
-        //public CartResponeModel Get(int customerID = 0, int pageIndex = 1)
-        //{
-        //    //1 get cartID
-        //    int CartID = GetCartIDByIDCustomer(customerID);
+            //2 get CartProduct
+            var lstProduct = GetCartProduct(0, CartID);
 
-        //    //2 get CartProduct
-        //    var reader = GetCartProduct(0, CartID);
+            cart.lstProduct = lstProduct;
 
-        //    CartResponeModel cart = new CartResponeModel();
-        //    List<CartModel> lstProduct = new List<CartModel>();
-        //    while (reader.Read())
-        //    {
-        //        var product = new CartModel();
-        //        product.ProductName = reader["Name"].ToString() ?? "";
-        //        product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
-        //        product.QuantityMax = string.IsNullOrEmpty(reader["QuantityMax"].ToString()) ? 0 : Convert.ToInt32(reader["QuantityMax"]);
-        //        product.Price = string.IsNullOrEmpty(reader["Price"].ToString()) ? 0 : Convert.ToDecimal(reader["Price"]);
-        //        product.TotalPrice = product.Quantity * product.Price;
-        //        lstProduct.Add(product);
-        //    }
-        //    cart.CartID = CartID;
-        //    cart.lstProduct = lstProduct;
+            //reader.Close();
 
-        //    reader.Close();
+            return cart;
+        }
 
-        //    return cart;
-        //}
+        public int Remove(CartRequestModel item, int cartID) //xóa mềm
+        {
+            //1. Update status table cart
+            int updateCart = UpdateCart(item, cartID, Parameters.StatusDeleteCart);
 
-        //public int Remove(CartRequestModel item, int cartID)
+            //2. Update status table cart_product
+            item.ProdutID = -1;
+            int updateCartProdct = UpdateCartProduct(item, cartID, Parameters.StatusDeleteCartProduct);
+
+            if (updateCartProdct > 0 && updateCart > 0)
+                return 1;
+
+            return 0;
+        }
+
+        //public int Remove(CartRequestModel item, int cartID) //xóa cứng
         //{
         //    item.Quantity = 0;
         //    //1. Delete product in CartProduct

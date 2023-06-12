@@ -91,6 +91,8 @@ namespace Product.API.Extensions
             services.AddTransient<IWareHouseServices, WareHouseServices>();
             services.AddTransient<ISupplierServices, SupplierServices>();
             services.AddTransient<IProductStockService, ProductStockService>();
+            services.AddTransient<OrderServices>(); 
+            //services.AddTransient<NotificationServices>();
             return services;
         }
     }

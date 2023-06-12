@@ -15,6 +15,9 @@ namespace UnitOfWork.Database
         public ISupplierRepository SupplierRepository { get; }
         public IWareHouseRepository WareHouseRepository { get; }
         public IProductStockRepository ProductStockRepository { get; }
+        public IOrderRepository OrderRepository { get; }
+        public INotificationRepository NotificationRepository { get; }
+        //public IJobScheduleRepository JobScheduleRepository { get; }
 
         public UnitOfWorkDatabaseRepository(SqlConnection context, SqlTransaction transaction)
         {          
@@ -26,6 +29,9 @@ namespace UnitOfWork.Database
             SupplierRepository = new SupplierRepository(context, transaction);
             WareHouseRepository = new WareHouseRepository(context, transaction);
             ProductStockRepository = new ProductStockRepository(context, transaction);
+            OrderRepository = new OrderRepository(context, transaction);
+            NotificationRepository = new NotificationRepository(context, transaction);
+            //JobScheduleRepository = new JobScheduleRepository(context, transaction);
         }
     }
 }
