@@ -5,7 +5,7 @@ using Repository.Interfaces.Actions;
 namespace Repository.Interface
 {
     public interface IProductRepository: ICreateRepository<CreateOnlyProductRequestModel, int>
-        ,IReadRepository<ProductResponseModel,int>
+        ,IReadRepository<ProductResponseModel,int>, IUpdateRepository<UpdateProductRequestModel,int>
     {
         List<ImageResponseModel> GetImages(int ProductID);
         List<PriceResponseModel> GetPrices(int ProductID);

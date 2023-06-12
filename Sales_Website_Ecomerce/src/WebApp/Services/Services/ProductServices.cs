@@ -4,6 +4,8 @@ using Models.RequestModel.Product;
 using Models.RequestModel.Category;
 using Models.ResponseModels.Product;
 using AutoMapper;
+using static System.Net.Mime.MediaTypeNames;
+using System.Diagnostics;
 
 namespace Services
 {
@@ -15,6 +17,8 @@ namespace Services
         ApiResponse<ProductResponseModel> GetProductByID(int id);
         ApiResponse<List<ImageResponseModel>> GetImagesByProductID(int ProductID);
         ApiResponse<List<PriceResponseModel>> GetPricesByProductID(int ProductID);
+        ApiResponse<List<ProductResponseModel>> GetProductByCategory(int CategoryId);
+        ApiResponse<int> UpdateProduct(UpdateProductRequestModel model, int ProductID);
     }
     public class ProductServices : IProductServices
     {
@@ -144,16 +148,72 @@ namespace Services
 
                 if (images.Any())
                 {
-                    var image = images.OrderByDescending(obj => obj.ID).FirstOrDefault();
+                    var image = images.OrderByDescending(obj => obj.ImageID).FirstOrDefault();
                     _mapper.Map(image, result);
                 }
                 if (prices.Any())
                 {
-                    var price = prices.OrderByDescending(obj => obj.ID).FirstOrDefault();
+                    var price = prices.OrderByDescending(obj => obj.PriceID).FirstOrDefault();
                     _mapper.Map(price, result);
                 }
                 
                 return ApiResponse<ProductResponseModel>.SuccessResponse(result);
+            }
+        }
+        /// <summary>
+        /// get product by category
+        /// </summary>
+        /// <param name="CategoryId"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public ApiResponse<List<ProductResponseModel>> GetProductByCategory(int CategoryId)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var products = context.Repositories.ProductRepository.GetProductCategory(CategoryId);
+                if (products.Any())
+                {
+                    for (int i = 0; i < products.Count; i++)
+                    {
+                        var item = products[i];
+                        var images = context.Repositories.ProductRepository.GetImages(item.ID);
+                        if (images.Any())
+                        {
+                            var image = images.OrderByDescending(obj => obj.ImageID).FirstOrDefault();
+                            _mapper.Map(image, item);
+                        }
+                        var prices = context.Repositories.ProductRepository.GetPrices(item.ID);
+                        if (prices.Any())
+                        {
+                            var price = prices.OrderByDescending(obj => obj.PriceID).FirstOrDefault();
+                            _mapper.Map(price, item);
+                        }
+                        products[i] = item;
+                    }
+                }
+                return ApiResponse<List<ProductResponseModel>>.SuccessResponse(products);
+            }
+        }
+        /// <summary>
+        /// Update product service
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="ProductID"></param>
+        /// <returns></returns>
+        public ApiResponse<int> UpdateProduct(UpdateProductRequestModel model, int ProductID)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var product = context.Repositories.ProductRepository.Get(ProductID);
+                if (product == null)
+                    return ApiResponse<int>.ErrorResponse("Product does not exist.");
+
+                var result = context.Repositories.ProductRepository.Update(model, ProductID);
+                if(result <= 0)
+                    return ApiResponse<int>.ErrorResponse("Update product fail.");
+
+                context.SaveChanges();
+                return ApiResponse<int>.SuccessResponse(result);
             }
         }
     }

@@ -119,6 +119,28 @@ namespace Repository.Implement
             var result = Query<ProductResponseModel>("SP_GetProductByCategory", new { CategoryID = CategoryID }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
+        /// <summary>
+        /// Update Product Repository
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public int Update(UpdateProductRequestModel item, int id)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                ProductID = id,
+                Name = item.Name,
+                Code = item.Code,
+                Description = item.Description,
+                UpdateBy = item.UpdateBy
+            });
+            parameters.Add("@Result", dbType: DbType.Int32,direction: ParameterDirection.Output);
+
+            Execute("SP_UpdateProduct", parameters, commandType: CommandType.StoredProcedure);
+
+            return parameters.Get<int>("@Result");
+        }
     }
 }
  

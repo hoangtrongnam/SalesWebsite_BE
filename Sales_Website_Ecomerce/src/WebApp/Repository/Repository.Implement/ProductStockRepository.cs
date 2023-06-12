@@ -1,14 +1,8 @@
 ﻿using Dapper;
 using Models.RequestModel.ProductStock;
 using Repository.Interface;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Repository.Implement
 {

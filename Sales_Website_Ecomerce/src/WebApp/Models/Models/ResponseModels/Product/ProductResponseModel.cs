@@ -27,7 +27,7 @@
 
     public class ImageResponseModel
     {
-        public int ID { get; set; }
+        public int ImageID { get; set; }
         public int ProductID { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
@@ -37,7 +37,7 @@
     }
     public class PriceResponseModel
     {
-        public int ID { get; set; }
+        public int PriceID { get; set; }
         public int ProductID { get; set; }
         public string Price { get; set; }
         public string PromotePrice { get; set; }
