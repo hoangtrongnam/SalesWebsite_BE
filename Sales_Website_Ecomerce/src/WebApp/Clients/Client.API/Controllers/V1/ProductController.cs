@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Client.API.Utils;
+using Microsoft.AspNetCore.Mvc;
 using Models.RequestModel.Product;
 using Services;
 using System.ComponentModel.DataAnnotations;
@@ -13,10 +14,12 @@ namespace Client.API.Controllers.V1
     public class ProductController : ControllerBase
     {
         private readonly IProductServices _productService;
+        private readonly RequestUtils _requestUtils;
 
-        public ProductController(IProductServices productService)
+        public ProductController(IProductServices productService, RequestUtils requestUtils)
         {
             _productService = productService;
+            _requestUtils = requestUtils;
         }
         [HttpPost("CreateProduct")]
         public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model)
@@ -65,6 +68,14 @@ namespace Client.API.Controllers.V1
         public async Task<ActionResult> GetProductByCategory([Required] int CategoryId)
         {
             var result = _productService.GetProductByCategory(CategoryId);
+            return Ok(result);
+        }
+
+        [HttpGet("GetProducts")]
+        public async Task<ActionResult> GetProducts()
+        {
+            var tenantId = _requestUtils.GetTenantId();
+            var result = _productService.GetProducts(tenantId);
             return Ok(result);
         }
 

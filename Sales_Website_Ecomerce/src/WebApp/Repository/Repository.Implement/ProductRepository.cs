@@ -119,7 +119,17 @@ namespace Repository.Implement
             var result = Query<ProductResponseModel>("SP_GetProductByCategory", new { CategoryID = CategoryID }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
+
         /// <summary>
+        /// Get products by tenant
+        /// </summary>
+        /// <returns></returns>
+        public List<ProductResponseModel> GetProducts(int tenantId)
+        {
+            var result = Query<ProductResponseModel>("SELECT * FROM Product a WHERE a.TenantID=@TenantID", new { TenantID = tenantId }, commandType: CommandType.Text).ToList();
+            return result;
+        }
+        /// <summary>   
         /// Update Product Repository
         /// </summary>
         /// <param name="item"></param>

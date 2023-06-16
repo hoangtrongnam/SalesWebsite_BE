@@ -6,6 +6,7 @@ using Models.ResponseModels.Product;
 using AutoMapper;
 using static System.Net.Mime.MediaTypeNames;
 using System.Diagnostics;
+using static Models.ResponseModels.OrderResponseModel;
 
 namespace Services
 {
@@ -18,6 +19,7 @@ namespace Services
         ApiResponse<List<ImageResponseModel>> GetImagesByProductID(int ProductID);
         ApiResponse<List<PriceResponseModel>> GetPricesByProductID(int ProductID);
         ApiResponse<List<ProductResponseModel>> GetProductByCategory(int CategoryId);
+        ApiResponse<List<ProductResponseModel>> GetProducts(int tenantId);
         ApiResponse<int> UpdateProduct(UpdateProductRequestModel model, int ProductID);
     }
     public class ProductServices : IProductServices
@@ -39,13 +41,13 @@ namespace Services
         {
             using (var context = _unitOfWork.Create())
             {
-                foreach(var item in listImage)
+                foreach (var item in listImage)
                 {
                     var product = context.Repositories.ProductRepository.Get(item.ProductID);
-                    if(product == null)
+                    if (product == null)
                         return ApiResponse<int>.ErrorResponse($"Product {item.ProductID} does not exists.");
                 }
-                
+
                 //Create multiple image 
                 var result = context.Repositories.ProductRepository.CreateImages(listImage);
                 if (result <= 0)
@@ -87,7 +89,7 @@ namespace Services
         /// <returns></returns>
         public ApiResponse<int> CreateProduct(CreateOnlyProductRequestModel model)
         {
-            using(var context = _unitOfWork.Create())
+            using (var context = _unitOfWork.Create())
             {
                 var getCategotyByIDModel = new GetCategoryCommonRequestModel()
                 {
@@ -95,12 +97,14 @@ namespace Services
                     TenantID = model.TenantID
                 };
                 var category = context.Repositories.CategoryRepository.GetByCondition(getCategotyByIDModel);
-                if(category == null)
+                if (category == null && false)
+                {
                     return ApiResponse<int>.ErrorResponse("Category Doest not Exists");
-                
+                }
+
                 //Insert Only Prroduct
                 var productID = context.Repositories.ProductRepository.Create(model);
-                if(productID <= 0)
+                if (productID <= 0)
                     return ApiResponse<int>.ErrorResponse("Create Product Fail");
 
                 context.SaveChanges();
@@ -156,7 +160,7 @@ namespace Services
                     var price = prices.OrderByDescending(obj => obj.PriceID).FirstOrDefault();
                     _mapper.Map(price, result);
                 }
-                
+
                 return ApiResponse<ProductResponseModel>.SuccessResponse(result);
             }
         }
@@ -209,12 +213,31 @@ namespace Services
                     return ApiResponse<int>.ErrorResponse("Product does not exist.");
 
                 var result = context.Repositories.ProductRepository.Update(model, ProductID);
-                if(result <= 0)
+                if (result <= 0)
                     return ApiResponse<int>.ErrorResponse("Update product fail.");
 
                 context.SaveChanges();
                 return ApiResponse<int>.SuccessResponse(result);
             }
+        }
+
+        public ApiResponse<List<ProductResponseModel>> GetProducts(int tenantId)
+        {
+            var products = new List<ProductResponseModel>();
+            using (var context = _unitOfWork.Create())
+            {
+                products = context.Repositories.ProductRepository.GetProducts(tenantId);
+                if (products.Any())
+                {
+                    products.ForEach(p =>
+                    {
+                        p.Images = context.Repositories.ProductRepository.GetImages(p.ID).OrderBy(i => i.ImageID).Take(1).ToList();
+                        p.Price = context.Repositories.ProductRepository.GetPrices(p.ID).FirstOrDefault()?.Price;
+                    });
+                }
+            }
+
+            return ApiResponse<List<ProductResponseModel>>.SuccessResponse(products);
         }
     }
 }

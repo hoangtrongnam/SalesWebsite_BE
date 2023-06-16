@@ -12,5 +12,6 @@ namespace Repository.Interface
         int CreatePrices(List<PriceRequestModel> item);
         int CreateImages(List<ImageRequestModel> item);
         List<ProductResponseModel> GetProductCategory(int CategoryID);
+        List<ProductResponseModel> GetProducts(int tenantId);
     }
 }
