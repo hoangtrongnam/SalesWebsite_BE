@@ -36,6 +36,12 @@ namespace Client.API.Controllers
             return Ok(_cartService.Create(cart));
         }
 
+        [HttpPost("/AddProductExisted")]// khi giỏ hang đã có product
+        public ActionResult AddProductExisted([FromBody][Required] CartRequestModel cart)
+        {
+            return Ok(_cartService.AddProductExisted(cart));
+        }
+
         [HttpPut("/UpdateCart")]
         public ActionResult UpdateCart([FromBody][Required] CartRequestModel item, [Required] int cartID)
         {
