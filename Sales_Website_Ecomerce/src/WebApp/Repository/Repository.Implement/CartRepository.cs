@@ -50,7 +50,8 @@ namespace Repository.Implement
                 ProdutID = item.ProdutID,
                 Quantity = item.Quantity,
                 StatusID = status,
-                WareHouseID = item.WarehouseID
+                WareHouseID = item.WarehouseID,
+                PromoteID = item.PromoteID
             });
 
             var result = Execute("sp_UpdateCartProduct", parameters, commandType: CommandType.StoredProcedure);
@@ -87,7 +88,8 @@ namespace Repository.Implement
                 ProdutID = item.ProdutID,
                 Quantity = item.Quantity,
                 StatusID = Parameters.StatusCartProductInsert, //status them moi
-                WareHouseID = item.WarehouseID
+                WareHouseID = item.WarehouseID,
+                PromoteID = item.PromoteID
             });
 
             var result = Execute("sp_InsertCartProduct", parameters, commandType: CommandType.StoredProcedure);

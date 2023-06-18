@@ -2,6 +2,8 @@
 using Common;
 using Models.ResponseModels.Cart;
 using Models.RequestModel.Cart;
+using Models.ResponseModels.Product;
+using static Models.ResponseModels.OrderResponseModel;
 
 namespace Services
 {
@@ -120,11 +122,11 @@ namespace Services
 
                         if (product != null) //1.1.1. Product chưa trong Cart_Product
                         {
-                            //1.1.1.1 kiểm tra sl trong kho còn đủ không
+                            //1.1.1.1 kiểm tra sl trong kho (kho user nhập) còn đủ không
                             if (!QuantityValid(item.Quantity, 0, item.ProdutID, item.WarehouseID, context))
                                 return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
 
-                            //1.1.1.2. Remove Product trong giỏ hàng
+                            //1.1.1.2. Remove Product trong cartProduct không cần phải remove lun cart vì nó sẽ add lại vào cartproduct
                             int updateCartProdct = context.Repositories.CartRepository.UpdateCartProduct(item, cartID, Parameters.StatusDeleteCartProduct);
                             if (updateCartProdct < 1)
                                 return ApiResponse<int>.ErrorResponse("Xóa sản phẩm: "+ product.Name+ " trong giỏ hàng thất bại");
@@ -191,6 +193,13 @@ namespace Services
                     var result = context.Repositories.CartRepository.Get(customerID, pageIndex);
                     if (result.CartID > 0)
                     {
+                        //trả về list KM theo từng Product
+                        foreach (var item in result.lstProduct)
+                        {
+                            //var lstPromote = new PriceResponseModel();
+                            var lstPromote = context.Repositories.ProductRepository.GetPrices(item.ProductID);
+                            item.lstPromote = lstPromote;
+                        }
                         return ApiResponse<CartResponeModel>.SuccessResponse(result);
                     }
                     else

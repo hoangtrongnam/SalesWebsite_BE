@@ -14,5 +14,7 @@ namespace Models.RequestModel.Cart
         //public int StatusID { get; set; }
         [Required]
         public int WarehouseID { get; set; }
+        [Required]
+        public int PromoteID { get; set; }
     }
 }
