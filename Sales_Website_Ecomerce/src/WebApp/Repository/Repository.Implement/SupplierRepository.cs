@@ -19,10 +19,12 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public int Create(CreateSupplierRequestModel item)
+        public int Create(CreateSupplierRepositoryRequestModel item)
         {
             var parameters = new DynamicParameters(new
             {
+                SupplierID = item.SupplierID,
+                SupplierCode = item.SupplierCode,
                 Name = item.Name,
                 Address = item.Address,
                 PhoneNumber = item.PhoneNumber,
@@ -38,9 +40,9 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public SupplierResponseModel Get(int id)
+        public SupplierResponseModel Get(Guid id)
         {
-            var result = QueryFirstOrDefault<SupplierResponseModel>("SP_GetSupplierByID", new { ID = id }, commandType: CommandType.StoredProcedure);
+            var result = QueryFirstOrDefault<SupplierResponseModel>("SP_GetSupplierByID", new { SupplierID = id }, commandType: CommandType.StoredProcedure);
             return result;
         }
     }

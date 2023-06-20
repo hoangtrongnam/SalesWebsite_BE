@@ -4,7 +4,7 @@ using Repository.Interfaces.Actions;
 
 namespace Repository.Interface
 {
-    public interface IWareHouseRepository: ICreateRepository<CreateWareHouseRequestModel,int>, IReadRepository<WareHouseResponseModel,int>
+    public interface IWareHouseRepository: ICreateRepository<CreateWareHouseRepositoryRequestModel, int>, IReadRepository<WareHouseResponseModel,Guid>
     {
     }
 }

@@ -17,7 +17,7 @@ namespace Client.API.Controllers.V1
         }
 
         [HttpGet("GetSupplierById")]
-        public async Task<ActionResult> GetSupplierById([Required] int id)
+        public async Task<ActionResult> GetSupplierById([Required] Guid id)
         {
             var result = _supplierServices.GetSupplierByID(id);
             return Ok(result);

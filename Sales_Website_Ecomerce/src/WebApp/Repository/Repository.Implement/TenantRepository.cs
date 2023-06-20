@@ -17,9 +17,10 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public TenantResponseModel Get(int id)
+        public TenantResponseModel Get(Guid id)
         {
-            return QueryFirstOrDefault<TenantResponseModel>("SP_GetTenantByID", new { ID = id }, commandType: CommandType.StoredProcedure);
+            return QueryFirstOrDefault<TenantResponseModel>("SP_GetTenantByID", new { TenantID = id }, commandType: CommandType.StoredProcedure);
         }
+       
     }
 }
