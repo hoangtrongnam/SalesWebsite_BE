@@ -1,7 +1,9 @@
 ﻿namespace Models.RequestModel.Product
 {
-    public class PriceRequestModel
+    public class PriceRepositoryRequestModel
     {
+        public Guid PriceID { get; set; }
+        public string PriceCode { get; set; }
         public Guid ProductID { get; set; }
         public string PromotePrice { get; set; }
         public string PromotPercent { get; set; }

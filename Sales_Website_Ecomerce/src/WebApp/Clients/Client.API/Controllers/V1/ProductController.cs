@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting.Internal;
 using Models.RequestModel.Product;
 using Services;
 using System.ComponentModel.DataAnnotations;
@@ -13,47 +14,95 @@ namespace Client.API.Controllers.V1
     public class ProductController : ControllerBase
     {
         private readonly IProductServices _productService;
-
-        public ProductController(IProductServices productService)
+        private readonly ICommonService _commonService;
+        public ProductController(IProductServices productService, ICommonService commonService)
         {
             _productService = productService;
+            _commonService = commonService;
         }
         [HttpPost("CreateProduct")]
-        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model)
+        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model,[FromHeader] Guid TenantID)
         {
-            var result = _productService.CreateProduct(model);
+            var result = _productService.CreateProduct(model, TenantID);
             return Ok(result);
         }
+
         [HttpPost("CreateImages")]
         public async Task<ActionResult> CreateImages([FromBody] List<ImageRequestModel> model)
         {
             var result = _productService.CreateImages(model);
             return Ok(result);
         }
+
         [HttpPost("CreatePrices")]
         public async Task<ActionResult> CreatePrices([FromBody] List<PriceRequestModel> model)
         {
             var result = _productService.CreatePrices(model);
             return Ok(result);
         }
+
         [HttpGet("GetProductById")]
         //[Authorize]
-        public async Task<ActionResult> GetProductById([Required] int id)
+        public async Task<ActionResult> GetProductById([Required] Guid id)
         {
             var result = _productService.GetProductByID(id);
             return Ok(result);
         }
+
         [HttpGet("GetImagesByProductId")]
-        public async Task<ActionResult> GetImagesByProductId([Required] int ProductId)
+        public async Task<ActionResult> GetImagesByProductId([Required] Guid ProductId)
         {
             var result = _productService.GetImagesByProductID(ProductId);
             return Ok(result);
         }
+
         [HttpGet("GetPricesByProductId")]
-        public async Task<ActionResult> GetPricesByProductId([Required] int ProductId)
+        public async Task<ActionResult> GetPricesByProductId([Required] Guid ProductId)
         {
             var result = _productService.GetPricesByProductID(ProductId);
             return Ok(result);
+        }
+
+        [HttpGet("GetProductByCategory")]
+        public async Task<ActionResult> GetProductByCategory([Required] Guid CategoryId)
+        {
+            var result = _productService.GetProductByCategory(CategoryId);
+            return Ok(result);
+        }
+
+        [HttpPut("UpdateProduct")]
+        public async Task<ActionResult> UpdateProduct([FromBody] UpdateProductRequestModel model, [Required] Guid ProductId)
+        {
+            var result = _productService.UpdateProduct(model, ProductId);
+            return Ok(result);
+        }
+
+        [HttpPost("upload")]
+        public async Task<string> UploadFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                throw new ArgumentException("File is required");
+            }
+
+            string rootPath = _commonService.GetConfigValueService((int)Common.Enum.ConfigKey.KeyPath);
+
+            string uploadPath = Path.Combine(rootPath, "uploads");
+
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }
+
+            string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+            string filePath = Path.Combine(uploadPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return filePath.Replace(rootPath,"");
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿namespace Models.RequestModel.Product
 {
-    public class CreateOnlyProductRequestModel
+    public class CreateOnlyProductRepositoryRequestModel
     {
+        public Guid ProductID { get; set; }
+        public string ProductCode { get; set; }
         public Guid CategoryID { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }

@@ -19,13 +19,16 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public CategoryResponseModel Create(CreateCategoryRequestModel item)
+        public CategoryResponseModel Create(CreateCategoryRepositoryRequestModel item, Guid TenantID)
         {
             var parameters = new DynamicParameters(new
             {
+                CategoryID = item.CategoryID,
+                CategoryCode = item.CategoryCode,
+                Value = item.Value,
                 Parent = item.Parent,
                 Name = item.Name,
-                TenantID = item.TenantID,
+                TenantID = TenantID,
                 Description = item.Description,
                 CreateBy = item.CreateBy
             });
@@ -35,36 +38,13 @@ namespace Repository.Implement
             return result;
         }
         /// <summary>
-        /// Get categoy by condition
+        /// Get child categoy by categoryid
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public CategoryResponseModel GetByCondition(GetCategoryCommonRequestModel item)
+        public List<CategoryResponseModel> GetChildCategoysById(Guid CategoryID)
         {
-            var parameters = new DynamicParameters(new
-            {
-                Parent = item.Parent,
-                Name = item.Name,
-                TenantID = item.TenantID,
-                ID = item.ID,
-            });
-            var result = QueryFirstOrDefault<CategoryResponseModel>("SP_Get_CategoryTenantByID_Or_Name", parameters, commandType: CommandType.StoredProcedure);
-
-            return result;
-        }
-        /// <summary>
-        /// Get category by tenant, parent
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public List<CategoryResponseModel> GetCategoryTenantParent(GetCategoryCommonRequestModel item)
-        {
-            var parameters = new DynamicParameters(new
-            {
-                Parent = item.Parent,
-                TenantID = item.TenantID,
-            });
-            var result = Query<CategoryResponseModel>("SP_Get_CategoryTenantParent", parameters, commandType: CommandType.StoredProcedure).ToList();
+            var result = Query<CategoryResponseModel>("SP_Get_AllChildCategoryById", new { CategoryID = CategoryID }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
         /// <summary>
@@ -73,11 +53,11 @@ namespace Repository.Implement
         /// <param name="item"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public int Update(UpdateCategoryRequestModel item, int id)
+        public int Update(UpdateCategoryRequestModel item, Guid CategoryID)
         {
             var parameters = new DynamicParameters(new
             {
-                ID = id,
+                CategoryID = CategoryID,
                 Name = item.Name,
                 Parent = item.Parent,
                 Description = item.Description,
@@ -92,11 +72,11 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public int Remove(int id)
+        public int Remove(Guid CategoryID)
         {
-            var parameters = new DynamicParameters();
+            var parameters = new DynamicParameters(new{CategoryID = CategoryID});
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            Execute("SP_DeleteCategory", new {ID = id }, commandType: CommandType.StoredProcedure);
+            Execute("SP_DeleteCategory", parameters, commandType: CommandType.StoredProcedure);
             return parameters.Get<int>("@Result");
         }
         /// <summary>
@@ -104,10 +84,30 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public CategoryResponseModel Get(int id)
+        public CategoryResponseModel Get(Guid id)
         {
-            var result = QueryFirstOrDefault<CategoryResponseModel>("SP_Get_CategoryByID", new {ID = id}, commandType: CommandType.StoredProcedure);
+            var result = QueryFirstOrDefault<CategoryResponseModel>("SP_Get_CategoryByID", new { CategoryID = id}, commandType: CommandType.StoredProcedure);
 
+            return result;
+        }
+        /// <summary>
+        /// Get All Category
+        /// </summary>
+        /// <param name="TenantID"></param>
+        /// <returns></returns>
+        public List<CategoryResponseModel> GetAllCategory(Guid TenantID)
+        {
+            var result = Query<CategoryResponseModel>("SP_GetAllCategoryTenant", new { TenantID = TenantID}, commandType: CommandType.StoredProcedure).ToList();
+            return result;
+        }
+        /// <summary>
+        /// Get status by key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public List<StatusResponseModel> GetStatus(string key)
+        {
+            var result = Query<StatusResponseModel>($"SELECT StatusID,Status,Name,Description,Type FROM Status(Nolock) WHERE Type = '{key}'", commandType: CommandType.Text).ToList();
             return result;
         }
     }

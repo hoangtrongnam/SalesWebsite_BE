@@ -1,7 +1,6 @@
 ﻿using UnitOfWork.Interface;
 using Common;
 using Models.RequestModel.Product;
-using Models.RequestModel.Category;
 using Models.ResponseModels.Product;
 using AutoMapper;
 
@@ -9,12 +8,14 @@ namespace Services
 {
     public interface IProductServices
     {
-        ApiResponse<int> CreateProduct(CreateOnlyProductRequestModel model);
+        ApiResponse<int> CreateProduct(CreateOnlyProductRequestModel model, Guid TenanlID);
         ApiResponse<int> CreateImages(List<ImageRequestModel> listImage);
         ApiResponse<int> CreatePrices(List<PriceRequestModel> listPrice);
-        ApiResponse<ProductResponseModel> GetProductByID(int id);
-        ApiResponse<List<ImageResponseModel>> GetImagesByProductID(int ProductID);
-        ApiResponse<List<PriceResponseModel>> GetPricesByProductID(int ProductID);
+        ApiResponse<ProductResponseModel> GetProductByID(Guid id);
+        ApiResponse<List<ImageResponseModel>> GetImagesByProductID(Guid ProductID);
+        ApiResponse<List<PriceResponseModel>> GetPricesByProductID(Guid ProductID);
+        ApiResponse<List<ProductResponseModel>> GetProductByCategory(Guid CategoryId);
+        ApiResponse<int> UpdateProduct(UpdateProductRequestModel model, Guid ProductID);
     }
     public class ProductServices : IProductServices
     {
@@ -35,15 +36,24 @@ namespace Services
         {
             using (var context = _unitOfWork.Create())
             {
-                foreach(var item in listImage)
+                var imagesRepository = new List<ImageRepositoryRequestModel>();
+                _mapper.Map(listImage, imagesRepository);
+
+                var codeGenOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["Image"].TableName, Parameters.tables["Image"].ColumnName); 
+
+                for(int i = 0; i < listImage.Count; i++)
                 {
-                    var product = context.Repositories.ProductRepository.Get(item.ProductID);
-                    if(product == null)
-                        return ApiResponse<int>.ErrorResponse($"Product {item.ProductID} does not exists.");
-                }
-                
+                    codeGenOld = GenerateCode.GenCode(codeGenOld);
+                    imagesRepository[i].ImageCode = codeGenOld;
+                    imagesRepository[i].ImageID = Guid.NewGuid();
+
+                    var product = context.Repositories.ProductRepository.Get(listImage[i].ProductID);
+                    if (product == null)
+                        return ApiResponse<int>.ErrorResponse($"Product {listImage[i].ProductID} does not exists.");
+                } 
+
                 //Create multiple image 
-                var result = context.Repositories.ProductRepository.CreateImages(listImage);
+                var result = context.Repositories.ProductRepository.CreateImages(imagesRepository);
                 if (result <= 0)
                     return ApiResponse<int>.ErrorResponse("Create images Fail");
 
@@ -60,15 +70,24 @@ namespace Services
         {
             using (var context = _unitOfWork.Create())
             {
-                foreach (var item in listPrice)
+                var pricesRepository = new List<PriceRepositoryRequestModel>();
+                _mapper.Map(listPrice, pricesRepository);
+
+                var codeGenOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["Price"].TableName, Parameters.tables["Price"].ColumnName);
+
+                for (int i = 0; i < listPrice.Count; i++)
                 {
-                    var product = context.Repositories.ProductRepository.Get(item.ProductID);
+                    codeGenOld = GenerateCode.GenCode(codeGenOld);
+                    pricesRepository[i].PriceCode = codeGenOld;
+                    pricesRepository[i].PriceID = Guid.NewGuid();
+
+                    var product = context.Repositories.ProductRepository.Get(listPrice[i].ProductID);
                     if (product == null)
-                        return ApiResponse<int>.ErrorResponse($"Product {item.ProductID} does not exists.");
+                        return ApiResponse<int>.ErrorResponse($"Product {listPrice[i].ProductID} does not exists.");
                 }
 
                 //Create multiple Price 
-                var result = context.Repositories.ProductRepository.CreatePrices(listPrice);
+                var result = context.Repositories.ProductRepository.CreatePrices(pricesRepository);
                 if (result <= 0)
                     return ApiResponse<int>.ErrorResponse("Create prices Fail");
 
@@ -81,26 +100,26 @@ namespace Services
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public ApiResponse<int> CreateProduct(CreateOnlyProductRequestModel model)
+        public ApiResponse<int> CreateProduct(CreateOnlyProductRequestModel model, Guid TenanlID)
         {
             using(var context = _unitOfWork.Create())
             {
-                var getCategotyByIDModel = new GetCategoryCommonRequestModel()
-                {
-                    ID = model.CategoryID,
-                    TenantID = model.TenantID
-                };
-                var category = context.Repositories.CategoryRepository.GetByCondition(getCategotyByIDModel);
-                if(category == null)
+                var codeOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["Product"].TableName, Parameters.tables["Product"].ColumnName);
+
+                var modelMap = _mapper.Map<CreateOnlyProductRepositoryRequestModel>(model);
+                modelMap.ProductID = Guid.NewGuid();
+                modelMap.ProductCode = GenerateCode.GenCode(codeOld);
+
+                var category = context.Repositories.CategoryRepository.Get(model.CategoryID);
+                if (category == null)
                     return ApiResponse<int>.ErrorResponse("Category Doest not Exists");
-                
-                //Insert Only Prroduct
-                var productID = context.Repositories.ProductRepository.Create(model);
-                if(productID <= 0)
+
+                var result = context.Repositories.ProductRepository.Create(modelMap, TenanlID);
+                if(result <= 0)
                     return ApiResponse<int>.ErrorResponse("Create Product Fail");
 
                 context.SaveChanges();
-                return ApiResponse<int>.SuccessResponse(productID);
+                return ApiResponse<int>.SuccessResponse(result);
             }
         }
         /// <summary>
@@ -108,7 +127,7 @@ namespace Services
         /// </summary>
         /// <param name="ProductID"></param>
         /// <returns></returns>
-        public ApiResponse<List<ImageResponseModel>> GetImagesByProductID(int ProductID)
+        public ApiResponse<List<ImageResponseModel>> GetImagesByProductID(Guid ProductID)
         {
             using (var context = _unitOfWork.Create())
             {
@@ -121,7 +140,7 @@ namespace Services
         /// </summary>
         /// <param name="ProductID"></param>
         /// <returns></returns>
-        public ApiResponse<List<PriceResponseModel>> GetPricesByProductID(int ProductID)
+        public ApiResponse<List<PriceResponseModel>> GetPricesByProductID(Guid ProductID)
         {
             using (var context = _unitOfWork.Create())
             {
@@ -134,26 +153,48 @@ namespace Services
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ApiResponse<ProductResponseModel> GetProductByID(int id)
+        public ApiResponse<ProductResponseModel> GetProductByID(Guid id)
         {
             using (var context = _unitOfWork.Create())
             {
                 var result = context.Repositories.ProductRepository.Get(id);
-                var images = context.Repositories.ProductRepository.GetImages(id);
-                var prices = context.Repositories.ProductRepository.GetPrices(id);
-
-                if (images.Any())
-                {
-                    var image = images.OrderByDescending(obj => obj.ID).FirstOrDefault();
-                    _mapper.Map(image, result);
-                }
-                if (prices.Any())
-                {
-                    var price = prices.OrderByDescending(obj => obj.ID).FirstOrDefault();
-                    _mapper.Map(price, result);
-                }
-                
                 return ApiResponse<ProductResponseModel>.SuccessResponse(result);
+            }
+        }
+        /// <summary>
+        /// get product by category
+        /// </summary>
+        /// <param name="CategoryId"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public ApiResponse<List<ProductResponseModel>> GetProductByCategory(Guid CategoryId)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var products = context.Repositories.ProductRepository.GetProductCategory(CategoryId);
+                return ApiResponse<List<ProductResponseModel>>.SuccessResponse(products);
+            }
+        }
+        /// <summary>
+        /// Update product service
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="ProductID"></param>
+        /// <returns></returns>
+        public ApiResponse<int> UpdateProduct(UpdateProductRequestModel model, Guid ProductID)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var product = context.Repositories.ProductRepository.Get(ProductID);
+                if (product == null)
+                    return ApiResponse<int>.ErrorResponse("Product does not exist.");
+
+                var result = context.Repositories.ProductRepository.Update(model, ProductID);
+                if(result <= 0)
+                    return ApiResponse<int>.ErrorResponse("Update product fail.");
+
+                context.SaveChanges();
+                return ApiResponse<int>.SuccessResponse(result);
             }
         }
     }

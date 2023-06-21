@@ -17,7 +17,7 @@ namespace Client.API.Controllers.V1
         }
 
         [HttpGet("GetWareHouseById")]
-        public async Task<ActionResult> GetWareHouseById([Required] int id)
+        public async Task<ActionResult> GetWareHouseById([Required] Guid id)
         {
             var result = _wareHouseServices.GetWareHouseByID(id);
             return Ok(result);
