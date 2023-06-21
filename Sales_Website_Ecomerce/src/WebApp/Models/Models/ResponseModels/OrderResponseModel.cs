@@ -1,4 +1,6 @@
-﻿namespace Models.ResponseModels
+﻿using Models.ResponseModels.Product;
+
+namespace Models.ResponseModels
 {
     public class OrderResponseModel
     {
@@ -19,6 +21,8 @@
             public int Quantity { get; set; }
             public decimal Price { get; set; }
             public decimal WarehouseID { get; set; }
+            public int PromoteID { get; set; }
+            public List<PriceResponseModel> lstPromote { get; set; }
         }
     }
 }

@@ -152,6 +152,15 @@ namespace Services
                     OrderResponseModel result = context.Repositories.OrderRepository.Get(orderID);
                     if (result == null)
                         return ApiResponse<OrderResponseModel>.ErrorResponse("Tìm đơn hàng thất bại");
+
+                    //trả về list KM theo từng Product
+                    foreach (var item in result.lstProduct)
+                    {
+                        //var lstPromote = new PriceResponseModel();
+                        var lstPromote = context.Repositories.ProductRepository.GetPrices(item.ProductID);
+                        item.lstPromote = lstPromote;
+                    }
+
                     return ApiResponse<OrderResponseModel>.SuccessResponse(result, "Tìm đơn hàng thành công");
                 }
             }

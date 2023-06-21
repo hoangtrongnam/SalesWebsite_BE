@@ -184,12 +184,13 @@ namespace Repository.Implement
                 {
                     Product product = new Product();
                     product.ProductID = string.IsNullOrEmpty(reader["ProductID"].ToString()) ? 0 : Convert.ToInt32(reader["ProductID"]);
+                    product.PromoteID = string.IsNullOrEmpty(reader["PromoteID"].ToString()) ? 0 : Convert.ToInt32(reader["PromoteID"]);
                     product.Name = reader["Name"].ToString() ?? "";
                     //product.Code = reader["Code"].ToString() ?? "";
                     product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
                     product.Price = string.IsNullOrEmpty(reader["Price"].ToString()) ? 0 : Convert.ToDecimal(reader["Price"]);
                     product.WarehouseID = string.IsNullOrEmpty(reader["WarehouseID"].ToString()) ? 0 : Convert.ToInt32(reader["WarehouseID"]);
-                    totalPayment += product.Quantity * product.Price;
+                    //totalPayment += product.Quantity * product.Price;
 
                     lstProduct.Add(product);
                 }

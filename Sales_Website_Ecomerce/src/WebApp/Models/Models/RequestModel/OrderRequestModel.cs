@@ -8,10 +8,12 @@ namespace Models.RequestModel
         public int ProductID { get; set; } //sử dụng cho API Order
         [Required]
         public int Quantity { get; set; }
-        [Required]
-        public decimal Price { get; set; }
+        //[Required]
+        //public decimal Price { get; set; }
         [Required]
         public int WareHouseID { get; set; }
+        [Required]
+        public int PromoteID { get; set; }
     }
     public class OrderRequestModel
     {
