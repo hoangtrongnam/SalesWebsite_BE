@@ -14,6 +14,7 @@ namespace UnitOfWork.Interface
         IProductStockRepository ProductStockRepository { get; }
         IOrderRepository OrderRepository { get; }
         INotificationRepository NotificationRepository { get; }
+        ICommonRepository CommonRepository { get; }
         //IJobScheduleRepository JobScheduleRepository { get; }
 
     }

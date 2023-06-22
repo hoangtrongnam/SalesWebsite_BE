@@ -4,10 +4,11 @@ using Repository.Interfaces.Actions;
 
 namespace Repository.Interface
 {
-    public interface ICategoryRepository : ICreateRepository<CreateCategoryRequestModel, CategoryResponseModel>
-        , IReadRepository<CategoryResponseModel, int>, IUpdateRepository<UpdateCategoryRequestModel, int>, IRemoveRepository<int>
+    public interface ICategoryRepository : IReadRepository<CategoryResponseModel, Guid>, IUpdateRepository<UpdateCategoryRequestModel, Guid>, IRemoveRepository<Guid>
     {
-        List<CategoryResponseModel> GetCategoryTenantParent(GetCategoryCommonRequestModel item);
-        CategoryResponseModel GetByCondition(GetCategoryCommonRequestModel item);
+        CategoryResponseModel Create(CreateCategoryRepositoryRequestModel model, Guid TenantID);
+        List<CategoryResponseModel> GetAllCategory(Guid TenantID);
+        List<CategoryResponseModel> GetChildCategoysById(Guid CategoryID);
+        List<StatusResponseModel> GetStatus(string key);
     }
 }

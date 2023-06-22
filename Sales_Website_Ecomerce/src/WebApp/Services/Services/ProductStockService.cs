@@ -24,17 +24,17 @@ namespace Services
         {
             using (var contex = _unitOfWork.Create())
             {
-                var product = contex.Repositories.ProductRepository.Get(model.ProductID);
-                if (product == null)
-                    return ApiResponse<int>.ErrorResponse("Product does not exists.");
+                //var product = contex.Repositories.ProductRepository.Get(model.ProductID);
+                //if (product == null)
+                //    return ApiResponse<int>.ErrorResponse("Product does not exists.");
                 
-                var supplier = contex.Repositories.SupplierRepository.Get(model.SupplierID);
-                if (supplier == null)
-                    return ApiResponse<int>.ErrorResponse("Supplier does not exists.");
+                //var supplier = contex.Repositories.SupplierRepository.Get(model.SupplierID);
+                //if (supplier == null)
+                //    return ApiResponse<int>.ErrorResponse("Supplier does not exists.");
 
-                var warehouse = contex.Repositories.WareHouseRepository.Get(model.WareHouseID);
-                if (warehouse == null)
-                    return ApiResponse<int>.ErrorResponse("WareHouse does not exists.");
+                //var warehouse = contex.Repositories.WareHouseRepository.Get(model.WareHouseID);
+                //if (warehouse == null)
+                //    return ApiResponse<int>.ErrorResponse("WareHouse does not exists.");
 
                 var result = contex.Repositories.ProductStockRepository.Create(model);
                 if(result <= 0)

@@ -17,39 +17,52 @@ namespace Client.API.Controllers
             _categoryService = categoryServices;
         }
 
-        [HttpGet("GetCategoryByCondition")]
-        public async Task<ActionResult> GetCategoryByCondition([FromQuery] GetCategoryByID_ParentTenantRequestModel model)
+        [HttpGet("GetCategoryByID")]
+        public async Task<ActionResult> GetCategoryByID([Required] Guid id)
         {
-            var result = _categoryService.GetCategoryByID(model);
+            var result = _categoryService.GetCategoryByID(id);
+            return Ok(result);
+        }
+        [HttpGet("GetAllCategory")]
+        public async Task<ActionResult> GetAllCategory([FromHeader] Guid TenantID)
+        {
+            var result = _categoryService.GetAllCategory(TenantID);
+            return Ok(result);
+        }
+        [HttpGet("GetChildCategory")]
+        public async Task<ActionResult> GetChildCategory([Required] Guid CategotyID)
+        {
+            var result = _categoryService.GetChildCategoryByCategoyId(CategotyID);
             return Ok(result);
         }
 
-        [HttpGet("GetCategotyTenantParent")]
-        public async Task<ActionResult> GetCategotyTenantParent([Required] int TenantID, [Required] int Parent)
-        {
-            var result = _categoryService.GetCategoryByTenantParent(TenantID, Parent);
-            return Ok(result);
-        }
-        
         [HttpPost("CreateCategory")]
-        public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryRequestModel model)
+        public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryRequestModel model, [FromHeader] Guid TenantID)
         {
-            var result = _categoryService.CreateCategory(model);
+            var result = _categoryService.CreateCategory(model, TenantID);
             return Ok(result);
         }
 
         [HttpPut("UpdateCategory")]
-        public async Task<ActionResult> UpdateCategory([FromBody] UpdateCategoryRequestModel model, [Required] int id)
+        public async Task<ActionResult> UpdateCategory([FromBody] UpdateCategoryRequestModel model, [Required] Guid CategotyID)
         {
-            var result = _categoryService.UpdateCategoryByID(model,id);
+            var result = _categoryService.UpdateCategoryByID(model, CategotyID);
             return Ok(result);
         }
 
         [HttpDelete("RemoveCategory")]
-        public async Task<ActionResult> RemoveCategory([Required] int id)
+        public async Task<ActionResult> RemoveCategory([Required] Guid CategotyID)
         {
-            var result = _categoryService.RemoveCategoryByID(id);
+            var result = _categoryService.RemoveCategoryByID(CategotyID);
             return Ok(result);
         }
+        
+        [HttpGet("GetStatus")]
+        public async Task<ActionResult> GetStatus([Required] string key)
+        {
+            var result = _categoryService.GetStatus(key);
+            return Ok(result);
+        }
+
     }
 }

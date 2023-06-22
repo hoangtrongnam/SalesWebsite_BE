@@ -56,6 +56,7 @@ namespace Product.API.Extensions
                         new string[]{}
                     }
                 });
+                
             });
 
             services.AddInfrastructureServices();
@@ -91,8 +92,8 @@ namespace Product.API.Extensions
             services.AddTransient<IWareHouseServices, WareHouseServices>();
             services.AddTransient<ISupplierServices, SupplierServices>();
             services.AddTransient<IProductStockService, ProductStockService>();
+            services.AddTransient<ICommonService, CommonService>();
             services.AddTransient<OrderServices>(); 
-            //services.AddTransient<NotificationServices>();
             return services;
         }
     }

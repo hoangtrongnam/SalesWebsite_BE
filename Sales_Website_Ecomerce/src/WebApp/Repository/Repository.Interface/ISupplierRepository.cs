@@ -4,7 +4,7 @@ using Repository.Interfaces.Actions;
 
 namespace Repository.Interface
 {
-    public interface ISupplierRepository: ICreateRepository<CreateSupplierRequestModel, int>, IReadRepository<SupplierResponseModel,int>
+    public interface ISupplierRepository: ICreateRepository<CreateSupplierRepositoryRequestModel, int>, IReadRepository<SupplierResponseModel,Guid>
     {
     }
 }

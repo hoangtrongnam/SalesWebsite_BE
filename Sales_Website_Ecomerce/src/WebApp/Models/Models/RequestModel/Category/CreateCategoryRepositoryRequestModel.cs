@@ -1,6 +1,6 @@
-﻿namespace Models.ResponseModels.Category
+﻿namespace Models.RequestModel.Category
 {
-    public class CategoryResponseModel
+    public class CreateCategoryRepositoryRequestModel
     {
         public Guid CategoryID { get; set; }
         public string CategoryCode { get; set; }
@@ -8,10 +8,6 @@
         public int Parent { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public Guid TenantID { get; set; }
         public string CreateBy { get; set; }
-        public string CreateDate { get; set; }
-        public string UpdateBy { get; set; }
-        public string UpdateDate { get; set; }
     }
 }

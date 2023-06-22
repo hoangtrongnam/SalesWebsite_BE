@@ -19,10 +19,12 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public int Create(CreateWareHouseRequestModel item)
+        public int Create(CreateWareHouseRepositoryRequestModel item)
         {
             var parameters = new DynamicParameters(new
             {
+                WareHouseID = item.WareHouseID,
+                WareHouseCode = item.WareHouseCode,
                 Name = item.Name,
                 Address = item.Address,
                 Description = item.Description,
@@ -37,9 +39,9 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public WareHouseResponseModel Get(int id)
+        public WareHouseResponseModel Get(Guid id)
         {
-            var result = QueryFirstOrDefault<WareHouseResponseModel>("SP_GetWareHouseByID", new { ID = id }, commandType: CommandType.StoredProcedure);
+            var result = QueryFirstOrDefault<WareHouseResponseModel>("SP_GetWareHouseByID", new { WareHouseID = id }, commandType: CommandType.StoredProcedure);
             return result;
         }
     }
