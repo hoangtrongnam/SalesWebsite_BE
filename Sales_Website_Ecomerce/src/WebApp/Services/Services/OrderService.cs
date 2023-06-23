@@ -154,6 +154,14 @@ namespace Services
                         return ApiResponse<OrderResponseModel>.ErrorResponse("Tìm đơn hàng thất bại");
                     //tính lại thành tiền + số tiền cột (khi table chưa có giá trị này vì khi thanh toán rồi thì k phải tính lại)
 
+                    //trả về list KM theo từng Product
+                    foreach (var item in result.lstProduct)
+                    {
+                        //var lstPromote = new PriceResponseModel();
+                        var lstPromote = context.Repositories.ProductRepository.GetPrices(item.ProductID);
+                        item.lstPromote = lstPromote;
+                    }
+
                     return ApiResponse<OrderResponseModel>.SuccessResponse(result, "Tìm đơn hàng thành công");
                 }
             }
