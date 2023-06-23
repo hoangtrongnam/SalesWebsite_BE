@@ -38,6 +38,7 @@
     public class PriceResponseModel
     {
         public int ID { get; set; }
+        public int PriceID { get; set; }
         public int ProductID { get; set; }
         public string Price { get; set; }
         public string PromotePrice { get; set; }

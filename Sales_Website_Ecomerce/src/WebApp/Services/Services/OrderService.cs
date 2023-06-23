@@ -152,6 +152,8 @@ namespace Services
                     OrderResponseModel result = context.Repositories.OrderRepository.Get(orderID);
                     if (result == null)
                         return ApiResponse<OrderResponseModel>.ErrorResponse("Tìm đơn hàng thất bại");
+                    //tính lại thành tiền + số tiền cột (khi table chưa có giá trị này vì khi thanh toán rồi thì k phải tính lại)
+
                     return ApiResponse<OrderResponseModel>.SuccessResponse(result, "Tìm đơn hàng thành công");
                 }
             }
