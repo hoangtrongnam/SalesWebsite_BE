@@ -31,7 +31,7 @@ namespace Repository.Implement
                 TenantID = TenantID,
                 Description = item.Description,
                 CreateBy = item.CreateBy
-            });
+            }); ;
 
             var result = QueryFirstOrDefault<CategoryResponseModel>("SP_Create_Category", parameters, commandType: CommandType.StoredProcedure);
 

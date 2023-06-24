@@ -1,7 +1,11 @@
 ﻿using Dapper;
+using Models.RequestModel;
 using Repository.Interface;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Net;
+using System.Reflection.PortableExecutable;
 
 namespace Repository.Implement
 {
@@ -43,6 +47,26 @@ namespace Repository.Implement
             Execute("GetCodeGenerate", parameters, commandType: CommandType.StoredProcedure);
 
             return parameters.Get<string>("@GeneratedCode");
+        }
+        /// <summary>
+        /// Write Log Exception
+        /// </summary>
+        /// <param name="log"></param>
+        public void LogExeption(LogExceptionModel log)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                UserName = log.UserName,
+                IPAddress = log.IPAddress,
+                Message = log.Message,
+                StackTrace = log.StackTrace,
+                RequestPath = log.RequestPath,
+                RequestMethod = log.RequestMethod,            
+                ExceptionDate = log.ExceptionDate
+            }) ;
+
+            string query = "INSERT INTO ExceptionLogs(UserName,IPAddress,Message,StackTrace,RequestPath,RequestMethod,ExceptionDate)\r\n\tVALUES (@UserName,@IPAddress,@Message,@StackTrace,@RequestPath,@RequestMethod,@ExceptionDate)";
+            Execute(query, parameters, commandType: CommandType.Text);
         }
     }
 }

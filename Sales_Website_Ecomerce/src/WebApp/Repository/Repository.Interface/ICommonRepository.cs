@@ -1,8 +1,11 @@
-﻿namespace Repository.Interface
+﻿using Models.RequestModel;
+
+namespace Repository.Interface
 {
     public interface ICommonRepository
     {
         string GetConfigValue(int key);
         string GetCodeGenerate(string tableName, string columName);
+        void LogExeption(LogExceptionModel log);
     }
 }

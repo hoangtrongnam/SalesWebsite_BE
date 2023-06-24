@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Models.RequestModel.ProductStock;
-using Models.RequestModel.WareHouse;
 using Services;
 
 namespace Client.API.Controllers.V1

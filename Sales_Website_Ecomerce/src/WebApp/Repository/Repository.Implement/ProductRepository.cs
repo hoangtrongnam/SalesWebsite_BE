@@ -22,7 +22,7 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public int Create(CreateOnlyProductRepositoryRequestModel item, Guid TenantID)
+        public int Create(CreateOnlyProductRepositoryRequestModel item, Guid tenantID)
         {
             var parameters = new DynamicParameters(new
             {
@@ -34,7 +34,7 @@ namespace Repository.Implement
                 Description = item.Description,
                 Price = item.Price,
                 Status = item.Status,
-                TenantID = TenantID,
+                TenantID = tenantID,
                 CreateBy = item.CreateBy
             });
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
@@ -94,9 +94,9 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="ProductID"></param>
         /// <returns></returns>
-        public List<ImageResponseModel> GetImages(Guid ProductID)
+        public List<ImageResponseModel> GetImages(Guid productID)
         {
-            var result = Query<ImageResponseModel>("SP_GetImagesByProductID",new { ProductID  = ProductID}, commandType: CommandType.StoredProcedure).ToList();
+            var result = Query<ImageResponseModel>("SP_GetImagesByProductID",new { ProductID  = productID}, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
         /// <summary>
@@ -104,9 +104,9 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="ProductID"></param>
         /// <returns></returns>
-        public List<PriceResponseModel> GetPrices(Guid ProductID)
+        public List<PriceResponseModel> GetPrices(Guid productID)
         {
-            var result = Query<PriceResponseModel>("SP_GetPricesByProductID", new { ProductID = ProductID }, commandType: CommandType.StoredProcedure).ToList();
+            var result = Query<PriceResponseModel>("SP_GetPricesByProductID", new { ProductID = productID }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
         /// <summary>
@@ -114,9 +114,9 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="CategoryID"></param>
         /// <returns></returns>
-        public List<ProductResponseModel> GetProductCategory(Guid CategoryID)
+        public List<ProductResponseModel> GetProductCategory(Guid categoryID)
         {
-            var result = Query<ProductResponseModel>("SP_GetProductByCategory", new { CategoryID = CategoryID }, commandType: CommandType.StoredProcedure).ToList();
+            var result = Query<ProductResponseModel>("SP_GetProductByCategory", new { CategoryID = categoryID }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
         /// <summary>

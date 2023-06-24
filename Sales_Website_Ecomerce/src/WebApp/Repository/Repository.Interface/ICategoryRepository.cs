@@ -6,9 +6,9 @@ namespace Repository.Interface
 {
     public interface ICategoryRepository : IReadRepository<CategoryResponseModel, Guid>, IUpdateRepository<UpdateCategoryRequestModel, Guid>, IRemoveRepository<Guid>
     {
-        CategoryResponseModel Create(CreateCategoryRepositoryRequestModel model, Guid TenantID);
-        List<CategoryResponseModel> GetAllCategory(Guid TenantID);
-        List<CategoryResponseModel> GetChildCategoysById(Guid CategoryID);
+        CategoryResponseModel Create(CreateCategoryRepositoryRequestModel model, Guid tenantID);
+        List<CategoryResponseModel> GetAllCategory(Guid tenantID);
+        List<CategoryResponseModel> GetChildCategoysById(Guid categoryID);
         List<StatusResponseModel> GetStatus(string key);
     }
 }

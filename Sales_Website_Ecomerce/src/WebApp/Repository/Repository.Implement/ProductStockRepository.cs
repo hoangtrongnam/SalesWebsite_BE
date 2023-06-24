@@ -18,15 +18,17 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public int Create(CreateProductStockRequestModel item)
+        public int Create(CreateProductStockRepositoryRequestModel item)
         {
             var parameters = new DynamicParameters(new
             {
+                ProductStockID = item.ProductStockID,
+                ProductStockCode = item.ProductStockCode,
                 ProductID = item.ProductID,
                 SupplierID = item.SupplierID,
                 Name = item.Name,
                 Code = item.Code,
-                StatusID = item.StatusID,
+                Status = item.Status,
                 WareHouseID = item.WareHouseID,
                 Description = item.Description,
                 CreateBy = item.CreateBy
