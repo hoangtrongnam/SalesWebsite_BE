@@ -19,7 +19,7 @@ namespace Client.API.Controllers
         }
 
         [HttpGet("/FindCart/{CustomerID}")]
-        public ActionResult<ProductResponeModel> Get([Required] int CustomerID, [Required] int pageIndex)
+        public ActionResult<ProductResponeModel> Get([Required] Guid CustomerID, [Required] int pageIndex)
         {
             return Ok(_cartService.Get(CustomerID, pageIndex));
         }
@@ -42,14 +42,17 @@ namespace Client.API.Controllers
             return Ok(_cartService.AddProductExisted(cart));
         }
 
+        //update 
+            //+ chỉ xóa 1 cartproduct từ cart và k xóa cart
+            //+ update số lượng
         [HttpPut("/UpdateCart")]
-        public ActionResult UpdateCart([FromBody][Required] CartRequestModel item, [Required] int cartID)
+        public ActionResult UpdateCart([FromBody][Required] CartRequestModel item, [Required] Guid cartID)
         {
             return Ok(_cartService.Update(item, cartID));
         }
-
+        //xóa là update cart và cartproduct
         [HttpDelete("/DeleteCart")]
-        public ActionResult DeleteCart([Required] int cartID)
+        public ActionResult DeleteCart([Required] Guid cartID)
         {
             return Ok(_cartService.Delete(cartID));
         }

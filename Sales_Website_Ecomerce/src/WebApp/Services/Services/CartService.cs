@@ -9,12 +9,12 @@ namespace Services
 {
     public interface ICartServices
     {
-        ApiResponse<CartResponeModel> Get(int customerID, int pageIndex);
+        ApiResponse<CartResponeModel> Get(Guid customerID, int pageIndex);
         ApiResponse<int> Create(CartRequestModel model);
-        ApiResponse<int> Update(CartRequestModel model, int cartID);
-        ApiResponse<int> Delete(int cartID);
+        ApiResponse<int> Update(CartRequestModel model, Guid cartID);
+        ApiResponse<int> Delete(Guid cartID);
         ApiResponse<int> AddProductExisted(CartRequestModel item);
-        bool QuantityValid(int newQuantity, int oldQuantity, int productID, int wareHouseID, IUnitOfWorkAdapter context);
+        bool QuantityValid(int newQuantity, int oldQuantity, Guid productID, Guid wareHouseID, IUnitOfWorkAdapter context);
     }
     public class CartServices : ICartServices
     {
@@ -31,12 +31,12 @@ namespace Services
                 using (var context = _unitOfWork.Create())
                 {
                     int efectRow = 0;
-                    int CartID = context.Repositories.CartRepository.GetCartIDByCustomerID(item.CustomerID);
+                    Guid cartID = context.Repositories.CartRepository.GetCartIDByCustomerID(item.CustomerID);
 
                     //1. Check KH đã có giỏ hàng chưa
-                    if (CartID > 0) //1.1. Customer đã có cart
+                    if (cartID != Guid.Empty) //1.1. Customer đã có cart
                     {
-                        var product = context.Repositories.CartRepository.GetCartProduct(item.ProdutID, CartID).FirstOrDefault();
+                        var product = context.Repositories.CartRepository.GetCartProduct(item.ProdutID, cartID).FirstOrDefault();
 
                         if (product == null) //1.1.1. Product chưa trong Cart_Product
                         {
@@ -45,7 +45,7 @@ namespace Services
                                 return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
 
                             //1.1.1.2.Add Cart_Product
-                            efectRow = context.Repositories.CartRepository.InsertCartProduct(item, CartID);
+                            efectRow = context.Repositories.CartRepository.InsertCartProduct(item, cartID, Guid.NewGuid());
 
                             if (efectRow < 1)
                                 return ApiResponse<int>.ErrorResponse("thêm sản phẩm thất bại");
@@ -70,7 +70,7 @@ namespace Services
 
                             //context.SaveChanges();
 
-                            return ApiResponse<int>.SuccessResponse(0, "Đã có sản phẩm: "+ product.Name+ " với số lượng: "+ product.Quantity+
+                            return ApiResponse<int>.SuccessResponse(0, "Đã có sản phẩm: " + product.Name + " với số lượng: " + product.Quantity +
                                 " trong giỏ hàng. Khách hàng có muốn hủy trước khi thêm mới không?"); // nếu đồng ý call API AddProductExisted
                         }
                     }
@@ -81,11 +81,11 @@ namespace Services
                             return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
 
                         //2.2. tạo cart
-                        int cartID = context.Repositories.CartRepository.CreateCart(item.CustomerID);
-                        if (cartID > 1)
+                        Guid newCartID = context.Repositories.CartRepository.CreateCart(item.CustomerID, Guid.NewGuid());
+                        if (newCartID != Guid.Empty)
                         {
                             //2.2.1. tạo CartProduct
-                            efectRow = context.Repositories.CartRepository.InsertCartProduct(item, cartID);
+                            efectRow = context.Repositories.CartRepository.InsertCartProduct(item, newCartID, Guid.NewGuid());
 
                             if (efectRow < 1)
                                 return ApiResponse<int>.ErrorResponse("Thêm giỏ hàng thất bại");
@@ -113,10 +113,10 @@ namespace Services
                 using (var context = _unitOfWork.Create())
                 {
                     int efectRow = 0;
-                    int cartID = context.Repositories.CartRepository.GetCartIDByCustomerID(item.CustomerID);
+                    Guid cartID = context.Repositories.CartRepository.GetCartIDByCustomerID(item.CustomerID);
 
                     //1. Check KH đã có giỏ hàng chưa
-                    if (cartID > 0) //1.1. Customer đã có cart
+                    if (cartID != Guid.Empty) //1.1. Customer đã có cart
                     {
                         var product = context.Repositories.CartRepository.GetCartProduct(item.ProdutID, cartID).FirstOrDefault();
 
@@ -129,10 +129,10 @@ namespace Services
                             //1.1.1.2. Remove Product trong cartProduct không cần phải remove lun cart vì nó sẽ add lại vào cartproduct
                             int updateCartProdct = context.Repositories.CartRepository.UpdateCartProduct(item, cartID, Parameters.StatusDeleteCartProduct);
                             if (updateCartProdct < 1)
-                                return ApiResponse<int>.ErrorResponse("Xóa sản phẩm: "+ product.Name+ " trong giỏ hàng thất bại");
+                                return ApiResponse<int>.ErrorResponse("Xóa sản phẩm: " + product.Name + " trong giỏ hàng thất bại");
 
                             //1.1.1.3.Add product into Cart_Product
-                            efectRow = context.Repositories.CartRepository.InsertCartProduct(item, cartID);
+                            efectRow = context.Repositories.CartRepository.InsertCartProduct(item, cartID, Guid.NewGuid());
 
                             if (efectRow < 1)
                                 return ApiResponse<int>.ErrorResponse("thêm sản phẩm vào giỏ hàng thất bại");
@@ -153,7 +153,7 @@ namespace Services
             }
         }
 
-        public bool QuantityValid(int newQuantity, int oldQuantity, int productID, int wareHouseID, IUnitOfWorkAdapter context)
+        public bool QuantityValid(int newQuantity, int oldQuantity, Guid productID, Guid wareHouseID, IUnitOfWorkAdapter context)
         {
             var productQuantityInStock = context.Repositories.CartRepository.GetProductInStock(productID, wareHouseID);
             if (oldQuantity + newQuantity <= productQuantityInStock)
@@ -162,7 +162,7 @@ namespace Services
             return false;
         }
 
-        public ApiResponse<int> Delete(int cartID)
+        public ApiResponse<int> Delete(Guid cartID)
         {
             try
             {
@@ -184,14 +184,14 @@ namespace Services
             }
         }
 
-        public ApiResponse<CartResponeModel> Get(int customerID, int pageIndex)
+        public ApiResponse<CartResponeModel> Get(Guid customerID, int pageIndex)
         {
             try
             {
                 using (var context = _unitOfWork.Create())
                 {
                     var result = context.Repositories.CartRepository.Get(customerID, pageIndex);
-                    if (result.CartID > 0)
+                    if (result.CartID != Guid.Empty)
                     {
                         //trả về list KM theo từng Product
                         foreach (var item in result.lstProduct)
@@ -242,7 +242,7 @@ namespace Services
         ////    }
         ////}
 
-        public ApiResponse<int> Update(CartRequestModel item, int cartID)
+        public ApiResponse<int> Update(CartRequestModel item, Guid cartID)
         {
             try
             {
@@ -252,6 +252,8 @@ namespace Services
 
                     //get thông tin cart_product them ProductID và cartID
                     var product = context.Repositories.CartRepository.GetCartProduct(item.ProdutID, cartID).FirstOrDefault();
+                    if (product == null)
+                        return ApiResponse<int>.ErrorResponse("Cập nhật giỏ hàng thất bại. Không tìm thấy sản phẩm cần sửa");
 
                     //1. Kiểm tra là xóa 1 product hay chỉ update Quantity
                     if (item.Quantity == 0)

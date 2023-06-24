@@ -7,14 +7,14 @@ namespace Repository.Interface
 {
     public interface ICartRepository //: IReadRepository<CartResponeModel, int>, ICreateRepository<CartRequestModel>, IUpdateRepository<CartRequestModel, int>, IRemoveRepository<CartRequestModel, int>
     {
-        CartResponeModel Get(int customerID, int pageIndex = 1);
-        int GetCartIDByCustomerID(int customerID);
-        List<CartModel> GetCartProduct(int produtID, int cartID);
-        int GetProductInStock(int productID, int wareHouseID);
-        int InsertCartProduct(CartRequestModel item, int cartID);
-        int UpdateCartProduct(CartRequestModel item, int cartID, int status);
-        int CreateCart(int customerID);
-        int UpdateCart(CartRequestModel item, int cartID, int status);
-        int Remove(CartRequestModel item, int cartID);
+        CartResponeModel Get(Guid customerID, int pageIndex = 1);
+        Guid GetCartIDByCustomerID(Guid customerID);
+        List<CartModel> GetCartProduct(Guid produtID, Guid cartID);
+        int GetProductInStock(Guid productID, Guid wareHouseID);
+        int InsertCartProduct(CartRequestModel item, Guid cartID, Guid cartProductID);
+        int UpdateCartProduct(CartRequestModel item, Guid cartID, int status);
+        Guid CreateCart(Guid customerID, Guid cartID);
+        int UpdateCart(CartRequestModel item, Guid cartID, int status);
+        int Remove(CartRequestModel item, Guid cartID);
     }
 }
