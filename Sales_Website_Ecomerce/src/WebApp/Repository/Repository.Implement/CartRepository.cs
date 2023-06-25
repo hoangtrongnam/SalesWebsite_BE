@@ -69,7 +69,7 @@ namespace Repository.Implement
             //return command.ExecuteNonQuery();
         }
 
-        public int UpdateCart(CartRequestModel item, Guid cartID, int status)
+        public int UpdateCart(Guid cartID, int status)
         {
             var parameters = new DynamicParameters(new
             {
@@ -156,7 +156,7 @@ namespace Repository.Implement
         public int Remove(CartRequestModel item, Guid cartID) //xóa mềm
         {
             //1. Update status table cart
-            int updateCart = UpdateCart(item, cartID, Parameters.StatusDeleteCart);
+            int updateCart = UpdateCart(cartID, Parameters.StatusDeleteCart);
 
             //2. Update status table cart_product
             item.ProdutID = Guid.Empty;
@@ -166,6 +166,16 @@ namespace Repository.Implement
                 return 1;
 
             return 0;
+        }
+
+        public int GetNumberProductsInCart(Guid cartID)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                CartID = cartID,
+            });
+            var result = QueryFirstOrDefault<int>("sp_GetNumberProductsInCart", parameters, commandType: CommandType.StoredProcedure);
+            return result;
         }
 
         //public int Remove(CartRequestModel item, int cartID) //xóa cứng

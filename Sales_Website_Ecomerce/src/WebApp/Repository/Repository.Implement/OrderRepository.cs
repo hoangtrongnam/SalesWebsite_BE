@@ -1,8 +1,9 @@
 ﻿using Common;
 using Dapper;
-using Models.RequestModel;
+using Models.RequestModel.Orders;
 using Models.ResponseModels;
 using Models.ResponseModels.Cart;
+using Models.ResponseModels.Product;
 using Repository.Interface;
 using System.Collections.Generic;
 using System.Data;
@@ -19,48 +20,50 @@ namespace Repository.Implement
             this._transaction = _transaction;
         }
 
-        public int Create(OrderRequestModel item)
-        {
-            //1.1 Insert into table Order
-            int orderID = InsertOrder(item.CustomerID, Parameters.StatusOrderInsert); //New Order (StatusOrderInsert: co dơn hàng mới cần sale xác nhận))
+        //public int Create(OrderRequestModel item)
+        //{
+        //    //1.1 Insert into table Order
+        //    int efectRowCart = InsertOrder(item.CustomerID, Parameters.StatusOrderInsert); //New Order (StatusOrderInsert: co dơn hàng mới cần sale xác nhận))
 
-            //1.2 insert into table OrderProduct
+        //    //1.2 insert into table OrderProduct
 
-            int orderProductInsert = InsertOrderProduct(item.lstProduct, orderID);
-            if (orderID > 0 && orderProductInsert > 0)
-                return orderID; //Insert into table Order and OrderProduct Success
+        //    int efectRowCartProduct = InsertOrderProduct(item.lstProduct, item.CartID);
+        //    if (orderID > 0 && orderProductInsert > 0)
+        //        return orderID; //Insert into table Order and OrderProduct Success
 
-            return 0;
-        }
+        //    return 0;
+        //}
 
-        private int InsertOrder(int customerID, int status)
+        public Guid InsertOrder(Guid customerID, int status, Guid orderID)
         {
             var parameters = new DynamicParameters(new
             {
                 CustomerID = customerID,
-                Status = status
+                Status = status,
+                OrderID = orderID
             });
 
-            parameters.Add("@OrderID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            //parameters.Add("@OrderID", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var result = Execute("sp_InsertOrder", parameters, commandType: CommandType.StoredProcedure);
 
-            return result > 0 ? parameters.Get<int>("OrderID") : 0;
+            return result > 0 ? orderID : Guid.Empty;
         }
 
-        private int InsertOrderProduct(List<ProductModel> lstProduct, int orderID)
+        public int InsertOrderProduct(List<ProductModel> lstProduct, Guid orderID)
         {
             var parameters = new DynamicParameters(new
             {
                 ListProduct = lstProduct.ToDataTable().AsTableValuedParameter("OrderProductType"),
-                OrderID = orderID
+                OrderID = orderID,
+                //OrderProductID = orderProductID
             });
 
-            var result = Execute("sp_InsertOrderProduct", parameters, commandType: CommandType.StoredProcedure);
+            var effectRow = Execute("sp_InsertOrderProduct", parameters, commandType: CommandType.StoredProcedure);
 
-            return result;
+            return effectRow > 0 ? effectRow : 0 ;
         }
 
-        public OrderResponseModel Get(int orderID)
+        public OrderResponseModel Get(Guid orderID)
         {
             OrderResponseModel orderResponseModel = new OrderResponseModel();
             //1. Get customer info: chưa làm
@@ -71,68 +74,68 @@ namespace Repository.Implement
             if (!(orderResponseModel == null))
             {
                 //3. Get Order Detail
-                var lstProduct = GetOrderDetail(orderID, out decimal totalPayment);
-                if (lstProduct.lstProduct.Count() > 0)
+                var orderdetail = GetOrderDetail(orderID);
+                if (orderdetail.lstProduct.Count() > 0)
                 {
-                    orderResponseModel.lstProduct = lstProduct.lstProduct;
-                    orderResponseModel.TotalPayment = totalPayment;
+                    orderResponseModel.lstProduct = orderdetail.lstProduct;
+                    //orderResponseModel.TotalPayment = totalPayment;
                     return orderResponseModel;
                 }
             }
             return null;
         }
 
-        public OrderResponseModel GetOrderInfo(int orderID)
+        public OrderResponseModel GetOrderInfo(Guid orderID)
         {
             var parameters = new DynamicParameters(new
             {
                 OrderID = orderID,
-                Status = -1 //get all
+                Status = -1 //get đơn hàng chưa bị hủy
             });
             var result = QueryFirstOrDefault<OrderResponseModel>("sp_GetOrderById", parameters, commandType: CommandType.StoredProcedure);
             return result;
         }
 
-        public OrderResponseModel GetLstOrder(int Status)
-        {
-            var command = CreateCommand("sp_GetListOrder");
-            command.Parameters.AddWithValue("@Status", Status);
+        //public OrderResponseModel GetLstOrder(int Status)
+        //{
+        //    var command = CreateCommand("sp_GetListOrder");
+        //    command.Parameters.AddWithValue("@Status", Status);
 
-            //Thêm tham số đầu ra cho stored procedure
-            SqlParameter outputParam = new SqlParameter("@OrderList", SqlDbType.VarChar, 8000);
-            outputParam.Direction = ParameterDirection.Output;
-            command.Parameters.Add(outputParam);
+        //    //Thêm tham số đầu ra cho stored procedure
+        //    SqlParameter outputParam = new SqlParameter("@OrderList", SqlDbType.VarChar, 8000);
+        //    outputParam.Direction = ParameterDirection.Output;
+        //    command.Parameters.Add(outputParam);
 
-            command.CommandType = CommandType.StoredProcedure;
-            command.ExecuteNonQuery();
+        //    command.CommandType = CommandType.StoredProcedure;
+        //    command.ExecuteNonQuery();
 
-            OrderResponseModel orderResponseModel = new OrderResponseModel();
-            List<Product> lstProducts = new List<Product>();
+        //    OrderResponseModel orderResponseModel = new OrderResponseModel();
+        //    List<Product> lstProducts = new List<Product>();
 
-            //Lấy giá trị đầu ra từ tham số đầu ra
-            orderResponseModel.OrderID = (string)outputParam.Value;
+        //    //Lấy giá trị đầu ra từ tham số đầu ra
+        //    orderResponseModel.OrderID = (string)outputParam.Value;
 
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    Product product = new Product();
-                    product.ProductID = string.IsNullOrEmpty(reader["ProductID"].ToString()) ? 0 : Convert.ToInt32(reader["ProductID"]);
-                    product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
+        //    using (var reader = command.ExecuteReader())
+        //    {
+        //        while (reader.Read())
+        //        {
+        //            Product product = new Product();
+        //            product.ProductID = string.IsNullOrEmpty(reader["ProductID"].ToString()) ? 0 : Convert.ToInt32(reader["ProductID"]);
+        //            product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
 
-                    lstProducts.Add(product);
-                }
-                orderResponseModel.lstProduct = lstProducts;
+        //            lstProducts.Add(product);
+        //        }
+        //        orderResponseModel.lstProduct = lstProducts;
 
-                reader.Close();
-            };
-            return orderResponseModel;
-        }
+        //        reader.Close();
+        //    };
+        //    return orderResponseModel;
+        //}
 
-        public OrderResponseModel GetOrderDetail(int orderID, out decimal totalPayment)
+        public OrderResponseModel GetOrderDetail(Guid orderID)
         {
             OrderResponseModel orderResponseModel = GetOrderProduct(orderID);
-            totalPayment = orderResponseModel.TotalPayment;
+            //totalPayment = orderResponseModel.TotalPayment;
 
             return orderResponseModel;
         }
@@ -154,14 +157,15 @@ namespace Repository.Implement
         //    else return 0; //Delete OrderProducts: Error
         //}
 
-        public int Update(OrderRequestModel item, int orderID)
+        public int Update(OrderCommonRequest item, Guid orderID, decimal totalPayment = 0)
         {
             var parameters = new DynamicParameters(new
             {
                 DepositAmount = item.DepositAmount,
                 Note = item.Note,
                 Status = item.Status,
-                OrderID = orderID
+                OrderID = orderID,
+                TotalPayment = totalPayment
             });
 
             var result = Execute("sp_UpdateOrder", parameters, commandType: CommandType.StoredProcedure);
@@ -169,37 +173,58 @@ namespace Repository.Implement
             return result;
         }
 
-        private OrderResponseModel GetOrderProduct(int orderID)
+        private OrderResponseModel GetOrderProduct(Guid orderID)
         {
-            var command = CreateCommand("sp_GetOrderDetailById");
-            command.Parameters.AddWithValue("@OrderID", orderID);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
+            //var command = CreateCommand("sp_GetOrderDetailById");
+            //command.Parameters.AddWithValue("@OrderID", orderID);
+            //command.CommandType = System.Data.CommandType.StoredProcedure;
             OrderResponseModel orderResponseModel = new OrderResponseModel();
 
-            List<Product> lstProduct = new List<Product>();
-            decimal totalPayment = 0;
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    Product product = new Product();
-                    product.ProductID = string.IsNullOrEmpty(reader["ProductID"].ToString()) ? 0 : Convert.ToInt32(reader["ProductID"]);
-                    product.PromoteID = string.IsNullOrEmpty(reader["PromoteID"].ToString()) ? 0 : Convert.ToInt32(reader["PromoteID"]);
-                    product.Name = reader["Name"].ToString() ?? "";
-                    //product.Code = reader["Code"].ToString() ?? "";
-                    product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
-                    product.Price = string.IsNullOrEmpty(reader["Price"].ToString()) ? 0 : Convert.ToDecimal(reader["Price"]);
-                    product.WarehouseID = string.IsNullOrEmpty(reader["WarehouseID"].ToString()) ? 0 : Convert.ToInt32(reader["WarehouseID"]);
-                    //totalPayment += product.Quantity * product.Price;
+            //List<Product> lstProduct = new List<Product>();
+            //decimal totalPayment = 0;
+            //using (var reader = command.ExecuteReader())
+            //{
+            //    while (reader.Read())
+            //    {
+            //        Product product = new Product();
+            //        product.ProductID = string.IsNullOrEmpty(reader["ProductID"].ToString()) ? 0 : Convert.ToInt32(reader["ProductID"]);
+            //        product.PromoteID = string.IsNullOrEmpty(reader["PromoteID"].ToString()) ? 0 : Convert.ToInt32(reader["PromoteID"]);
+            //        product.Name = reader["Name"].ToString() ?? "";
+            //        //product.Code = reader["Code"].ToString() ?? "";
+            //        product.Quantity = string.IsNullOrEmpty(reader["Quantity"].ToString()) ? 0 : Convert.ToInt32(reader["Quantity"]);
+            //        product.Price = string.IsNullOrEmpty(reader["Price"].ToString()) ? 0 : Convert.ToDecimal(reader["Price"]);
+            //        product.WarehouseID = string.IsNullOrEmpty(reader["WarehouseID"].ToString()) ? 0 : Convert.ToInt32(reader["WarehouseID"]);
+            //        //totalPayment += product.Quantity * product.Price;
 
-                    lstProduct.Add(product);
-                }
-                reader.Close();
-            }
-            orderResponseModel.TotalPayment = totalPayment;
-            orderResponseModel.lstProduct = lstProduct;
+            //        lstProduct.Add(product);
+            //    }
+            //    reader.Close();
+            //}
+            //orderResponseModel.TotalPayment = totalPayment;
+            //orderResponseModel.lstProduct = lstProduct;
+            ////
+            var param = new DynamicParameters(new
+            {
+                OrderID = orderID
+            });
+
+            var lstProductsOrder = Query<Product>("sp_GetOrderDetailById", param, commandType: CommandType.StoredProcedure).ToList();
+            orderResponseModel.lstProduct = lstProductsOrder;
+
+            //return result;
 
             return orderResponseModel;
+        }
+
+        /// <summary>
+        /// get 1 record Promote by PromoteID and Expire
+        /// </summary>
+        /// <param name="PromoteID"></param>
+        /// <returns></returns>
+        public PriceResponseModel GetPromote(Guid PromoteID)
+        {
+            var result = QueryFirstOrDefault<PriceResponseModel>("SP_GetPromoteByPromoteID", new { PromoteID = PromoteID }, commandType: CommandType.StoredProcedure);
+            return result;
         }
     }
 }

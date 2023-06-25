@@ -11,6 +11,6 @@ namespace Models.RequestModel
         [Required]
         public int? Status { get; set; }
         [Required]
-        public int? CreateBy { get; set; }
+        public Guid CreateBy { get; set; }
     }
 }

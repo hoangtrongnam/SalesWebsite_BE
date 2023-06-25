@@ -14,7 +14,8 @@ namespace Repository.Interface
         int InsertCartProduct(CartRequestModel item, Guid cartID, Guid cartProductID);
         int UpdateCartProduct(CartRequestModel item, Guid cartID, int status);
         Guid CreateCart(Guid customerID, Guid cartID);
-        int UpdateCart(CartRequestModel item, Guid cartID, int status);
+        int UpdateCart(Guid cartID, int status);
         int Remove(CartRequestModel item, Guid cartID);
+        int GetNumberProductsInCart(Guid CartID);
     }
 }
