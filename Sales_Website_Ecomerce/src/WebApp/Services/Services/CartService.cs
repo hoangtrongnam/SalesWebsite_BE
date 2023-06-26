@@ -193,13 +193,34 @@ namespace Services
                     var result = context.Repositories.CartRepository.Get(customerID, pageIndex);
                     if (result.CartID != Guid.Empty)
                     {
-                        //trả về list KM theo từng Product
+                        decimal totalPayment = 0;
+
+                        //1. trả về list KM theo từng Product
                         foreach (var item in result.lstProduct)
                         {
                             //var lstPromote = new PriceResponseModel();
+                            //1.2 tính tiền 1 sp (price*quantity vs KM)
+                            decimal totalPrice = 0;
                             var lstPromote = context.Repositories.ProductRepository.GetPrices(item.ProductID);
                             item.lstPromote = lstPromote;
+                            
+
+                            if(lstPromote.Select(p => p.PriceID).Contains(item.PromoteID))
+                            {
+                                //1.2.1 case KM %
+
+                                //1.2.2 case KM tiền
+                            }else
+                            {
+                                totalPrice = item.Price * item.Quantity;
+                                item.TotalPrice = totalPrice;
+                            }
+
+                            totalPayment += totalPrice;
                         }
+                        //2. tính tổng số tiền cần thanh toán
+                        result.TotalPayment = totalPayment;
+
                         return ApiResponse<CartResponeModel>.SuccessResponse(result);
                     }
                     else
