@@ -24,7 +24,7 @@ namespace Client.API.Controllers.V1
             _commonService = commonService;
         }
         [HttpPost("CreateProduct")]
-        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model,[FromHeader] Guid TenantID)
+        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model, [FromHeader] Guid TenantID)
         {
             var result = _productService.CreateProduct(model, TenantID);
             return Ok(result);
@@ -74,17 +74,17 @@ namespace Client.API.Controllers.V1
         }
 
         [HttpGet("GetProducts")]
-        public async Task<ActionResult> GetProducts()
+        public async Task<ActionResult> GetProducts([FromHeader] Guid TenantID)
         {
-            var tenantId = _requestUtils.GetTenantId();
-            var result = _productService.GetProducts(tenantId);
+            // var tenantId = _requestUtils.GetTenantId();
+            var result = _productService.GetProducts(TenantID);
             return Ok(result);
         }
 
         [HttpPut("UpdateProduct")]
-        public async Task<ActionResult> UpdateProduct([FromBody] UpdateProductRequestModel model, [Required] Guid ProductId)
+        public async Task<ActionResult> UpdateProduct([FromBody] UpdateProductRequestModel model, [Required] Guid id)
         {
-            var result = _productService.UpdateProduct(model, ProductId);
+            var result = _productService.UpdateProduct(model, id);
             return Ok(result);
         }
 
@@ -113,7 +113,7 @@ namespace Client.API.Controllers.V1
                 await file.CopyToAsync(stream);
             }
 
-            return filePath.Replace(rootPath,"");
+            return filePath.Replace(rootPath, "");
         }
     }
 }

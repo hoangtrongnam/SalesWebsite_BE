@@ -124,7 +124,7 @@ namespace Repository.Implement
         /// Get products by tenant
         /// </summary>
         /// <returns></returns>
-        public List<ProductResponseModel> GetProducts(int tenantId)
+        public List<ProductResponseModel> GetProducts(string tenantId)
         {
             var result = Query<ProductResponseModel>("SELECT * FROM Product a WHERE a.TenantID=@TenantID", new { TenantID = tenantId }, commandType: CommandType.Text).ToList();
             return result;
