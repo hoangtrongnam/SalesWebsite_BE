@@ -3,7 +3,7 @@ using Repository.Interfaces.Actions;
 
 namespace Repository.Interface
 {
-    public interface IProductStockRepository: ICreateRepository<CreateProductStockRequestModel,int>
+    public interface IProductStockRepository: ICreateRepository<CreateProductStockRepositoryRequestModel, int>
     {
     }
 }

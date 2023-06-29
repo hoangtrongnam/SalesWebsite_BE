@@ -66,7 +66,8 @@
             { "Supplier", new InfoTable() { TableName = "Supplier", ColumnName = "SupplierCode" } },
             { "Product", new InfoTable() { TableName = "Product", ColumnName = "ProductCode" } },
             { "CategoryProduct", new InfoTable() { TableName = "CategoryProduct", ColumnName = "CategoryCode" } },
-            { "WareHouse", new InfoTable() { TableName = "WareHouse", ColumnName = "WareHouseCode" } }
+            { "WareHouse", new InfoTable() { TableName = "WareHouse", ColumnName = "WareHouseCode" } },
+            { "ProductStock", new InfoTable() { TableName = "ProductStock", ColumnName = "ProductStockCode" } }
         };
     }
 

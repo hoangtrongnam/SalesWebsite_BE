@@ -2,11 +2,13 @@
 {
     public static class ExceptionManager
     {
-        private static readonly string LogFilePath = "exceptionlog.txt";
         private static readonly long MaxLogFileSize = 100 * 1024 * 1024; // 100 MB in bytes
 
-        public static void HandleException(Exception ex)
+        public static void HandleException(Exception ex, string LogDirectory)
         {
+            string LogfileName = "exceptionlog.txt";
+            string LogFilePath = Path.Combine(LogDirectory, LogfileName);
+
             // Log the exception to a text file
             using (var writer = new StreamWriter(LogFilePath, true))
             {

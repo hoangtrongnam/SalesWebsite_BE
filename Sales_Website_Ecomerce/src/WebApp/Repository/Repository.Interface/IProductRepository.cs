@@ -7,12 +7,12 @@ namespace Repository.Interface
 {
     public interface IProductRepository: IReadRepository<ProductResponseModel,Guid>, IUpdateRepository<UpdateProductRequestModel, Guid>
     {
-        int Create(CreateOnlyProductRepositoryRequestModel model, Guid TenantID);
-        List<ImageResponseModel> GetImages(Guid ProductID);
-        List<PriceResponseModel> GetPrices(Guid ProductID);
+        int Create(CreateOnlyProductRepositoryRequestModel model, Guid tenantID);
+        List<ImageResponseModel> GetImages(Guid productID);
+        List<PriceResponseModel> GetPrices(Guid productID);
         int CreatePrices(List<PriceRepositoryRequestModel> item);
         int CreateImages(List<ImageRepositoryRequestModel> item);
-        List<ProductResponseModel> GetProductCategory(Guid CategoryID);
         List<ProductResponseModel> GetProducts(string tenantId);
+        List<ProductResponseModel> GetProductCategory(Guid categoryID);
     }
 }

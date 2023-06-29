@@ -1,4 +1,9 @@
-﻿namespace Product.API.Extensions
+﻿using Client.API.Exceptions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Filters;
+
+namespace Product.API.Extensions
 {
     public static class ApplicationExtensions
     {
@@ -12,6 +17,8 @@
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseMiddleware<ExceptionLoggingMiddleware>();
 
             app.UseEndpoints(enpoints =>
             {

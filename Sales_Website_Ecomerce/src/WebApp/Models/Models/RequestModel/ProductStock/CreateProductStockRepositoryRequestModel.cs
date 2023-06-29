@@ -1,7 +1,9 @@
 ﻿namespace Models.RequestModel.ProductStock
 {
-    public class CreateProductStockRequestModel
+    public class CreateProductStockRepositoryRequestModel
     {
+        public Guid ProductStockID { get; set; }
+        public string ProductStockCode { get; set; }
         public Guid ProductID { get; set; }
         public Guid SupplierID { get; set; }
         public string Name { get; set; }

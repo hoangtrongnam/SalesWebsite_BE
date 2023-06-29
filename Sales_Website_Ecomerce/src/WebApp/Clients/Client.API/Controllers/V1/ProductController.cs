@@ -24,9 +24,9 @@ namespace Client.API.Controllers.V1
             _commonService = commonService;
         }
         [HttpPost("CreateProduct")]
-        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model, [FromHeader] Guid TenantID)
+        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model,[FromHeader] Guid tenantID)
         {
-            var result = _productService.CreateProduct(model, TenantID);
+            var result = _productService.CreateProduct(model, tenantID);
             return Ok(result);
         }
 
@@ -53,23 +53,23 @@ namespace Client.API.Controllers.V1
         }
 
         [HttpGet("GetImagesByProductId")]
-        public async Task<ActionResult> GetImagesByProductId([Required] Guid ProductId)
+        public async Task<ActionResult> GetImagesByProductId([Required] Guid productId)
         {
-            var result = _productService.GetImagesByProductID(ProductId);
+            var result = _productService.GetImagesByProductID(productId);
             return Ok(result);
         }
 
         [HttpGet("GetPricesByProductId")]
-        public async Task<ActionResult> GetPricesByProductId([Required] Guid ProductId)
+        public async Task<ActionResult> GetPricesByProductId([Required] Guid productId)
         {
-            var result = _productService.GetPricesByProductID(ProductId);
+            var result = _productService.GetPricesByProductID(productId);
             return Ok(result);
         }
 
         [HttpGet("GetProductByCategory")]
-        public async Task<ActionResult> GetProductByCategory([Required] Guid CategoryId)
+        public async Task<ActionResult> GetProductByCategory([Required] Guid categoryId)
         {
-            var result = _productService.GetProductByCategory(CategoryId);
+            var result = _productService.GetProductByCategory(categoryId);
             return Ok(result);
         }
 

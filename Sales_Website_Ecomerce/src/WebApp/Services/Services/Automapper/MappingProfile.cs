@@ -2,6 +2,7 @@
 using Models.RequestModel;
 using Models.RequestModel.Category;
 using Models.RequestModel.Product;
+using Models.RequestModel.ProductStock;
 using Models.RequestModel.Supplier;
 using Models.RequestModel.WareHouse;
 using Models.ResponseModels.Product;
@@ -14,12 +15,12 @@ namespace Services.Automapper
         {
             // Ánh xạ từ UpdateInfoUserRequestModel sang UpdateUserCommonRequestModel
             CreateMap<UpdateInfoUserRequestModel, UpdateUserCommonRequestModel>();         
-            // Ánh xạ từ ChangePasswordRequestModel sang UpdateUserCommonRequestModel
             CreateMap<ChangePasswordRequestModel, UpdateUserCommonRequestModel>();
             CreateMap<CreateSupplierRequestModel, CreateSupplierRepositoryRequestModel>();
             CreateMap<CreateOnlyProductRequestModel, CreateOnlyProductRepositoryRequestModel>();
             CreateMap<CreateCategoryRequestModel, CreateCategoryRepositoryRequestModel>();
             CreateMap<CreateWareHouseRequestModel, CreateWareHouseRepositoryRequestModel>();
+            CreateMap<CreateProductStockRequestModel, CreateProductStockRepositoryRequestModel>();
 
             // Ánh xạ từ ImageRequestModel sang ImageRepositoryRequestModel
             CreateMap<ImageRequestModel, ImageRepositoryRequestModel>()
