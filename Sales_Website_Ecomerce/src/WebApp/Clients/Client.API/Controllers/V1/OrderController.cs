@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Models.RequestModel;
-using Models.ResponseModels;
+using Models.RequestModel.Orders;
 using Services;
 using System.ComponentModel.DataAnnotations;
 
@@ -17,10 +16,10 @@ namespace Client.API.Controllers
             _orderService = orderServices;
         }
 
-        [HttpGet("/FindOrder/{OrderID}")]
-        public ActionResult Get([Required] int OrderID)
+        [HttpGet]
+        public ActionResult Get([Required] Guid orderID)
         {
-            return Ok(_orderService.Get(OrderID));
+            return Ok(_orderService.Get(orderID));
         }
 
         [HttpPost("/AddOrder")]
@@ -30,7 +29,7 @@ namespace Client.API.Controllers
         }
 
         [HttpPut("/UpdateOrder")]
-        public ActionResult UpdateOrder([FromBody] OrderRequestModel item, [Required] int OrderID)
+        public ActionResult UpdateOrder([FromBody] OrderCommonRequest item, [Required] Guid OrderID)
         {
             //Sẽ làm update thông tin product trong giỏ hàng sau
             /*
@@ -46,7 +45,7 @@ namespace Client.API.Controllers
         }
 
         [HttpDelete("/DeleteOrder")]
-        public ActionResult DeleteOrder([Required] int orderID, [Required] int customerID)
+        public ActionResult DeleteOrder([Required] Guid orderID, [Required] Guid customerID)
         {
             //OrderResponseModel orderResponseModel = _orderService.GetlistProduct(OrderID);
             //OrderRequestModel orderRequestModel = new OrderRequestModel();

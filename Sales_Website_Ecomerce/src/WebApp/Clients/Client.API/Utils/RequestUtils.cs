@@ -12,12 +12,13 @@
 
         public string GetTenantId()
         {
-            var fromHeader = _contextAccessor.HttpContext?.Request.Headers[TENANT_ID_HEADER];
-            if (!string.IsNullOrEmpty(fromHeader))
-            {
-                return fromHeader ?? string.Empty;
-            }
-            return string.Empty;
+            //var fromHeader = _contextAccessor.HttpContext?.Request.Headers["tenantId"];
+            //if (!string.IsNullOrEmpty(fromHeader))
+            //{
+            //    return int.Parse(fromHeader ?? "1");
+            //}
+            //return -1;
+            return "DFD9DB98-448E-42F1-86FC-7AFA3D9C637A";
         }
 
     }

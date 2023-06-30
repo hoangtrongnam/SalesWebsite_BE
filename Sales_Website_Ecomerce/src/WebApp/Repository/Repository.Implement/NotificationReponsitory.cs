@@ -17,14 +17,15 @@ namespace Repository.Implement
             this._transaction = _transaction;
         }
 
-        public int Create(NotificationRequestModel item)
+        public int Create(NotificationRequestModel item, Guid notificationID)
         {
             var parameters = new DynamicParameters(new
             {
                 Note = item.Note,
                 Content = item.Content,
                 Status = item.Status,
-                CreateBy = item.CreateBy
+                CreateBy = item.CreateBy,
+                NotificationID = notificationID
             });
 
             var result = Execute("sp_InsertNotification", parameters, commandType: CommandType.StoredProcedure);

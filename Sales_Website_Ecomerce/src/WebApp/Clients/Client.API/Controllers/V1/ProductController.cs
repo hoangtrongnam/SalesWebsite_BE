@@ -11,7 +11,6 @@ namespace Client.API.Controllers.V1
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]/")]
     [ApiVersion("1.0")]
-    //[CustomException]
     public class ProductController : ControllerBase
     {
         private readonly IProductServices _productService;
@@ -76,8 +75,8 @@ namespace Client.API.Controllers.V1
         [HttpGet("GetProducts")]
         public async Task<ActionResult> GetProducts([FromHeader] Guid TenantID)
         {
-            // var tenantId = _requestUtils.GetTenantId();
-            var result = _productService.GetProducts(TenantID);
+            var tenantId = _requestUtils.GetTenantId();
+            var result = _productService.GetProducts(Guid.Parse(tenantId));
             return Ok(result);
         }
 

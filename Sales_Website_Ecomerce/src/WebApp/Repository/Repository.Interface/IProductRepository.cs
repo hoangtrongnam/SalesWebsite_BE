@@ -12,7 +12,7 @@ namespace Repository.Interface
         List<PriceResponseModel> GetPrices(Guid productID);
         int CreatePrices(List<PriceRepositoryRequestModel> item);
         int CreateImages(List<ImageRepositoryRequestModel> item);
-        List<ProductResponseModel> GetProducts(string tenantId);
         List<ProductResponseModel> GetProductCategory(Guid categoryID);
+        List<ProductResponseModel> GetProducts(Guid tenantId);
     }
 }
