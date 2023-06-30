@@ -10,7 +10,6 @@ namespace Client.API.Controllers.V1
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]/")]
     [ApiVersion("1.0")]
-    //[CustomException]
     public class ProductController : ControllerBase
     {
         private readonly IProductServices _productService;

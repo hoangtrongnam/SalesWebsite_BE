@@ -9,7 +9,6 @@ namespace Client.API.Controllers
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
-    //[CustomException]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryServices _categoryService;
