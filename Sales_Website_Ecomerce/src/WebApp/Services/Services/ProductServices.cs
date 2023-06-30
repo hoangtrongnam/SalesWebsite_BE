@@ -206,7 +206,7 @@ namespace Services
             var products = new List<ProductResponseModel>();
             using (var context = _unitOfWork.Create())
             {
-                products = context.Repositories.ProductRepository.GetProducts(tenantId.ToString());
+                products = context.Repositories.ProductRepository.GetProducts(tenantId);
                 if (products.Any())
                 {
                     products.ForEach(p =>
