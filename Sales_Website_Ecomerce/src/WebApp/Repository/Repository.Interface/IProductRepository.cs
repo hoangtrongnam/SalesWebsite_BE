@@ -1,6 +1,7 @@
 ﻿using Models.RequestModel.Product;
 using Models.ResponseModels.Product;
 using Repository.Interfaces.Actions;
+using System.Collections.Generic;
 
 namespace Repository.Interface
 {
@@ -12,5 +13,6 @@ namespace Repository.Interface
         int CreatePrices(List<PriceRepositoryRequestModel> item);
         int CreateImages(List<ImageRepositoryRequestModel> item);
         List<ProductResponseModel> GetProductCategory(Guid categoryID);
+        List<ProductResponseModel> GetProducts(Guid tenantId);
     }
 }

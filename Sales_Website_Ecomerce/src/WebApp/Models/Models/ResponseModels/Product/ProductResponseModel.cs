@@ -16,6 +16,7 @@
         public string CreateBy { get; set; }
         public string UpdateDate { get; set; }
         public string UpdateBy { get; set; }
+        public List<ImageResponseModel> Images { get; set; }
     }
 
     public class ImageResponseModel

@@ -16,6 +16,7 @@ namespace Services
         ApiResponse<List<PriceResponseModel>> GetPricesByProductID(Guid productID);
         ApiResponse<List<ProductResponseModel>> GetProductByCategory(Guid categoryId);
         ApiResponse<int> UpdateProduct(UpdateProductRequestModel model, Guid id);
+        ApiResponse<List<ProductResponseModel>> GetProducts(Guid tenanId);
     }
     public class ProductServices : IProductServices
     {
@@ -102,7 +103,7 @@ namespace Services
         /// <returns></returns>
         public ApiResponse<int> CreateProduct(CreateOnlyProductRequestModel model, Guid tenanlID)
         {
-            using(var context = _unitOfWork.Create())
+            using (var context = _unitOfWork.Create())
             {
                 var codeOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["Product"].TableName, Parameters.tables["Product"].ColumnName);
 
@@ -196,6 +197,25 @@ namespace Services
                 context.SaveChanges();
                 return ApiResponse<int>.SuccessResponse(result);
             }
+        }
+
+        public ApiResponse<List<ProductResponseModel>> GetProducts(Guid tenanId)
+        {
+            var products = new List<ProductResponseModel>();
+            using (var context = _unitOfWork.Create())
+            {
+                products = context.Repositories.ProductRepository.GetProducts(tenanId);
+                if (products.Any())
+                {
+                    products.ForEach(p =>
+                    {
+                        p.Images = context.Repositories.ProductRepository.GetImages(p.ProductID).OrderBy(i => i.ImageID).Take(1).ToList();
+                        //p.Price = context.Repositories.ProductRepository.GetPrices(p.ProductID).FirstOrDefault()?.Price;
+                    });
+                }
+            }
+
+            return ApiResponse<List<ProductResponseModel>>.SuccessResponse(products);
         }
     }
 }

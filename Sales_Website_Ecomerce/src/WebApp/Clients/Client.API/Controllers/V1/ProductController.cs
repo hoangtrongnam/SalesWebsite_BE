@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Client.API.Utils;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting.Internal;
 using Models.RequestModel.Product;
 using Services;
@@ -14,9 +15,11 @@ namespace Client.API.Controllers.V1
     {
         private readonly IProductServices _productService;
         private readonly ICommonService _commonService;
-        public ProductController(IProductServices productService, ICommonService commonService)
+        private readonly RequestUtils _requestUtils;
+        public ProductController(IProductServices productService, ICommonService commonService, RequestUtils requestUtils)
         {
             _productService = productService;
+            _requestUtils = requestUtils;
             _commonService = commonService;
         }
         [HttpPost("CreateProduct")]
@@ -66,6 +69,14 @@ namespace Client.API.Controllers.V1
         public async Task<ActionResult> GetProductByCategory([Required] Guid categoryId)
         {
             var result = _productService.GetProductByCategory(categoryId);
+            return Ok(result);
+        }
+
+        [HttpGet("GetProducts")]
+        public async Task<ActionResult> GetProducts()
+        {
+            var tenantId = _requestUtils.GetTenantId();
+            var result = _productService.GetProducts(Guid.Parse(tenantId));
             return Ok(result);
         }
 
