@@ -33,7 +33,18 @@ namespace Client.API.Exceptions
 
                 // Set StatusCode trả về cho client
                 context.Response.StatusCode = 500;
+                context.Response.Body = GenerateStreamFromString(ex.Message);
             }
+        }
+
+        private static Stream GenerateStreamFromString(string s)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
         }
 
         private void LogExceptionToDatabase(Exception exception, HttpContext context)
