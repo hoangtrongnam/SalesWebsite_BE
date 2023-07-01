@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Common;
+using Dapper;
 using Models.RequestModel.Supplier;
 using Models.ResponseModels.Supplier;
 using Repository.Interface;
@@ -29,7 +30,7 @@ namespace Repository.Implement
                 Address = item.Address,
                 PhoneNumber = item.PhoneNumber,
                 Description = item.Description,
-                CreateBy = item.CreateBy
+                CreateBy = Parameters.CreateBy
             });
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
             Execute("SP_CreateSupplier", parameters, commandType: CommandType.StoredProcedure);

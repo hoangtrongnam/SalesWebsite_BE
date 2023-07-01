@@ -1,10 +1,12 @@
-﻿using UnitOfWork.Interface;
+﻿using Models.RequestModel;
+using UnitOfWork.Interface;
 
 namespace Services
 {
     public interface ICommonService
     {
         string GetConfigValueService(int key);
+        void LogExceptionToDatabase(LogExceptionModel log);
     }
     public class CommonService : ICommonService
     {
@@ -23,6 +25,18 @@ namespace Services
             using (var context = _unitOfWork.Create())
             {
                 return context.Repositories.CommonRepository.GetConfigValue(key);
+            }
+        }
+        /// <summary>
+        /// Write Log Exception to Database
+        /// </summary>
+        /// <param name="log"></param>
+        public void LogExceptionToDatabase(LogExceptionModel log)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                context.Repositories.CommonRepository.LogExeption(log);
+                context.SaveChanges();
             }
         }
     }

@@ -1,9 +1,11 @@
-﻿using Dapper;
+﻿using Common;
+using Dapper;
 using Models.RequestModel.WareHouse;
 using Models.ResponseModels.WareHouse;
 using Repository.Interface;
 using System.Data;
 using System.Data.SqlClient;
+using System.Reflection.Metadata;
 
 namespace Repository.Implement
 {
@@ -28,7 +30,7 @@ namespace Repository.Implement
                 Name = item.Name,
                 Address = item.Address,
                 Description = item.Description,
-                CreateBy = item.CreateBy
+                CreateBy = Parameters.CreateBy
             });
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
             Execute("SP_CreateWareHouse", parameters, commandType: CommandType.StoredProcedure);

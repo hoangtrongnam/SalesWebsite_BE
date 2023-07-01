@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting.Internal;
+﻿using Client.API.Utils;
+using Microsoft.AspNetCore.Mvc;
 using Models.RequestModel.Product;
 using Services;
 using System.ComponentModel.DataAnnotations;
@@ -10,20 +10,22 @@ namespace Client.API.Controllers.V1
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]/")]
     [ApiVersion("1.0")]
-    //[CustomException]
     public class ProductController : ControllerBase
     {
         private readonly IProductServices _productService;
         private readonly ICommonService _commonService;
-        public ProductController(IProductServices productService, ICommonService commonService)
+        private readonly RequestUtils _requestUtils;
+        public ProductController(IProductServices productService, ICommonService commonService, RequestUtils requestUtils)
         {
             _productService = productService;
+            _requestUtils = requestUtils;
             _commonService = commonService;
         }
         [HttpPost("CreateProduct")]
-        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model,[FromHeader] Guid TenantID)
+        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model)
         {
-            var result = _productService.CreateProduct(model, TenantID);
+            var tenantId = _requestUtils.GetTenantId();
+            var result = _productService.CreateProduct(model, Guid.Parse(tenantId));
             return Ok(result);
         }
 
@@ -50,30 +52,38 @@ namespace Client.API.Controllers.V1
         }
 
         [HttpGet("GetImagesByProductId")]
-        public async Task<ActionResult> GetImagesByProductId([Required] Guid ProductId)
+        public async Task<ActionResult> GetImagesByProductId([Required] Guid productId)
         {
-            var result = _productService.GetImagesByProductID(ProductId);
+            var result = _productService.GetImagesByProductID(productId);
             return Ok(result);
         }
 
         [HttpGet("GetPricesByProductId")]
-        public async Task<ActionResult> GetPricesByProductId([Required] Guid ProductId)
+        public async Task<ActionResult> GetPricesByProductId([Required] Guid productId)
         {
-            var result = _productService.GetPricesByProductID(ProductId);
+            var result = _productService.GetPricesByProductID(productId);
             return Ok(result);
         }
 
         [HttpGet("GetProductByCategory")]
-        public async Task<ActionResult> GetProductByCategory([Required] Guid CategoryId)
+        public async Task<ActionResult> GetProductByCategory([Required] Guid categoryId)
         {
-            var result = _productService.GetProductByCategory(CategoryId);
+            var result = _productService.GetProductByCategory(categoryId);
+            return Ok(result);
+        }
+
+        [HttpPost("GetProducts")]
+        public async Task<ActionResult> GetProducts([FromBody]FilterProductByConditionRequestModel model)
+        {
+            var tenantId = _requestUtils.GetTenantId();
+            var result = _productService.GetProducts(model, Guid.Parse(tenantId));
             return Ok(result);
         }
 
         [HttpPut("UpdateProduct")]
-        public async Task<ActionResult> UpdateProduct([FromBody] UpdateProductRequestModel model, [Required] Guid ProductId)
+        public async Task<ActionResult> UpdateProduct([FromBody] UpdateProductRequestModel model, [Required] Guid id)
         {
-            var result = _productService.UpdateProduct(model, ProductId);
+            var result = _productService.UpdateProduct(model, id);
             return Ok(result);
         }
 
@@ -102,7 +112,7 @@ namespace Client.API.Controllers.V1
                 await file.CopyToAsync(stream);
             }
 
-            return filePath.Replace(rootPath,"");
+            return filePath.Replace(rootPath, "");
         }
     }
 }

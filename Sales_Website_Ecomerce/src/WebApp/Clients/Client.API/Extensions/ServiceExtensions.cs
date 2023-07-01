@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Client.API.Exceptions;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Models.RequestModel.Product;
 using Services;
 using Services.Automapper;
 using System.Text;
 using UnitOfWork.Database;
 using UnitOfWork.Interface;
+using Validator.Product;
 
 namespace Product.API.Extensions
 {
@@ -15,8 +19,11 @@ namespace Product.API.Extensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddControllers();
-            
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(typeof(FluentValidationActionFilter));
+            });
+
             services.AddApiVersioning(opt =>
             {
                 opt.DefaultApiVersion = new ApiVersion(1, 0);
@@ -59,7 +66,9 @@ namespace Product.API.Extensions
                 
             });
 
+
             services.AddInfrastructureServices();
+            services.AddTransient<IValidator<CreateOnlyProductRequestModel>, CreateProductRequestModelValidator>();
 
             services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

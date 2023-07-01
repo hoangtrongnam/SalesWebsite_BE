@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Common;
+using Dapper;
 using Models.RequestModel.Category;
 using Models.ResponseModels.Category;
 using Repository.Interface;
@@ -19,7 +20,7 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public CategoryResponseModel Create(CreateCategoryRepositoryRequestModel item, Guid TenantID)
+        public CategoryResponseModel Create(CreateCategoryRepositoryRequestModel item, Guid tenantID)
         {
             var parameters = new DynamicParameters(new
             {
@@ -28,10 +29,10 @@ namespace Repository.Implement
                 Value = item.Value,
                 Parent = item.Parent,
                 Name = item.Name,
-                TenantID = TenantID,
+                TenantID = tenantID,
                 Description = item.Description,
-                CreateBy = item.CreateBy
-            });
+                CreateBy = Parameters.CreateBy
+            }); ;
 
             var result = QueryFirstOrDefault<CategoryResponseModel>("SP_Create_Category", parameters, commandType: CommandType.StoredProcedure);
 
@@ -42,9 +43,9 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public List<CategoryResponseModel> GetChildCategoysById(Guid CategoryID)
+        public List<CategoryResponseModel> GetChildCategoysById(Guid categoryID)
         {
-            var result = Query<CategoryResponseModel>("SP_Get_AllChildCategoryById", new { CategoryID = CategoryID }, commandType: CommandType.StoredProcedure).ToList();
+            var result = Query<CategoryResponseModel>("SP_Get_AllChildCategoryById", new { CategoryID = categoryID }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
         /// <summary>
@@ -53,15 +54,15 @@ namespace Repository.Implement
         /// <param name="item"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public int Update(UpdateCategoryRequestModel item, Guid CategoryID)
+        public int Update(UpdateCategoryRequestModel item, Guid categoryID)
         {
             var parameters = new DynamicParameters(new
             {
-                CategoryID = CategoryID,
+                CategoryID = categoryID,
                 Name = item.Name,
                 Parent = item.Parent,
                 Description = item.Description,
-                UpdateBy = item.UpdateBy
+                UpdateBy = Parameters.CreateBy
             });
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
             Execute("SP_UpdateCategory", parameters, commandType: CommandType.StoredProcedure);
@@ -72,9 +73,9 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public int Remove(Guid CategoryID)
+        public int Remove(Guid categoryID)
         {
-            var parameters = new DynamicParameters(new{CategoryID = CategoryID});
+            var parameters = new DynamicParameters(new{CategoryID = categoryID});
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
             Execute("SP_DeleteCategory", parameters, commandType: CommandType.StoredProcedure);
             return parameters.Get<int>("@Result");
@@ -95,9 +96,9 @@ namespace Repository.Implement
         /// </summary>
         /// <param name="TenantID"></param>
         /// <returns></returns>
-        public List<CategoryResponseModel> GetAllCategory(Guid TenantID)
+        public List<CategoryResponseModel> GetAllCategory(Guid tenantID)
         {
-            var result = Query<CategoryResponseModel>("SP_GetAllCategoryTenant", new { TenantID = TenantID}, commandType: CommandType.StoredProcedure).ToList();
+            var result = Query<CategoryResponseModel>("SP_GetAllCategoryTenant", new { TenantID = tenantID}, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
         /// <summary>
