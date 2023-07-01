@@ -1,4 +1,5 @@
 ﻿using Client.API.Exceptions;
+using Client.API.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Models.RequestModel.Category;
 using Services;
@@ -12,10 +13,12 @@ namespace Client.API.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryServices _categoryService;
+        private readonly RequestUtils _requestUtils;
 
-        public CategoryController(ICategoryServices categoryServices)
+        public CategoryController(ICategoryServices categoryServices, RequestUtils requestUtils)
         {
             _categoryService = categoryServices;
+            _requestUtils = requestUtils;
         }
 
         [HttpGet("GetCategoryByID")]
@@ -25,9 +28,10 @@ namespace Client.API.Controllers
             return Ok(result);
         }
         [HttpGet("GetAllCategory")]
-        public async Task<ActionResult> GetAllCategory([FromHeader] Guid tenantID)
+        public async Task<ActionResult> GetAllCategory()
         {
-            var result = _categoryService.GetAllCategory(tenantID);
+            var tenantId = _requestUtils.GetTenantId();
+            var result = _categoryService.GetAllCategory(Guid.Parse(tenantId));
             return Ok(result);
         }
         [HttpGet("GetChildCategory")]
@@ -38,9 +42,10 @@ namespace Client.API.Controllers
         }
 
         [HttpPost("CreateCategory")]
-        public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryRequestModel model, [FromHeader] Guid tenantID)
+        public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryRequestModel model)
         {
-            var result = _categoryService.CreateCategory(model, tenantID);
+            var tenantId = _requestUtils.GetTenantId();
+            var result = _categoryService.CreateCategory(model, Guid.Parse(tenantId));
             return Ok(result);
         }
 

@@ -4,6 +4,8 @@ using Models.RequestModel.Product;
 using Models.ResponseModels.Product;
 using AutoMapper;
 using System.Linq;
+using System.Collections.Generic;
+using System;
 
 namespace Services
 {
@@ -41,9 +43,9 @@ namespace Services
                 var imagesRepository = new List<ImageRepositoryRequestModel>();
                 _mapper.Map(listImage, imagesRepository);
 
-                var codeGenOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["Image"].TableName, Parameters.tables["Image"].ColumnName); 
+                var codeGenOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["Image"].TableName, Parameters.tables["Image"].ColumnName);
 
-                for(int i = 0; i < listImage.Count; i++)
+                for (int i = 0; i < listImage.Count; i++)
                 {
                     codeGenOld = GenerateCode.GenCode(codeGenOld);
                     imagesRepository[i].ImageCode = codeGenOld;
@@ -53,7 +55,7 @@ namespace Services
                     var product = context.Repositories.ProductRepository.Get(listImage[i].ProductID);
                     if (product == null)
                         return ApiResponse<int>.ErrorResponse($"Product {listImage[i].ProductID} does not exists.");
-                } 
+                }
 
                 //Create multiple image 
                 var result = context.Repositories.ProductRepository.CreateImages(imagesRepository);

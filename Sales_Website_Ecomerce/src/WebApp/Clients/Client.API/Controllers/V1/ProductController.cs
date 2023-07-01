@@ -22,9 +22,10 @@ namespace Client.API.Controllers.V1
             _commonService = commonService;
         }
         [HttpPost("CreateProduct")]
-        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model,[FromHeader] Guid tenantID)
+        public async Task<ActionResult> CreateProduct([FromBody] CreateOnlyProductRequestModel model)
         {
-            var result = _productService.CreateProduct(model, tenantID);
+            var tenantId = _requestUtils.GetTenantId();
+            var result = _productService.CreateProduct(model, Guid.Parse(tenantId));
             return Ok(result);
         }
 
@@ -111,7 +112,7 @@ namespace Client.API.Controllers.V1
                 await file.CopyToAsync(stream);
             }
 
-            return filePath.Replace(rootPath,"");
+            return filePath.Replace(rootPath, "");
         }
     }
 }
