@@ -54,6 +54,8 @@
         public const int StatusKhoNotify = 26; //thông báo cho nhân viên kho
         #endregion
 
+        public const int SaleHoldProduct = 90; //Sale đã check đủ số tiền cọc và hold product cho KH
+
         public enum JobName
         {
             RejectOrder

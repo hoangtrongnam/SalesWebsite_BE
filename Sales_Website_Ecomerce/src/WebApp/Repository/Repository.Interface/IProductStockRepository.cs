@@ -5,5 +5,6 @@ namespace Repository.Interface
 {
     public interface IProductStockRepository: ICreateRepository<CreateProductStockRequestModel,int>
     {
+        int HoldProduct(HoldProductRequestModel model);
     }
 }
