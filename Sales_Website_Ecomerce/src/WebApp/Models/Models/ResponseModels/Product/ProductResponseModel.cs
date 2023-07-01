@@ -1,5 +1,12 @@
 ﻿namespace Models.ResponseModels.Product
 {
+    public class ListProductResponseModel
+    {
+        public int TotalRecord { get; set; }
+        public int TotalPage { get; set; }
+        public List<ProductResponseModel> Products { get; set; }
+    }
+
     public class ProductResponseModel
     {
         public Guid ProductID { get; set; }

@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Common;
+using Dapper;
 using Models.RequestModel.ProductStock;
 using Repository.Interface;
 using System.Data;
@@ -31,7 +32,7 @@ namespace Repository.Implement
                 Status = item.Status,
                 WareHouseID = item.WareHouseID,
                 Description = item.Description,
-                CreateBy = item.CreateBy
+                CreateBy = Parameters.CreateBy
             });
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
             Execute("SP_CreateProductStock", parameters, commandType: CommandType.StoredProcedure);

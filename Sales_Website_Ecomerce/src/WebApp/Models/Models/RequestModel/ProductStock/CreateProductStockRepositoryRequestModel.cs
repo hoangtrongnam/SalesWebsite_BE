@@ -11,6 +11,5 @@
         public int Status { get; set; }
         public Guid WareHouseID { get; set; }
         public string Description { get; set; }
-        public string CreateBy { get; set; }
     }
 }

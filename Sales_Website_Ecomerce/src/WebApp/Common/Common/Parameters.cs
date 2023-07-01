@@ -9,6 +9,7 @@
         //login information demo
         public const string EmailAddress = "admin@gmail.com";
         public const string Password = "Admin@123456";
+        public const string CreateBy = "Admin";
 
         // Thiết lập ITrigger để kích hoạt công việc vào 7 giờ sáng theo múi giờ Việt Nam
         public static DateTimeOffset StartTime = new DateTimeOffset(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 7, 0, 0, TimeSpan.FromHours(7));

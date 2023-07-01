@@ -3,9 +3,6 @@ using Models.RequestModel;
 using Repository.Interface;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Net;
-using System.Reflection.PortableExecutable;
 
 namespace Repository.Implement
 {

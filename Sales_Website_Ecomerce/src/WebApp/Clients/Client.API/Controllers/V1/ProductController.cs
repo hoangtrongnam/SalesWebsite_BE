@@ -1,6 +1,5 @@
 ﻿using Client.API.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting.Internal;
 using Models.RequestModel.Product;
 using Services;
 using System.ComponentModel.DataAnnotations;
@@ -72,11 +71,11 @@ namespace Client.API.Controllers.V1
             return Ok(result);
         }
 
-        [HttpGet("GetProducts")]
-        public async Task<ActionResult> GetProducts()
+        [HttpPost("GetProducts")]
+        public async Task<ActionResult> GetProducts([FromBody]FilterProductByConditionRequestModel model)
         {
             var tenantId = _requestUtils.GetTenantId();
-            var result = _productService.GetProducts(Guid.Parse(tenantId));
+            var result = _productService.GetProducts(model, Guid.Parse(tenantId));
             return Ok(result);
         }
 

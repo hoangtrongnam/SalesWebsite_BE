@@ -3,6 +3,7 @@ using Common;
 using Models.RequestModel.Product;
 using Models.ResponseModels.Product;
 using AutoMapper;
+using System.Linq;
 
 namespace Services
 {
@@ -16,7 +17,7 @@ namespace Services
         ApiResponse<List<PriceResponseModel>> GetPricesByProductID(Guid productID);
         ApiResponse<List<ProductResponseModel>> GetProductByCategory(Guid categoryId);
         ApiResponse<int> UpdateProduct(UpdateProductRequestModel model, Guid id);
-        ApiResponse<List<ProductResponseModel>> GetProducts(Guid tenanId);
+        ApiResponse<ListProductResponseModel> GetProducts(FilterProductByConditionRequestModel model,Guid tenanId);
     }
     public class ProductServices : IProductServices
     {
@@ -47,6 +48,7 @@ namespace Services
                     codeGenOld = GenerateCode.GenCode(codeGenOld);
                     imagesRepository[i].ImageCode = codeGenOld;
                     imagesRepository[i].ImageID = Guid.NewGuid();
+                    imagesRepository[i].CreateBy = Parameters.CreateBy;
 
                     var product = context.Repositories.ProductRepository.Get(listImage[i].ProductID);
                     if (product == null)
@@ -81,6 +83,7 @@ namespace Services
                     codeGenOld = GenerateCode.GenCode(codeGenOld);
                     pricesRepository[i].PriceCode = codeGenOld;
                     pricesRepository[i].PriceID = Guid.NewGuid();
+                    pricesRepository[i].CreateBy = Parameters.CreateBy;
 
                     var product = context.Repositories.ProductRepository.Get(listPrice[i].ProductID);
                     if (product == null)
@@ -199,23 +202,46 @@ namespace Services
             }
         }
 
-        public ApiResponse<List<ProductResponseModel>> GetProducts(Guid tenanId)
+        public ApiResponse<ListProductResponseModel> GetProducts(FilterProductByConditionRequestModel model, Guid tenanId)
         {
             var products = new List<ProductResponseModel>();
+            var result = new ListProductResponseModel();
             using (var context = _unitOfWork.Create())
             {
                 products = context.Repositories.ProductRepository.GetProducts(tenanId);
                 if (products.Any())
                 {
+                    products = products.Where(p =>
+                                            (!model.ProductID.HasValue || p.ProductID == model.ProductID) &&
+                                            (string.IsNullOrEmpty(model.ProductCode) || p.ProductCode == model.ProductCode) &&
+                                            (!model.CategoryID.HasValue || p.CategoryID == model.CategoryID) &&
+                                            (string.IsNullOrEmpty(model.Name) || p.Name.Contains(model.Name)) &&
+                                            (!model.Status.HasValue || p.Status == model.Status)
+                                        ).ToList();
+                    
+                    int totalItems = products.Count();
+                    int totalPages = 1; 
+
+                    bool applyPagination = model.PageNumber.HasValue && model.PageSize.HasValue;
+                    if (applyPagination)
+                    {   
+                        totalPages = (int)Math.Ceiling((double)totalItems / (model.PageSize ??= totalItems));
+                        products = products.Skip(((model.PageNumber ??= 1) - 1) * (model.PageSize ??= totalItems)).Take(model.PageSize ??= totalItems).ToList();
+                    }
+                    
                     products.ForEach(p =>
                     {
                         p.Images = context.Repositories.ProductRepository.GetImages(p.ProductID).OrderBy(i => i.ImageID).Take(1).ToList();
-                        //p.Price = context.Repositories.ProductRepository.GetPrices(p.ProductID).FirstOrDefault()?.Price;
                     });
+
+                    //Set result return
+                    result.TotalRecord = totalItems;
+                    result.TotalPage = totalPages;
+                    result.Products = products;
                 }
             }
 
-            return ApiResponse<List<ProductResponseModel>>.SuccessResponse(products);
+            return ApiResponse<ListProductResponseModel>.SuccessResponse(result);
         }
     }
 }

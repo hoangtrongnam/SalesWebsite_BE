@@ -35,7 +35,7 @@ namespace Repository.Implement
                 Price = item.Price,
                 Status = item.Status,
                 TenantID = tenantID,
-                CreateBy = item.CreateBy
+                CreateBy = Parameters.CreateBy
             });
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
             
@@ -144,7 +144,7 @@ namespace Repository.Implement
                 Price = item.Price,
                 Code = item.Code,
                 Description = item.Description,
-                UpdateBy = item.UpdateBy
+                UpdateBy = Parameters.CreateBy
             });
             parameters.Add("@Result", dbType: DbType.Int32,direction: ParameterDirection.Output);
 
