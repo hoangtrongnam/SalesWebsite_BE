@@ -1,11 +1,11 @@
 ﻿namespace Models.ResponseModels.Product
 {
-    public class ListProductResponseModel
-    {
-        public int TotalRecord { get; set; }
-        public int TotalPage { get; set; }
-        public List<ProductResponseModel> elements { get; set; }
-    }
+    //public class ListProductResponseModel
+    //{
+    //    public int TotalRecord { get; set; }
+    //    public int TotalPage { get; set; }
+    //    public List<ProductResponseModel> elements { get; set; }
+    //}
 
     public class ProductResponseModel
     {
