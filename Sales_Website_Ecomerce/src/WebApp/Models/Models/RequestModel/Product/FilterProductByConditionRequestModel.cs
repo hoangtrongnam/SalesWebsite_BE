@@ -4,9 +4,9 @@ public class FilterProductByConditionRequestModel
 {
     public int? PageSize { get; set; }
     public int? PageNumber { get; set; }
-    public Guid? ProductID { get; set; }
+    public Guid? ProductId { get; set; }
     public string? ProductCode { get; set; }
-    public Guid? CategoryID { get; set; }
+    public Guid? CategoryId { get; set; }
     public string? Name { get; set; }
     public int? Status { get; set; }
 
@@ -16,9 +16,9 @@ public class FilterProductByConditionRequestModel
     {
         PageSize = pageSize;
         PageNumber = pageNumber;
-        ProductID = productID;
+        ProductId = productID;
         ProductCode = productCode;
-        CategoryID = categoryID;
+        CategoryId = categoryID;
         Name = name;
         Status = status;
     }

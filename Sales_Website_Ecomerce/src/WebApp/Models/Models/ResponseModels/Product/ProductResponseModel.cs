@@ -4,7 +4,7 @@
     {
         public int TotalRecord { get; set; }
         public int TotalPage { get; set; }
-        public List<ProductResponseModel> Products { get; set; }
+        public List<ProductResponseModel> elements { get; set; }
     }
 
     public class ProductResponseModel

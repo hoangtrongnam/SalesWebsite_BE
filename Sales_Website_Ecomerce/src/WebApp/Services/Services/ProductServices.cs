@@ -52,9 +52,9 @@ namespace Services
                     imagesRepository[i].ImageID = Guid.NewGuid();
                     imagesRepository[i].CreateBy = Parameters.CreateBy;
 
-                    var product = context.Repositories.ProductRepository.Get(listImage[i].ProductID);
+                    var product = context.Repositories.ProductRepository.Get(listImage[i].ProductId);
                     if (product == null)
-                        return ApiResponse<int>.ErrorResponse($"Product {listImage[i].ProductID} does not exists.");
+                        return ApiResponse<int>.ErrorResponse($"Product {listImage[i].ProductId} does not exists.");
                 }
 
                 //Create multiple image 
@@ -87,9 +87,9 @@ namespace Services
                     pricesRepository[i].PriceID = Guid.NewGuid();
                     pricesRepository[i].CreateBy = Parameters.CreateBy;
 
-                    var product = context.Repositories.ProductRepository.Get(listPrice[i].ProductID);
+                    var product = context.Repositories.ProductRepository.Get(listPrice[i].ProductId);
                     if (product == null)
-                        return ApiResponse<int>.ErrorResponse($"Product {listPrice[i].ProductID} does not exists.");
+                        return ApiResponse<int>.ErrorResponse($"Product {listPrice[i].ProductId} does not exists.");
                 }
 
                 //Create multiple Price 
@@ -116,7 +116,7 @@ namespace Services
                 modelMap.ProductID = Guid.NewGuid();
                 modelMap.ProductCode = GenerateCode.GenCode(codeOld);
 
-                var category = context.Repositories.CategoryRepository.Get(model.CategoryID);
+                var category = context.Repositories.CategoryRepository.Get(model.CategoryId);
                 if (category == null)
                     return ApiResponse<int>.ErrorResponse("Category Doest not Exists");
 
@@ -214,9 +214,9 @@ namespace Services
                 if (products.Any())
                 {
                     products = products.Where(p =>
-                                            (!model.ProductID.HasValue || p.ProductID == model.ProductID) &&
+                                            (!model.ProductId.HasValue || p.ProductID == model.ProductId) &&
                                             (string.IsNullOrEmpty(model.ProductCode) || p.ProductCode == model.ProductCode) &&
-                                            (!model.CategoryID.HasValue || p.CategoryID == model.CategoryID) &&
+                                            (!model.CategoryId.HasValue || p.CategoryID == model.CategoryId) &&
                                             (string.IsNullOrEmpty(model.Name) || p.Name.Contains(model.Name)) &&
                                             (!model.Status.HasValue || p.Status == model.Status)
                                         ).ToList();
@@ -239,7 +239,7 @@ namespace Services
                     //Set result return
                     result.TotalRecord = totalItems;
                     result.TotalPage = totalPages;
-                    result.Products = products;
+                    result.elements = products;
                 }
             }
 
