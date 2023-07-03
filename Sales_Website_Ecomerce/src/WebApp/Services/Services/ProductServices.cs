@@ -19,7 +19,7 @@ namespace Services
         ApiResponse<List<PriceResponseModel>> GetPricesByProductID(Guid productID);
         ApiResponse<List<ProductResponseModel>> GetProductByCategory(Guid categoryId);
         ApiResponse<int> UpdateProduct(UpdateProductRequestModel model, Guid id);
-        ApiResponse<ListProductResponseModel> GetProducts(FilterProductByConditionRequestModel model,Guid tenanId);
+        ApiResponse<PageableObject<ProductResponseModel>> GetProducts(FilterProductByConditionRequestModel model, Guid tenanId);
     }
     public class ProductServices : IProductServices
     {
@@ -121,7 +121,7 @@ namespace Services
                     return ApiResponse<int>.ErrorResponse("Category Doest not Exists");
 
                 var result = context.Repositories.ProductRepository.Create(modelMap, tenanlID);
-                if(result <= 0)
+                if (result <= 0)
                     return ApiResponse<int>.ErrorResponse("Create Product Fail");
 
                 context.SaveChanges();
@@ -196,7 +196,7 @@ namespace Services
                     return ApiResponse<int>.ErrorResponse("Product does not exist.");
 
                 var result = context.Repositories.ProductRepository.Update(model, productID);
-                if(result <= 0)
+                if (result <= 0)
                     return ApiResponse<int>.ErrorResponse("Update product fail.");
 
                 context.SaveChanges();
@@ -204,10 +204,10 @@ namespace Services
             }
         }
 
-        public ApiResponse<ListProductResponseModel> GetProducts(FilterProductByConditionRequestModel model, Guid tenanId)
+        public ApiResponse<PageableObject<ProductResponseModel>> GetProducts(FilterProductByConditionRequestModel model, Guid tenanId)
         {
             var products = new List<ProductResponseModel>();
-            var result = new ListProductResponseModel();
+            var result = new PageableObject<ProductResponseModel>();
             using (var context = _unitOfWork.Create())
             {
                 products = context.Repositories.ProductRepository.GetProducts(tenanId);
@@ -220,17 +220,17 @@ namespace Services
                                             (string.IsNullOrEmpty(model.Name) || p.Name.Contains(model.Name)) &&
                                             (!model.Status.HasValue || p.Status == model.Status)
                                         ).ToList();
-                    
+
                     int totalItems = products.Count();
-                    int totalPages = 1; 
+                    int totalPages = 1;
 
                     bool applyPagination = model.PageNumber.HasValue && model.PageSize.HasValue;
                     if (applyPagination)
-                    {   
+                    {
                         totalPages = (int)Math.Ceiling((double)totalItems / (model.PageSize ??= totalItems));
                         products = products.Skip(((model.PageNumber ??= 1) - 1) * (model.PageSize ??= totalItems)).Take(model.PageSize ??= totalItems).ToList();
                     }
-                    
+
                     products.ForEach(p =>
                     {
                         p.Images = context.Repositories.ProductRepository.GetImages(p.ProductID).OrderBy(i => i.ImageID).Take(1).ToList();
@@ -239,11 +239,11 @@ namespace Services
                     //Set result return
                     result.TotalRecord = totalItems;
                     result.TotalPage = totalPages;
-                    result.elements = products;
+                    result.Elements = products;
                 }
             }
 
-            return ApiResponse<ListProductResponseModel>.SuccessResponse(result);
+            return ApiResponse<PageableObject<ProductResponseModel>>.SuccessResponse(result);
         }
     }
 }
