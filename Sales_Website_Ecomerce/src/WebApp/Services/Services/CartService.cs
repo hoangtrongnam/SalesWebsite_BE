@@ -205,7 +205,7 @@ namespace Services
                             item.lstPromote = lstPromote;
                             
 
-                            if(lstPromote.Select(p => p.PriceID).Contains(item.PromoteID))
+                            if(lstPromote.Select(p => p.PriceId).Contains(item.PromoteID))
                             {
                                 //1.2.1 case KM %
 

@@ -2,7 +2,7 @@
 {
     public class SupplierResponseModel
     {
-        public Guid SupplierID { get; set; }
+        public Guid SupplierId { get; set; }
         public string SupplierCode { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }

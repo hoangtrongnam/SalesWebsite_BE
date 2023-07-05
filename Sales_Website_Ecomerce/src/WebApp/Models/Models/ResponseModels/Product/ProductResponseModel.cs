@@ -39,9 +39,9 @@
     }
     public class PriceResponseModel
     {
-        public Guid PriceID { get; set; }
+        public Guid PriceId { get; set; }
         public string PriceCode { get; set; }
-        public Guid ProductID { get; set; }
+        public Guid ProductId { get; set; }
         public string PromotePrice { get; set; }
         public string PromotPercent { get; set; }
         public string ExpirationDate { get; set; }

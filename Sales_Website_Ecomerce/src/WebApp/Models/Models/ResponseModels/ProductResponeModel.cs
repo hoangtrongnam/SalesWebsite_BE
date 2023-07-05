@@ -2,7 +2,7 @@
 {
     public class ProductResponeModel
     {
-        public string? ProductID { get; set; }
+        public string? ProductId { get; set; }
         public string? Name { get; set; }
         public string? Code { get; set; }
         public int Quantity { get; set; }

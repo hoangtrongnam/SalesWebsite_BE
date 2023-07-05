@@ -2,7 +2,7 @@
 {
     public class WareHouseResponseModel
     {
-        public Guid WareHouseID { get; set; }
+        public Guid WareHouseId { get; set; }
         public string WareHouseCode { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
