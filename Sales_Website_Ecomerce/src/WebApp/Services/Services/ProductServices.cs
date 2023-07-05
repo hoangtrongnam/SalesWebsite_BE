@@ -233,7 +233,7 @@ namespace Services
 
                     products.ForEach(p =>
                     {
-                        p.Images = context.Repositories.ProductRepository.GetImages(p.ProductId).OrderBy(i => i.ImageID).Take(3).ToList();
+                        p.Images = context.Repositories.ProductRepository.GetImages(p.ProductId).OrderBy(i => i.ImageId).Take(3).ToList();
                     });
 
                     //Set result return

@@ -52,9 +52,9 @@ namespace Client.API.Controllers.V1
         }
 
         [HttpGet("GetImagesByProductId")]
-        public async Task<ActionResult> GetImagesByProductId([Required] Guid productId)
+        public async Task<ActionResult> GetImagesByProductId([Required] Guid id)
         {
-            var result = _productService.GetImagesByProductID(productId);
+            var result = _productService.GetImagesByProductID(id);
             return Ok(result);
         }
 
