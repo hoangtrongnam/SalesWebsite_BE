@@ -1,5 +1,6 @@
 ﻿using Client.API.Exceptions;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -22,6 +23,9 @@ namespace Product.API.Extensions
             services.AddControllers(options =>
             {
                 options.Filters.Add(typeof(FluentValidationActionFilter));
+            }).ConfigureApiBehaviorOptions(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
             });
 
             services.AddApiVersioning(opt =>
@@ -68,6 +72,8 @@ namespace Product.API.Extensions
 
 
             services.AddInfrastructureServices();
+
+            services.AddFluentValidation();
             services.AddTransient<IValidator<CreateOnlyProductRequestModel>, CreateProductRequestModelValidator>();
 
             services.AddAuthentication(options => {

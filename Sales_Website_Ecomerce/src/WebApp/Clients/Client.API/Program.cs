@@ -16,6 +16,8 @@ builder.Services.AddCors(options =>
                                               "http://www.contoso.com");
                       });
 });
+
+//builder.Services.AddFluentValidation();
 //
 var app = builder.Build();
 // app.UseCors("CORS");
