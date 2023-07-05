@@ -9,16 +9,16 @@
 
     public class ProductResponseModel
     {
-        public Guid ProductID { get; set; }
+        public Guid ProductId { get; set; }
         public string ProductCode { get; set; }
-        public Guid CategoryID { get; set; }
+        public Guid CategoryId { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
         public string Description { get; set; }
         public string Price { get; set; }
         public int Quantity { get; set; }
         public int Status { get; set; }
-        public Guid TenantID { get; set; }
+        public Guid TenantId { get; set; }
         public string CreateDate { get; set; }
         public string CreateBy { get; set; }
         public string UpdateDate { get; set; }

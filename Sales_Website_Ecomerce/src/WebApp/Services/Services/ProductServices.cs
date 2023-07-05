@@ -214,9 +214,9 @@ namespace Services
                 if (products.Any())
                 {
                     products = products.Where(p =>
-                                            (!model.ProductId.HasValue || p.ProductID == model.ProductId) &&
+                                            (!model.ProductId.HasValue || p.ProductId == model.ProductId) &&
                                             (string.IsNullOrEmpty(model.ProductCode) || p.ProductCode == model.ProductCode) &&
-                                            (!model.CategoryId.HasValue || p.CategoryID == model.CategoryId) &&
+                                            (!model.CategoryId.HasValue || p.CategoryId == model.CategoryId) &&
                                             (string.IsNullOrEmpty(model.Name) || p.Name.Contains(model.Name)) &&
                                             (!model.Status.HasValue || p.Status == model.Status)
                                         ).ToList();
@@ -233,7 +233,7 @@ namespace Services
 
                     products.ForEach(p =>
                     {
-                        p.Images = context.Repositories.ProductRepository.GetImages(p.ProductID).OrderBy(i => i.ImageID).Take(1).ToList();
+                        p.Images = context.Repositories.ProductRepository.GetImages(p.ProductId).OrderBy(i => i.ImageID).Take(3).ToList();
                     });
 
                     //Set result return

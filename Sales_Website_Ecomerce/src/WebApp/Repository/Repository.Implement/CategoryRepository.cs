@@ -24,7 +24,7 @@ namespace Repository.Implement
         {
             var parameters = new DynamicParameters(new
             {
-                CategoryID = item.CategoryID,
+                CategoryID = item.CategoryId,
                 CategoryCode = item.CategoryCode,
                 Value = item.Value,
                 Parent = item.Parent,
