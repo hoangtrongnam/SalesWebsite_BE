@@ -2,7 +2,7 @@
 {
     public class CreateCategoryRepositoryRequestModel
     {
-        public Guid CategoryID { get; set; }
+        public Guid CategoryId { get; set; }
         public string CategoryCode { get; set; }
         public int Value { get; set; }
         public int Parent { get; set; }

@@ -90,7 +90,7 @@ namespace Services
             {
                 var codeOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["CategoryProduct"].TableName, Parameters.tables["CategoryProduct"].ColumnName);
                 var modelMap = _mapper.Map<CreateCategoryRepositoryRequestModel>(model);
-                modelMap.CategoryID = Guid.NewGuid();
+                modelMap.CategoryId = Guid.NewGuid();
                 modelMap.CategoryCode = GenerateCode.GenCode(codeOld);
 
                 var tenant = context.Repositories.TenantRepository.Get(tenantID);
