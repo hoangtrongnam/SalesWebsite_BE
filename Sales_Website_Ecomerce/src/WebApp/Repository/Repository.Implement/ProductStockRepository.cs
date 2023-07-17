@@ -1,6 +1,7 @@
 ﻿using Common;
 using Dapper;
 using Models.RequestModel.ProductStock;
+using Models.ResponseModels.ProductStocks;
 using Repository.Interface;
 using System.Data;
 using System.Data.SqlClient;
@@ -40,6 +41,27 @@ namespace Repository.Implement
         }
 
         /// <summary>
+        /// Method Get Product Hold
+        /// SangNguyen
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public ProductStockResponseModel GetHoldProduct(HoldProductRequestModel model)
+        {
+            var parameters = new DynamicParameters(new
+            {
+                OrderID = model.OrderID,
+                StatusID = Parameters.SaleHoldProduct,
+                UpdateBy = "",
+                ListImage = model.LstHoldProducts.ToDataTable().AsTableValuedParameter("dbo.HoldProductType"),
+            });
+
+            var effectRow = Query<ProductStockResponseModel>("SP_GetHoldProductStock", parameters, commandType: CommandType.StoredProcedure);
+            return new ProductStockResponseModel();
+        }
+
+        /// <summary>
         /// Method Update table ProductStock (HoldProduct)
         /// SangNguyen
         /// </summary>
@@ -50,17 +72,14 @@ namespace Repository.Implement
         {
             var parameters = new DynamicParameters(new
             {
-                ProductID = model.ProductID,
+                LstHoldProduct = model.LstHoldProducts.ToDataTable().AsTableValuedParameter("dbo.HoldProductType"),
                 OrderID = model.OrderID,
-                WareHouseID = model.WareHouseID,
-                ExfactoryPrice = model.ExfactoryPrice,
                 StatusID = Parameters.SaleHoldProduct,
-                HoldNumber = model.HoldNumber,
                 UpdateBy = "",
             });
 
             var effectRow = Execute("SP_HoldProductStock", parameters, commandType: CommandType.StoredProcedure);
-            return effectRow == model.HoldNumber ? effectRow : -1;
+            return effectRow;
         }
     }
 }
