@@ -284,10 +284,14 @@ namespace Services
 
                                     HoldProductRequestModel model = new HoldProductRequestModel();
                                     model.OrderID = orderID;
-                                    model.ProductID = product.ProductID;
-                                    model.HoldNumber = product.Quantity;
-                                    model.ExfactoryPrice = product.ExfactoryPrice;
-                                    model.WareHouseID = product.WarehouseID;
+
+                                    LstHoldProduct lstHoldProduct =  new LstHoldProduct();
+                                    lstHoldProduct.ProductID = product.ProductID;
+                                    lstHoldProduct.HoldNumber = product.Quantity;
+                                    lstHoldProduct.ExfactoryPrice = product.ExfactoryPrice;
+                                    lstHoldProduct.WareHouseID = product.WarehouseID;
+                                    model.LstHoldProducts.Add(lstHoldProduct);
+
                                     int holdProduct = context.Repositories.ProductStockRepository.HoldProduct(model);
                                     if (holdProduct < 1) return ApiResponse<int>.ErrorResponse("Giữ hàng cho KH thất bại");
                                 }

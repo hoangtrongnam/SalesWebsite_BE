@@ -12,6 +12,9 @@
     }
     public class HoldProductRequestModel {
         public Guid OrderID { get; set; }
+        public List<LstHoldProduct> LstHoldProducts { get; set; }
+    }
+    public class LstHoldProduct {
         public Guid ProductID { get; set; }
         public Guid WareHouseID { get; set; }
         public decimal ExfactoryPrice { get; set; }
