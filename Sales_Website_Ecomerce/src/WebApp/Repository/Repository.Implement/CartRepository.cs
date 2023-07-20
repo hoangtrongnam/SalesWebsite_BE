@@ -48,7 +48,7 @@ namespace Repository.Implement
             var parameters = new DynamicParameters(new
             {
                 CartID = cartID,
-                ProdutID = item.ProdutID,
+                ProdutID = item.ProductID,
                 Quantity = item.Quantity,
                 StatusID = status,
                 WareHouseID = item.WarehouseID,
@@ -86,7 +86,7 @@ namespace Repository.Implement
             var parameters = new DynamicParameters(new
             {
                 CartID = cartID,
-                ProdutID = item.ProdutID,
+                ProdutID = item.ProductID,
                 Quantity = item.Quantity,
                 StatusID = Parameters.StatusCartProductInsert, //status them moi
                 WareHouseID = item.WarehouseID,
@@ -159,7 +159,7 @@ namespace Repository.Implement
             int updateCart = UpdateCart(cartID, Parameters.StatusDeleteCart);
 
             //2. Update status table cart_product
-            item.ProdutID = Guid.Empty;
+            item.ProductID = Guid.Empty;
             int updateCartProdct = UpdateCartProduct(item, cartID, Parameters.StatusDeleteCartProduct);
 
             if (updateCartProdct > 0 && updateCart > 0)

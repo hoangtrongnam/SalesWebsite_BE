@@ -5,7 +5,7 @@ namespace Models.RequestModel.Cart
     public class CartRequestModel
     {
         [Required]
-        public Guid ProdutID { get; set; }
+        public Guid ProductID { get; set; }
         [Required]
         public Guid CustomerID { get; set; }
         [Required]

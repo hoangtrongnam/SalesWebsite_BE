@@ -41,7 +41,7 @@ namespace Services
                             return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
 
                         CartRequestModel cartModel = new CartRequestModel();
-                        cartModel.ProdutID = item.ProductID;
+                        cartModel.ProductID = item.ProductID;
                         //var removecart = context.Repositories.CartRepository.Remove(cartModel, model.CartID);                      
 
                         //1.3. Update status table cart_product
