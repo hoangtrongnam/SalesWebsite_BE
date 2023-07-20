@@ -8,6 +8,7 @@ namespace Services
     public interface IProductStockService
     {
         ApiResponse<int> CreateProductStock(CreateProductStockRequestModel model);
+        ApiResponse<int> HoldProduct(HoldProductRequestModel model);
     }
     public class ProductStockService : IProductStockService
     {
@@ -49,6 +50,25 @@ namespace Services
                     return ApiResponse<int>.ErrorResponse("Create ProductStock fail.");
                 context.SaveChanges();
 
+                return ApiResponse<int>.SuccessResponse(result);
+            }
+        }
+
+        /// <summary>
+        /// Update table ProductStock (Hold Product)
+        /// SangNguyen
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public ApiResponse<int> HoldProduct(HoldProductRequestModel model)
+        {
+            using (var contex = _unitOfWork.Create())
+            {
+                var result = contex.Repositories.ProductStockRepository.HoldProduct(model);
+                if (result < 1)
+                    return ApiResponse<int>.ErrorResponse("Hold Product fail.");
+
+                contex.SaveChanges();
                 return ApiResponse<int>.SuccessResponse(result);
             }
         }

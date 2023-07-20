@@ -20,5 +20,13 @@ namespace Client.API.Controllers.V1
             var result = _productStockService.CreateProductStock(model);
             return Ok(result);
         }
+
+        //test API (SangNguyen)
+        //[HttpPut("HoldProduct")]
+        //public async Task<ActionResult> HoldProduct([FromBody] HoldProductRequestModel model)
+        //{
+        //    var result = _productStockService.HoldProduct(model);
+        //    return Ok(result);
+        //}
     }
 }

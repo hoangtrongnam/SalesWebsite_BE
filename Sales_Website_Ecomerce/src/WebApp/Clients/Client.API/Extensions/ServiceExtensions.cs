@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using Models.RequestModel.Product;
 using Services;
 using Services.Automapper;
+using System.Reflection;
 using System.Text;
 using UnitOfWork.Database;
 using UnitOfWork.Interface;
@@ -67,6 +68,10 @@ namespace Product.API.Extensions
                         new string[]{}
                     }
                 });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                option.IncludeXmlComments(xmlPath);
                 
             });
 

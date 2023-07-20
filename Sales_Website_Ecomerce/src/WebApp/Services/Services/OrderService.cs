@@ -4,6 +4,7 @@ using Common;
 using Models.ResponseModels;
 using Models.RequestModel.Cart;
 using Models.RequestModel.Orders;
+using Models.RequestModel.ProductStock;
 
 namespace Services
 {
@@ -120,7 +121,7 @@ namespace Services
                     OrderCommonRequest model = new OrderCommonRequest();
                     model.Status = Parameters.StatusOrderDelete;
                     model.Note = "Nhân viên hủy đơn hàng";
-                    var deleteOrder = context.Repositories.OrderRepository.Update(model, orderID,0);
+                    var deleteOrder = context.Repositories.OrderRepository.Update(model, orderID, 0);
                     if (deleteOrder < 1)
                         return ApiResponse<int>.ErrorResponse("Xóa đơn hàng thất bại");
 
@@ -213,17 +214,23 @@ namespace Services
                     //chua lam hold product trong productstock
                     //1. Update table Orders
                     decimal totalPayment = 0;
-                    if (item.Status == 11) // tính 
+
+                    OrderResponseModel orderResponseModel = context.Repositories.OrderRepository.Get(orderID);
+                    if (orderResponseModel == null)
+                        return ApiResponse<int>.ErrorResponse("Tìm đơn hàng thất bại");
+
+                    if (item.Status == 11) // tính totalPayment để cho sale tính tiền cọc và lưu xuống db
                     {
                         decimal totalPrice = 0; //giá tiền 1 sp
                         DateTime currentTime = DateTime.Now;
-                        OrderResponseModel orderResponseModel = context.Repositories.OrderRepository.Get(orderID);
-                        if (orderResponseModel == null)
-                            return ApiResponse<int>.ErrorResponse("Tìm đơn hàng thất bại");
 
                         //trả về list KM theo từng Product
                         foreach (var product in orderResponseModel.lstProduct)
                         {
+                            //KT SL trong kho đủ không
+                            if (!cartServices.QuantityValid(product.Quantity, 0, product.ProductID, product.WarehouseID, context))
+                                return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
+                            
                             //get 1 promote (expire and PromoteID)
                             var promote = context.Repositories.OrderRepository.GetPromote(product.PromoteID);
 
@@ -235,10 +242,10 @@ namespace Services
                             }
                         }
 
-                        if (orderResponseModel.TotalPayment == 0) totalPayment = totalPrice;    
+                        if (orderResponseModel.TotalPayment == 0) totalPayment = totalPrice;
                     }
 
-                    
+
                     var result = item.Status == 11 ? context.Repositories.OrderRepository.Update(item, orderID, totalPayment) : context.Repositories.OrderRepository.Update(item, orderID, 0);
                     if (result < 1)
                         return ApiResponse<int>.ErrorResponse("Cập nhật đơn hàng thất bại");
@@ -268,7 +275,28 @@ namespace Services
                                 if (notifyNV < 1) return ApiResponse<int>.ErrorResponse("Thông báo cho NV thất bại");
                                 break;
                             case 14: //Kế toán xác nhận đủ tiền cọc
-                                //chua lam hold product trong productstock
+                                #region Hold product trong productstock
+                                foreach (var product in orderResponseModel.lstProduct)
+                                {
+                                    //KT SL trong kho đủ không
+                                    if (!cartServices.QuantityValid(product.Quantity, 0, product.ProductID, product.WarehouseID, context))
+                                        return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
+
+                                    HoldProductRequestModel model = new HoldProductRequestModel();
+                                    model.OrderID = orderID;
+
+                                    LstHoldProduct lstHoldProduct =  new LstHoldProduct();
+                                    lstHoldProduct.ProductID = product.ProductID;
+                                    lstHoldProduct.HoldNumber = product.Quantity;
+                                    lstHoldProduct.ExfactoryPrice = product.ExfactoryPrice;
+                                    lstHoldProduct.WareHouseID = product.WarehouseID;
+                                    model.LstHoldProducts.Add(lstHoldProduct);
+
+                                    int holdProduct = context.Repositories.ProductStockRepository.HoldProduct(model);
+                                    if (holdProduct < 1) return ApiResponse<int>.ErrorResponse("Giữ hàng cho KH thất bại");
+                                }
+                                #endregion
+
                                 notificationRequestModel.Status = Parameters.StatusKhoNotify; //thông báo cho nhân viên kho
                                 notificationRequestModel.Content = "Đơn hàng: " + orderID + " cần xử lý";
                                 var notifyKho = context.Repositories.NotificationRepository.Create(notificationRequestModel, Guid.NewGuid());
