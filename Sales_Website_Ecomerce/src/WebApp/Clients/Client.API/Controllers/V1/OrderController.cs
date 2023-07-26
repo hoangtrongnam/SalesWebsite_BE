@@ -5,8 +5,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Client.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class OrderController : ControllerBase
     {
         private readonly OrderServices _orderService;
@@ -17,19 +18,19 @@ namespace Client.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult Get([Required] Guid orderID)
+        public ActionResult Get([Required] Guid orderId)
         {
-            return Ok(_orderService.Get(orderID));
+            return Ok(_orderService.Get(orderId));
         }
 
-        [HttpPost("/AddOrder")]
+        [HttpPost("AddOrder")]
         public ActionResult AddOrder([FromBody] OrderRequestModel item)
         {
             return Ok(_orderService.Create(item));
         }
 
-        [HttpPut("/UpdateOrder")]
-        public ActionResult UpdateOrder([FromBody] OrderCommonRequest item, [Required] Guid OrderID)
+        [HttpPut("UpdateOrder")]
+        public ActionResult UpdateOrder([FromBody] OrderCommonRequest item, [Required] Guid OrderId)
         {
             //Sẽ làm update thông tin product trong giỏ hàng sau
             /*
@@ -41,11 +42,11 @@ namespace Client.API.Controllers
              	Sale hủy Đơn hàng 
              */
 
-            return Ok(_orderService.Update(item, OrderID));
+            return Ok(_orderService.Update(item, OrderId));
         }
 
-        [HttpDelete("/DeleteOrder")]
-        public ActionResult DeleteOrder([Required] Guid orderID, [Required] Guid customerID)
+        [HttpDelete("DeleteOrder")]
+        public ActionResult DeleteOrder([Required] Guid orderId, [Required] Guid customerId)
         {
             //OrderResponseModel orderResponseModel = _orderService.GetlistProduct(OrderID);
             //OrderRequestModel orderRequestModel = new OrderRequestModel();
@@ -58,7 +59,7 @@ namespace Client.API.Controllers
             //    lstProduct.Add(product);
             //}
             //orderRequestModel.lstProduct = lstProduct;
-            return Ok(_orderService.Delete(orderID, customerID));
+            return Ok(_orderService.Delete(orderId, customerId));
         }
     }
 }

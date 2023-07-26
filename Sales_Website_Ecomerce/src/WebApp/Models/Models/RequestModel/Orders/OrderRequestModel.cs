@@ -5,15 +5,15 @@ namespace Models.RequestModel.Orders
     public class ProductModel
     {
         [Required]
-        public Guid ProductID { get; set; } //sử dụng cho API Order
+        public Guid ProductId { get; set; } //sử dụng cho API Order
         [Required]
         public int Quantity { get; set; }
         //[Required]
         //public decimal Price { get; set; }
         [Required]
-        public Guid WareHouseID { get; set; }
+        public Guid WareHouseId { get; set; }
         [Required]
-        public Guid PromoteID { get; set; }
+        public Guid PromoteId { get; set; }
         //[Required]
         //public Guid CartProductID { get; set; }
     }

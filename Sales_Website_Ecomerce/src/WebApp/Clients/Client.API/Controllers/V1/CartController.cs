@@ -6,9 +6,10 @@ using Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace Client.API.Controllers
-{
-    [Route("api/[controller]")]
+{ 
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class CartController : ControllerBase
     {
         private readonly ICartServices _cartService;
@@ -24,10 +25,10 @@ namespace Client.API.Controllers
         /// <param name="CustomerID"></param>
         /// <param name="pageIndex"></param>
         /// <returns></returns>
-        [HttpGet("/FindCart/{CustomerID}")]
-        public ActionResult<ProductResponeModel> Get([Required] Guid CustomerID, [Required] int pageIndex)
+        [HttpGet("FindCart/{CustomerId}")]
+        public ActionResult<ProductResponeModel> Get([Required] Guid CustomerId, [Required] int pageIndex)
         {
-            return Ok(_cartService.Get(CustomerID, pageIndex));
+            return Ok(_cartService.Get(CustomerId, pageIndex));
         }
 
         ////[HttpGet("/GetListProduct")]
@@ -41,7 +42,7 @@ namespace Client.API.Controllers
         /// </summary>
         /// <param name="cart"></param>
         /// <returns></returns>
-        [HttpPost("/AddCart")]
+        [HttpPost("AddCart")]
         public ActionResult AddCart([FromBody][Required] CartRequestModel cart)
         {
             return Ok(_cartService.Create(cart));
@@ -52,7 +53,7 @@ namespace Client.API.Controllers
         /// </summary>
         /// <param name="cart"></param>
         /// <returns></returns>
-        [HttpPost("/AddProductExisted")]
+        [HttpPost("AddProductExisted")]
         public ActionResult AddProductExisted([FromBody][Required] CartRequestModel cart)
         {
             return Ok(_cartService.AddProductExisted(cart));
@@ -69,10 +70,10 @@ namespace Client.API.Controllers
         /// <param name="item"></param>
         /// <param name="cartID"></param>
         /// <returns></returns>
-        [HttpPut("/UpdateCart")]
-        public ActionResult UpdateCart([FromBody][Required] CartRequestModel item, [Required] Guid cartID)
+        [HttpPut("UpdateCart")]
+        public ActionResult UpdateCart([FromBody][Required] CartRequestModel item, [Required] Guid cartId)
         {
-            return Ok(_cartService.Update(item, cartID));
+            return Ok(_cartService.Update(item, cartId));
         }
 
         /// <summary>
@@ -80,10 +81,10 @@ namespace Client.API.Controllers
         /// </summary>
         /// <param name="cartID"></param>
         /// <returns></returns>
-        [HttpDelete("/DeleteCart")]
-        public ActionResult DeleteCart([Required] Guid cartID)
+        [HttpDelete("DeleteCart")]
+        public ActionResult DeleteCart([Required] Guid cartId)
         {
-            return Ok(_cartService.Delete(cartID));
+            return Ok(_cartService.Delete(cartId));
         }
     }
 }

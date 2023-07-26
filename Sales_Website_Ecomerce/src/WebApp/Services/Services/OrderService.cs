@@ -37,15 +37,15 @@ namespace Services
                     foreach (var item in model.lstProduct)
                     {
                         //1.2. Check SL đủ không
-                        if (!cartServices.QuantityValid(item.Quantity, 0, item.ProductID, item.WareHouseID, context))
+                        if (!cartServices.QuantityValid(item.Quantity, 0, item.ProductId, item.WareHouseId, context))
                             return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
 
                         CartRequestModel cartModel = new CartRequestModel();
-                        cartModel.ProductID = item.ProductID;
+                        cartModel.ProductId = item.ProductId;
                         //var removecart = context.Repositories.CartRepository.Remove(cartModel, model.CartID);                      
 
                         //1.3. Update status table cart_product
-                        int updateCartProdct = context.Repositories.CartRepository.UpdateCartProduct(cartModel, model.CartID, Parameters.StatusDeleteCartProduct);
+                        int updateCartProdct = context.Repositories.CartRepository.UpdateCartProduct(cartModel, model.CartId, Parameters.StatusDeleteCartProduct);
                         if (updateCartProdct < 1)
                             return ApiResponse<int>.ErrorResponse("Xóa 1 sản phẩm thất bại. (SP cthe bị xóa)");
 
@@ -60,11 +60,11 @@ namespace Services
                     }
 
                     //2. Check còn product trong giỏ hàng không
-                    int numberProductsInCart = context.Repositories.CartRepository.GetNumberProductsInCart(model.CartID);
+                    int numberProductsInCart = context.Repositories.CartRepository.GetNumberProductsInCart(model.CartId);
                     if (numberProductsInCart == 0)
                     {
                         //2.1. delete Cart
-                        int effectRow = context.Repositories.CartRepository.UpdateCart(model.CartID, Parameters.StatusDeleteCart);
+                        int effectRow = context.Repositories.CartRepository.UpdateCart(model.CartId, Parameters.StatusDeleteCart);
                         if (effectRow < 0)
                             return ApiResponse<int>.ErrorResponse("Xóa giỏ hàng thất bại");
                     }
@@ -74,27 +74,27 @@ namespace Services
                     //var OrderID = context.Repositories.OrderRepository.Create(model);
 
                     //3.1 Insert into table Order
-                    Guid orderID = context.Repositories.OrderRepository.InsertOrder(model.CustomerID, Parameters.StatusOrderInsert, Guid.NewGuid()); //New Order (StatusOrderInsert: co dơn hàng mới cần sale xác nhận))
+                    Guid orderId = context.Repositories.OrderRepository.InsertOrder(model.CustomerId, Parameters.StatusOrderInsert, Guid.NewGuid()); //New Order (StatusOrderInsert: co dơn hàng mới cần sale xác nhận))
 
                     //3.2 insert into table OrderProduct
-                    int insertOrderProdcut = context.Repositories.OrderRepository.InsertOrderProduct(model.lstProduct, orderID);
-                    if (insertOrderProdcut < 1 || orderID == Guid.Empty)
+                    int insertOrderProdcut = context.Repositories.OrderRepository.InsertOrderProduct(model.lstProduct, orderId);
+                    if (insertOrderProdcut < 1 || orderId == Guid.Empty)
                         return ApiResponse<int>.ErrorResponse("Đặt hàng thất bại"); //Insert into table Order and OrderProduct Success
                     else
                     {
                         //4. Insert table notifications (NV)
                         NotificationRequestModel notificationRequestModel = new NotificationRequestModel();
                         notificationRequestModel.Status = Parameters.StatusNVNotify;
-                        notificationRequestModel.CreateBy = model.CustomerID;
-                        notificationRequestModel.Content = "Đơn hàng: " + orderID + " cần xử lý.";
+                        notificationRequestModel.CreateBy = model.CustomerId;
+                        notificationRequestModel.Content = "Đơn hàng: " + orderId + " cần xử lý.";
                         var notifyNV = context.Repositories.NotificationRepository.Create(notificationRequestModel, Guid.NewGuid());
                         if (notifyNV < 1)
                             return ApiResponse<int>.ErrorResponse("Thông báo NV thất bại");
 
                         //5. Insert table notifications (KH)
                         notificationRequestModel.Status = Parameters.StatusKHNotify;
-                        notificationRequestModel.CreateBy = model.CustomerID;
-                        notificationRequestModel.Content = "Đơn hàng: " + orderID + " đặt thành công.";
+                        notificationRequestModel.CreateBy = model.CustomerId;
+                        notificationRequestModel.Content = "Đơn hàng: " + orderId + " đặt thành công.";
                         var notifyKH = context.Repositories.NotificationRepository.Create(notificationRequestModel, Guid.NewGuid());
                         if (notifyKH < 1)
                             return ApiResponse<int>.ErrorResponse("Thông báo KH thất bại");
@@ -111,7 +111,7 @@ namespace Services
             }
         }
 
-        public ApiResponse<int> Delete(Guid orderID, Guid customerID)
+        public ApiResponse<int> Delete(Guid orderId, Guid customerId)
         {
             try
             {
@@ -121,7 +121,7 @@ namespace Services
                     OrderCommonRequest model = new OrderCommonRequest();
                     model.Status = Parameters.StatusOrderDelete;
                     model.Note = "Nhân viên hủy đơn hàng";
-                    var deleteOrder = context.Repositories.OrderRepository.Update(model, orderID, 0);
+                    var deleteOrder = context.Repositories.OrderRepository.Update(model, orderId, 0);
                     if (deleteOrder < 1)
                         return ApiResponse<int>.ErrorResponse("Xóa đơn hàng thất bại");
 
@@ -140,16 +140,16 @@ namespace Services
                     //3.1 Insert table notifications (KH)
                     NotificationRequestModel notificationRequestModel = new NotificationRequestModel();
                     notificationRequestModel.Status = Parameters.StatusKHNotify;
-                    notificationRequestModel.Content = "Đơn hàng: " + orderID + " đã bị hủy";
-                    notificationRequestModel.CreateBy = customerID;
+                    notificationRequestModel.Content = "Đơn hàng: " + orderId + " đã bị hủy";
+                    notificationRequestModel.CreateBy = customerId;
                     var notifyKH = context.Repositories.NotificationRepository.Create(notificationRequestModel, Guid.NewGuid());
                     if (notifyKH < 1)
                         return ApiResponse<int>.ErrorResponse("Thông báo KH thất bại");
 
                     //3.2. Insert table notifications (NV)
                     notificationRequestModel.Status = Parameters.StatusNVNotify;
-                    notificationRequestModel.Content = "Đơn hàng: " + orderID + " đã bị hủy.";
-                    notificationRequestModel.CreateBy = customerID;
+                    notificationRequestModel.Content = "Đơn hàng: " + orderId + " đã bị hủy.";
+                    notificationRequestModel.CreateBy = customerId;
                     var notifyNV = context.Repositories.NotificationRepository.Create(notificationRequestModel, Guid.NewGuid());
                     if (notifyNV < 1)
                         return ApiResponse<int>.ErrorResponse("Thông báo NV thất bại");
@@ -164,7 +164,7 @@ namespace Services
             }
         }
 
-        public ApiResponse<OrderResponseModel> Get(Guid orderID)
+        public ApiResponse<OrderResponseModel> Get(Guid orderId)
         {
             try
             {
@@ -172,7 +172,7 @@ namespace Services
                 {
                     decimal totalPrice = 0; //giá tiền 1 sp
                     DateTime currentTime = DateTime.Now;
-                    OrderResponseModel result = context.Repositories.OrderRepository.Get(orderID);
+                    OrderResponseModel result = context.Repositories.OrderRepository.Get(orderId);
                     if (result == null)
                         return ApiResponse<OrderResponseModel>.ErrorResponse("Tìm đơn hàng thất bại");
                     //tính lại thành tiền + số tiền cột (khi table chưa có giá trị này vì khi thanh toán rồi thì k phải tính lại)
@@ -181,11 +181,11 @@ namespace Services
                     foreach (var item in result.lstProduct)
                     {
                         //get list promote
-                        var lstPromote = context.Repositories.ProductRepository.GetPrices(item.ProductID);
+                        var lstPromote = context.Repositories.ProductRepository.GetPrices(item.ProductId);
                         item.lstPromote = lstPromote;
 
                         //get 1 promote (expire and PromoteID)
-                        var promote = context.Repositories.OrderRepository.GetPromote(item.PromoteID);
+                        var promote = context.Repositories.OrderRepository.GetPromote(item.PromoteId);
 
                         if (result.TotalPayment == 0)
                         {
@@ -205,7 +205,7 @@ namespace Services
             }
             catch (Exception ex) { throw new Exception(ex.Message); }
         }
-        public ApiResponse<int> Update(OrderCommonRequest item, Guid orderID)
+        public ApiResponse<int> Update(OrderCommonRequest item, Guid orderId)
         {
             try
             {
@@ -215,7 +215,7 @@ namespace Services
                     //1. Update table Orders
                     decimal totalPayment = 0;
 
-                    OrderResponseModel orderResponseModel = context.Repositories.OrderRepository.Get(orderID);
+                    OrderResponseModel orderResponseModel = context.Repositories.OrderRepository.Get(orderId);
                     if (orderResponseModel == null)
                         return ApiResponse<int>.ErrorResponse("Tìm đơn hàng thất bại");
 
@@ -228,11 +228,11 @@ namespace Services
                         foreach (var product in orderResponseModel.lstProduct)
                         {
                             //KT SL trong kho đủ không
-                            if (!cartServices.QuantityValid(product.Quantity, 0, product.ProductID, product.WarehouseID, context))
+                            if (!cartServices.QuantityValid(product.Quantity, 0, product.ProductId, product.WarehouseId, context))
                                 return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
                             
                             //get 1 promote (expire and PromoteID)
-                            var promote = context.Repositories.OrderRepository.GetPromote(product.PromoteID);
+                            var promote = context.Repositories.OrderRepository.GetPromote(product.PromoteId);
 
                             if (orderResponseModel.TotalPayment == 0)
                             {
@@ -246,7 +246,7 @@ namespace Services
                     }
 
 
-                    var result = item.Status == 11 ? context.Repositories.OrderRepository.Update(item, orderID, totalPayment) : context.Repositories.OrderRepository.Update(item, orderID, 0);
+                    var result = item.Status == 11 ? context.Repositories.OrderRepository.Update(item, orderId, totalPayment) : context.Repositories.OrderRepository.Update(item, orderId, 0);
                     if (result < 1)
                         return ApiResponse<int>.ErrorResponse("Cập nhật đơn hàng thất bại");
                     else
@@ -258,19 +258,19 @@ namespace Services
                         {
                             case 11: //Sale xác nhận tiền cọc và đợn hàng thành công
                                 notificationRequestModel.Status = Parameters.StatusKTNotify; //thông báo mới cho kế toán
-                                notificationRequestModel.Content = "Đơn hàng: " + orderID + " cần xử lý.";
+                                notificationRequestModel.Content = "Đơn hàng: " + orderId + " cần xử lý.";
                                 var notifyKT = context.Repositories.NotificationRepository.Create(notificationRequestModel, Guid.NewGuid());
                                 if (notifyKT < 1) return ApiResponse<int>.ErrorResponse("Thông báo cho kế toán thất bại");
                                 break;
                             case 12: //Sale không liên hệ được với KH (cần thông báo cho KH)
                                 notificationRequestModel.Status = Parameters.StatusKHNotify; //thông báo mới cho KH
-                                notificationRequestModel.Content = item.CustomerID + "!@#" + "Chúng tôi không liên hệ được với bạn để xác nhận đơn hàng: " + orderID + ". Vui lòng hệ hệ với chúng tôi trong vòng 3 ngày nếu không đơn hàng sẽ bị hủy . Cám ơn!";
+                                notificationRequestModel.Content = item.CustomerId + "!@#" + "Chúng tôi không liên hệ được với bạn để xác nhận đơn hàng: " + orderId + ". Vui lòng hệ hệ với chúng tôi trong vòng 3 ngày nếu không đơn hàng sẽ bị hủy . Cám ơn!";
                                 var notifyKH = context.Repositories.NotificationRepository.Create(notificationRequestModel, Guid.NewGuid());
                                 if (notifyKH < 1) return ApiResponse<int>.ErrorResponse("Thông báo cho KH thất bại");
                                 break;
                             case 13: //số tiền cọc không đúng (kế toán)
                                 notificationRequestModel.Status = Parameters.StatusNVNotify; //KT phản hồi: thông báo mới cho sale (add thông báo mới)
-                                notificationRequestModel.Content = "Đơn hàng: " + orderID + " - số tiền cột không đúng";
+                                notificationRequestModel.Content = "Đơn hàng: " + orderId + " - số tiền cột không đúng";
                                 var notifyNV = context.Repositories.NotificationRepository.Create(notificationRequestModel, Guid.NewGuid());
                                 if (notifyNV < 1) return ApiResponse<int>.ErrorResponse("Thông báo cho NV thất bại");
                                 break;
@@ -279,17 +279,17 @@ namespace Services
                                 foreach (var product in orderResponseModel.lstProduct)
                                 {
                                     //KT SL trong kho đủ không
-                                    if (!cartServices.QuantityValid(product.Quantity, 0, product.ProductID, product.WarehouseID, context))
+                                    if (!cartServices.QuantityValid(product.Quantity, 0, product.ProductId, product.WarehouseId, context))
                                         return ApiResponse<int>.ErrorResponse("số lượng order lớn hơn số lượng trong kho");//số lượng order lớn hơn số lượng trong kho (validate luôn input đầu vào)
 
                                     HoldProductRequestModel model = new HoldProductRequestModel();
-                                    model.OrderID = orderID;
+                                    model.OrderID = orderId;
 
                                     LstHoldProduct lstHoldProduct =  new LstHoldProduct();
-                                    lstHoldProduct.ProductID = product.ProductID;
+                                    lstHoldProduct.ProductID = product.ProductId;
                                     lstHoldProduct.HoldNumber = product.Quantity;
                                     lstHoldProduct.ExfactoryPrice = product.ExfactoryPrice;
-                                    lstHoldProduct.WareHouseID = product.WarehouseID;
+                                    lstHoldProduct.WareHouseID = product.WarehouseId;
                                     model.LstHoldProducts.Add(lstHoldProduct);
 
                                     int holdProduct = context.Repositories.ProductStockRepository.HoldProduct(model);
@@ -298,7 +298,7 @@ namespace Services
                                 #endregion
 
                                 notificationRequestModel.Status = Parameters.StatusKhoNotify; //thông báo cho nhân viên kho
-                                notificationRequestModel.Content = "Đơn hàng: " + orderID + " cần xử lý";
+                                notificationRequestModel.Content = "Đơn hàng: " + orderId + " cần xử lý";
                                 var notifyKho = context.Repositories.NotificationRepository.Create(notificationRequestModel, Guid.NewGuid());
                                 if (notifyKho < 1) return ApiResponse<int>.ErrorResponse("Thông báo cho NV kho thất bại");
                                 break;

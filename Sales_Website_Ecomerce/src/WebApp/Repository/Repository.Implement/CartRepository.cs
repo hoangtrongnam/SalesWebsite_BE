@@ -48,11 +48,11 @@ namespace Repository.Implement
             var parameters = new DynamicParameters(new
             {
                 CartID = cartID,
-                ProdutID = item.ProductID,
+                ProdutID = item.ProductId,
                 Quantity = item.Quantity,
                 StatusID = status,
-                WareHouseID = item.WarehouseID,
-                PromoteID = item.PromoteID
+                WareHouseID = item.WarehouseId,
+                PromoteID = item.PromoteId
             });
 
             var result = Execute("sp_UpdateCartProduct", parameters, commandType: CommandType.StoredProcedure);
@@ -86,11 +86,11 @@ namespace Repository.Implement
             var parameters = new DynamicParameters(new
             {
                 CartID = cartID,
-                ProdutID = item.ProductID,
+                ProdutID = item.ProductId,
                 Quantity = item.Quantity,
                 StatusID = Parameters.StatusCartProductInsert, //status them moi
-                WareHouseID = item.WarehouseID,
-                PromoteID = item.PromoteID,
+                WareHouseID = item.WarehouseId,
+                PromoteID = item.PromoteId,
                 CartProductID = cartProductID
             });
 
@@ -127,7 +127,7 @@ namespace Repository.Implement
         public Guid GetCartIDByCustomerID(Guid customerID)
         {
             var result = QueryFirstOrDefault<CartResponeModel>("sp_GetCartByIDCustomer", new { CustomerID = customerID }, commandType: CommandType.StoredProcedure);
-            return result == null ? Guid.Empty : result.CartID;
+            return result == null ? Guid.Empty : result.CartId;
         }
 
         //public int Update(CartRequestModel item, int CartID)
@@ -135,16 +135,16 @@ namespace Repository.Implement
         //    return UpdateCartProduct(item, CartID);
         //}
 
-        public CartResponeModel Get(Guid customerID, int pageIndex = 1)
+        public CartResponeModel Get(Guid customerId, int pageIndex = 1)
         {
             //chua lam case lay gia cua product
             CartResponeModel cart = new CartResponeModel();
             //1 get cartID
-            Guid CartID = GetCartIDByCustomerID(customerID);
-            cart.CartID = CartID;
+            Guid CartId = GetCartIDByCustomerID(customerId);
+            cart.CartId = CartId;
 
             //2 get CartProduct
-            var lstProduct = GetCartProduct(Guid.Empty, CartID); //'00000000-0000-0000-0000-000000000000'
+            var lstProduct = GetCartProduct(Guid.Empty, CartId); //'00000000-0000-0000-0000-000000000000'
 
             cart.lstProduct = lstProduct;
 
@@ -153,14 +153,14 @@ namespace Repository.Implement
             return cart;
         }
 
-        public int Remove(CartRequestModel item, Guid cartID) //xóa mềm
+        public int Remove(CartRequestModel item, Guid cartId) //xóa mềm
         {
             //1. Update status table cart
-            int updateCart = UpdateCart(cartID, Parameters.StatusDeleteCart);
+            int updateCart = UpdateCart(cartId, Parameters.StatusDeleteCart);
 
             //2. Update status table cart_product
-            item.ProductID = Guid.Empty;
-            int updateCartProdct = UpdateCartProduct(item, cartID, Parameters.StatusDeleteCartProduct);
+            item.ProductId = Guid.Empty;
+            int updateCartProdct = UpdateCartProduct(item, cartId, Parameters.StatusDeleteCartProduct);
 
             if (updateCartProdct > 0 && updateCart > 0)
                 return 1;
@@ -168,11 +168,11 @@ namespace Repository.Implement
             return 0;
         }
 
-        public int GetNumberProductsInCart(Guid cartID)
+        public int GetNumberProductsInCart(Guid cartId)
         {
             var parameters = new DynamicParameters(new
             {
-                CartID = cartID,
+                CartID = cartId,
             });
             var result = QueryFirstOrDefault<int>("sp_GetNumberProductsInCart", parameters, commandType: CommandType.StoredProcedure);
             return result;

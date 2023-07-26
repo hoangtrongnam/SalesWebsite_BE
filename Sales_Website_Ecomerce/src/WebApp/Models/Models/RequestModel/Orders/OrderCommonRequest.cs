@@ -5,9 +5,9 @@ namespace Models.RequestModel.Orders
     public class OrderCommonRequest
     {
         [Required]
-        public Guid CartID { get; set; }
+        public Guid CartId { get; set; }
         [Required]
-        public Guid CustomerID { get; set; }
+        public Guid CustomerId { get; set; }
         public decimal DepositAmount { get; set; }
         public string Note { get; set; }
         [Required]
