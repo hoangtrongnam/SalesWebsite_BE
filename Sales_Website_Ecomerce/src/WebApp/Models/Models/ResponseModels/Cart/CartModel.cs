@@ -6,6 +6,8 @@ namespace Models.ResponseModels.Cart
     {
         public Guid ProductId{ get; set; } //ProductID để get list Promote
         public string? Name { get; set; }
+        public Guid colorId { get; set; }
+        public Guid sizeId { get; set; }
         public int Quantity { get; set; } //số lượng trong table cartProduct
         public int QuantityMax { get; set; } // số lượng trong table Product
         public decimal Price { get; set; } //trong table Product

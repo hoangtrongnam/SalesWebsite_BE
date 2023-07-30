@@ -91,7 +91,9 @@ namespace Repository.Implement
                 StatusID = Parameters.StatusCartProductInsert, //status them moi
                 WareHouseID = item.WarehouseId,
                 PromoteID = item.PromoteId,
-                CartProductID = cartProductID
+                CartProductID = cartProductID,
+                colorId = item.ColorId,
+                sizeId = item.SizeId
             });
 
             var result = Execute("sp_InsertCartProduct", parameters, commandType: CommandType.StoredProcedure);
