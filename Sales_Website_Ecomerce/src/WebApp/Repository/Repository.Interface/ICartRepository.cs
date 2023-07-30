@@ -17,5 +17,6 @@ namespace Repository.Interface
         int UpdateCart(Guid cartID, int status);
         int Remove(CartRequestModel item, Guid cartID);
         int GetNumberProductsInCart(Guid CartID);
+        bool ValidateIDExists(CartRequestModel model, out string err);
     }
 }
