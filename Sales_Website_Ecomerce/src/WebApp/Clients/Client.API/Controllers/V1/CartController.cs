@@ -22,13 +22,13 @@ namespace Client.API.Controllers
         /// <summary>
         /// hiển thị cart theo mã KH
         /// </summary>
-        /// <param name="CustomerID"></param>
+        /// <param name="customerID"></param>
         /// <param name="pageIndex"></param>
         /// <returns></returns>
-        [HttpGet("FindCart/{CustomerId}")]
-        public ActionResult<ProductResponeModel> Get([Required] Guid CustomerId, [Required] int pageIndex)
+        [HttpGet("FindCart/{customerId}")]
+        public ActionResult<ProductResponeModel> Get([Required] Guid customerId, [Required] int pageIndex)
         {
-            return Ok(_cartService.Get(CustomerId, pageIndex));
+            return Ok(_cartService.Get(customerId, pageIndex));
         }
 
         ////[HttpGet("/GetListProduct")]
