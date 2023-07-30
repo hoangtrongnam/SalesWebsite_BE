@@ -44,24 +44,6 @@ namespace Repository.Implement
             return parameters.Get<int>("@Result");
         }
         /// <summary>
-        /// Insert mutiple image
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public int CreateImages(List<ImageRepositoryRequestModel> item)
-        {
-            var parameters = new DynamicParameters(new
-            {
-                ListImage = item.ToDataTable().AsTableValuedParameter("dbo.ImageType")
-            });
-
-            parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            Execute("SP_CreateImage", parameters, commandType: CommandType.StoredProcedure);
-
-            return parameters.Get<int>("@Result");
-        }
-        /// <summary>
         /// Insert mutiple price
         /// </summary>
         /// <param name="item"></param>
@@ -90,16 +72,6 @@ namespace Repository.Implement
             return result;
         }
         /// <summary>
-        /// get list image by productid
-        /// </summary>
-        /// <param name="ProductID"></param>
-        /// <returns></returns>
-        public List<ImageResponseModel> GetImages(Guid productID)
-        {
-            var result = Query<ImageResponseModel>("SP_GetImagesByProductID", new { ProductID = productID }, commandType: CommandType.StoredProcedure).ToList();
-            return result;
-        }
-        /// <summary>
         /// get list price by productid
         /// </summary>
         /// <param name="ProductID"></param>
@@ -107,6 +79,16 @@ namespace Repository.Implement
         public List<PriceResponseModel> GetPrices(Guid productID)
         {
             var result = Query<PriceResponseModel>("SP_GetPricesByProductID", new { ProductID = productID }, commandType: CommandType.StoredProcedure).ToList();
+            return result;
+        }
+        /// <summary>
+        /// get list image by productid
+        /// </summary>
+        /// <param name="ProductID"></param>
+        /// <returns></returns>
+        public List<ImageResponseModel> GetImagesProduct(Guid productId)
+        {
+            var result = Query<ImageResponseModel>("SP_GetImagesProduct", new { ProductID = productId }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
         /// <summary>
@@ -119,7 +101,6 @@ namespace Repository.Implement
             var result = Query<ProductResponseModel>("SP_GetProductByCategory", new { CategoryID = categoryID }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
-
         /// <summary>
         /// Get products by tenant
         /// </summary>

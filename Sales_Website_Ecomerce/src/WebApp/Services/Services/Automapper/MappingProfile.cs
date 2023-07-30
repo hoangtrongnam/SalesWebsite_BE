@@ -24,7 +24,6 @@ namespace Services.Automapper
 
             // Ánh xạ từ ImageRequestModel sang ImageRepositoryRequestModel
             CreateMap<ImageRequestModel, ImageRepositoryRequestModel>()
-               .ForMember(dest => dest.ProductID, opt => opt.MapFrom(src => src.ProductId))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))

@@ -6,16 +6,15 @@ using AutoMapper;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using Models.RequestModel.AtributeProduct;
 
 namespace Services
 {
     public interface IProductServices
     {
         ApiResponse<int> CreateProduct(CreateOnlyProductRequestModel model, Guid tenanlID);
-        ApiResponse<int> CreateImages(List<ImageRequestModel> listImage);
         ApiResponse<int> CreatePrices(List<PriceRequestModel> listPrice);
         ApiResponse<ProductResponseModel> GetProductByID(Guid id);
-        ApiResponse<List<ImageResponseModel>> GetImagesByProductID(Guid productID);
         ApiResponse<List<PriceResponseModel>> GetPricesByProductID(Guid productID);
         ApiResponse<List<ProductResponseModel>> GetProductByCategory(Guid categoryId);
         ApiResponse<int> UpdateProduct(UpdateProductRequestModel model, Guid id);
@@ -31,41 +30,7 @@ namespace Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        /// <summary>
-        /// Create multiple images
-        /// </summary>
-        /// <param name="listImage"></param>
-        /// <returns></returns>
-        public ApiResponse<int> CreateImages(List<ImageRequestModel> listImage)
-        {
-            using (var context = _unitOfWork.Create())
-            {
-                var imagesRepository = new List<ImageRepositoryRequestModel>();
-                _mapper.Map(listImage, imagesRepository);
 
-                var codeGenOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["Image"].TableName, Parameters.tables["Image"].ColumnName);
-
-                for (int i = 0; i < listImage.Count; i++)
-                {
-                    codeGenOld = GenerateCode.GenCode(codeGenOld);
-                    imagesRepository[i].ImageCode = codeGenOld;
-                    imagesRepository[i].ImageID = Guid.NewGuid();
-                    imagesRepository[i].CreateBy = Parameters.CreateBy;
-
-                    var product = context.Repositories.ProductRepository.Get(listImage[i].ProductId);
-                    if (product == null)
-                        return ApiResponse<int>.ErrorResponse($"Product {listImage[i].ProductId} does not exists.");
-                }
-
-                //Create multiple image 
-                var result = context.Repositories.ProductRepository.CreateImages(imagesRepository);
-                if (result <= 0)
-                    return ApiResponse<int>.ErrorResponse("Create images Fail");
-
-                context.SaveChanges();
-                return ApiResponse<int>.SuccessResponse(result);
-            }
-        }
         /// <summary>
         /// Create multiple prices
         /// </summary>
@@ -111,7 +76,6 @@ namespace Services
             using (var context = _unitOfWork.Create())
             {
                 var codeOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["Product"].TableName, Parameters.tables["Product"].ColumnName);
-
                 var modelMap = _mapper.Map<CreateOnlyProductRepositoryRequestModel>(model);
                 modelMap.ProductID = Guid.NewGuid();
                 modelMap.ProductCode = GenerateCode.GenCode(codeOld);
@@ -124,21 +88,28 @@ namespace Services
                 if (result <= 0)
                     return ApiResponse<int>.ErrorResponse("Create Product Fail");
 
+                var productColorImageRequest = new List<ProductColorImageRepositoryRequestModel>();
+                foreach (var color in model.Colors)
+                {
+                    foreach(var image in color.Images)
+                    {
+                        productColorImageRequest.Add(new ProductColorImageRepositoryRequestModel
+                        {
+                            Id = Guid.NewGuid(),
+                            ProductId = modelMap.ProductID,
+                            ColorId = color.ColorId,
+                            ImageId = image.ImageId
+                        });
+                    }
+                }
+
+                var resultDetail = context.Repositories.AtributeProductRepository.CreateProductColorImage(productColorImageRequest);
+                if(resultDetail <=0)
+                    return ApiResponse<int>.ErrorResponse("Create Product Fail");
+
+
                 context.SaveChanges();
                 return ApiResponse<int>.SuccessResponse(result);
-            }
-        }
-        /// <summary>
-        /// get list image by product
-        /// </summary>
-        /// <param name="ProductID"></param>
-        /// <returns></returns>
-        public ApiResponse<List<ImageResponseModel>> GetImagesByProductID(Guid productID)
-        {
-            using (var context = _unitOfWork.Create())
-            {
-                var result = context.Repositories.ProductRepository.GetImages(productID);
-                return ApiResponse<List<ImageResponseModel>>.SuccessResponse(result);
             }
         }
         /// <summary>
@@ -203,7 +174,12 @@ namespace Services
                 return ApiResponse<int>.SuccessResponse(result);
             }
         }
-
+        /// <summary>
+        /// Get products by condition
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="tenanId"></param>
+        /// <returns></returns>
         public ApiResponse<PageableObject<ProductResponseModel>> GetProducts(FilterProductByConditionRequestModel model, Guid tenanId)
         {
             var products = new List<ProductResponseModel>();
@@ -233,7 +209,7 @@ namespace Services
 
                     products.ForEach(p =>
                     {
-                        p.Images = context.Repositories.ProductRepository.GetImages(p.ProductId).OrderBy(i => i.ImageId).Take(3).ToList();
+                        p.Images = context.Repositories.ProductRepository.GetImagesProduct(p.ProductId).OrderBy(i => i.ImageId).Take(3).ToList();
                     });
 
                     //Set result return

@@ -4,7 +4,6 @@
     {
         public Guid ImageID { get; set; }
         public string ImageCode { get; set; }
-        public Guid ProductID { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
         public string Url { get; set; }

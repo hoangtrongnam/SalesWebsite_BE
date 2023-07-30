@@ -1,4 +1,6 @@
 ﻿using Client.API.Utils;
+using Common;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Models.RequestModel.Product;
 using Services;
@@ -29,13 +31,6 @@ namespace Client.API.Controllers.V1
             return Ok(result);
         }
 
-        [HttpPost("CreateImages")]
-        public async Task<ActionResult> CreateImages([FromBody] List<ImageRequestModel> model)
-        {
-            var result = _productService.CreateImages(model);
-            return Ok(result);
-        }
-
         [HttpPost("CreatePrices")]
         public async Task<ActionResult> CreatePrices([FromBody] List<PriceRequestModel> model)
         {
@@ -48,13 +43,6 @@ namespace Client.API.Controllers.V1
         public async Task<ActionResult> GetProductById([Required] Guid id)
         {
             var result = _productService.GetProductByID(id);
-            return Ok(result);
-        }
-
-        [HttpGet("GetImagesByProductId")]
-        public async Task<ActionResult> GetImagesByProductId([Required] Guid id)
-        {
-            var result = _productService.GetImagesByProductID(id);
             return Ok(result);
         }
 
@@ -87,32 +75,64 @@ namespace Client.API.Controllers.V1
             return Ok(result);
         }
 
+        //[HttpPost("upload")]
+        //public async Task<string> UploadFile(IFormFile file)
+        //{
+        //    if (file == null || file.Length == 0)
+        //    {
+        //        throw new ArgumentException("File is required");
+        //    }
+
+        //    string rootPath = _commonService.GetConfigValueService((int)Common.Enum.ConfigKey.KeyPath);
+
+        //    string uploadPath = Path.Combine(rootPath, "uploads");
+
+        //    if (!Directory.Exists(uploadPath))
+        //    {
+        //        Directory.CreateDirectory(uploadPath);
+        //    }
+
+        //    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+        //    string filePath = Path.Combine(uploadPath, fileName);
+
+        //    using (var stream = new FileStream(filePath, FileMode.Create))
+        //    {
+        //        await file.CopyToAsync(stream);
+        //    }
+
+        //    return filePath.Replace(rootPath, "");
+        //}
+        
         [HttpPost("upload")]
-        public async Task<string> UploadFile(IFormFile file)
+        public async Task<IActionResult> UploadFile(List<IFormFile> files)
         {
-            if (file == null || file.Length == 0)
+            if(files.Count == 0 || files == null)
             {
-                throw new ArgumentException("File is required");
+                return Ok(ApiResponse<List<string>>.ErrorResponse("File is required"));
+            }
+            var listPath = new List<string>();
+            foreach (var item in files)
+            {
+                string rootPath = _commonService.GetConfigValueService((int)Common.Enum.ConfigKey.KeyPath);
+
+                string uploadPath = Path.Combine(rootPath, "uploads");
+
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                string fileName = $"{Guid.NewGuid()}_{item.FileName}";
+                string filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await item.CopyToAsync(stream);
+                }
+                listPath.Add(filePath.Replace(rootPath, "").Replace("\\","/"));
             }
 
-            string rootPath = _commonService.GetConfigValueService((int)Common.Enum.ConfigKey.KeyPath);
-
-            string uploadPath = Path.Combine(rootPath, "uploads");
-
-            if (!Directory.Exists(uploadPath))
-            {
-                Directory.CreateDirectory(uploadPath);
-            }
-
-            string fileName = $"{Guid.NewGuid()}_{file.FileName}";
-            string filePath = Path.Combine(uploadPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return filePath.Replace(rootPath, "");
+            return Ok(ApiResponse<List<string>>.SuccessResponse(listPath));
         }
     }
 }
