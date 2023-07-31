@@ -5,6 +5,7 @@ using Models.ResponseModels.ProductStocks;
 using Repository.Interface;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 
 namespace Repository.Implement
 {
@@ -28,9 +29,13 @@ namespace Repository.Implement
                 ProductStockCode = item.ProductStockCode,
                 ProductID = item.ProductID,
                 SupplierID = item.SupplierID,
+                ColorID = item.ColorID,
+                SizeID = item.SizeID,
                 Name = item.Name,
                 Code = item.Code,
                 Status = item.Status,
+                ImportPrice = item.ImportPrice,
+                ExfactoryPrice = item.ExfactoryPrice,
                 WareHouseID = item.WareHouseID,
                 Description = item.Description,
                 CreateBy = Parameters.CreateBy

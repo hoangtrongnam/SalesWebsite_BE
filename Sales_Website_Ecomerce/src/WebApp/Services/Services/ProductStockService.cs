@@ -40,6 +40,14 @@ namespace Services
                 if (warehouse == null)
                     return ApiResponse<int>.ErrorResponse("WareHouse does not exists.");
 
+                var color = context.Repositories.AtributeProductRepository.GetColor(model.ColorID);
+                if(color == null)
+                    return ApiResponse<int>.ErrorResponse("Color does not exists.");
+
+                var size = context.Repositories.AtributeProductRepository.GetSize(model.SizeID);
+                if (size == null)
+                    return ApiResponse<int>.ErrorResponse("Size does not exists.");
+
                 var codeOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["ProductStock"].TableName, Parameters.tables["ProductStock"].ColumnName);
                 var modelMap = _mapper.Map<CreateProductStockRepositoryRequestModel>(model);
                 modelMap.ProductStockID = Guid.NewGuid();

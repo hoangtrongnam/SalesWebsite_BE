@@ -2,17 +2,18 @@
 using Models.RequestModel.AtributeProduct;
 using Models.RequestModel.Product;
 using Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace Client.API.Controllers.V1
 {
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]/")]
     [ApiVersion("1.0")]
-    public class AtributeProductController : ControllerBase
+    public class AttributeProductController : ControllerBase
     {
-        private readonly IAtributeProductService _atributeProductService;
+        private readonly IAttributeProductService _atributeProductService;
 
-        public AtributeProductController(IAtributeProductService atributeProductService)
+        public AttributeProductController(IAttributeProductService atributeProductService)
         {
             _atributeProductService = atributeProductService;
         }
@@ -51,6 +52,12 @@ namespace Client.API.Controllers.V1
         public async Task<ActionResult> GetSizes()
         {
             var result = _atributeProductService.GetSizes();
+            return Ok(result);
+        }
+        [HttpGet("GetColorSizeProduct/{productId}")]
+        public async Task<ActionResult> GetColorSizeProduct([Required] Guid productId)
+        {
+            var result = _atributeProductService.GetColorSizeProduct(productId);
             return Ok(result);
         }
     }

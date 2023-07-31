@@ -5,11 +5,14 @@ using Models.ResponseModels.Product;
 
 namespace Repository.Interface
 {
-    public interface IAtributeProductRepository
+    public interface IAttributeProductRepository
     {
         List<ImageResponseModel> GetAllImages();
         List<ColorResponseModel> GetColors();
         List<SizeResponseModel> GetSizes();
+        SizeResponseModel GetSize(Guid sizeId);
+        ColorResponseModel GetColor(Guid colorId);
+        ColorSizeRepositoryResponseModel GetColorSizeProduct(Guid productId);
         int CreateImages(List<ImageRepositoryRequestModel> item);
         int CreateColor(ColorRepositoryRequestModel model);
         int CreateSize(SizeRepositoryRequestModel model);

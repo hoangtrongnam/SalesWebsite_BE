@@ -15,7 +15,7 @@ namespace UnitOfWork.Interface
         IOrderRepository OrderRepository { get; }
         INotificationRepository NotificationRepository { get; }
         ICommonRepository CommonRepository { get; }
-        IAtributeProductRepository AtributeProductRepository { get; }
+        IAttributeProductRepository AtributeProductRepository { get; }
         //IJobScheduleRepository JobScheduleRepository { get; }
 
     }

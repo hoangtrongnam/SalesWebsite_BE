@@ -11,13 +11,14 @@ using System.Drawing;
 
 namespace Repository.Implement
 {
-    public class AtributeProductRepository : Repository, IAtributeProductRepository
+    public class AttributeProductRepository : Repository, IAttributeProductRepository
     {
-        public AtributeProductRepository(SqlConnection context, SqlTransaction _transaction)
+        public AttributeProductRepository(SqlConnection context, SqlTransaction _transaction)
         {
             this._context = context;
             this._transaction = _transaction;
         }
+        
         /// <summary>
         /// Create Color Repository
         /// </summary>
@@ -39,6 +40,7 @@ namespace Repository.Implement
 
             return parameters.Get<int>("@Result");
         }
+        
         /// <summary>
         /// Insert mutiple image
         /// </summary>
@@ -57,6 +59,7 @@ namespace Repository.Implement
 
             return parameters.Get<int>("@Result");
         }
+        
         /// <summary>
         /// Create ProductColorImage repository
         /// </summary>
@@ -75,6 +78,7 @@ namespace Repository.Implement
 
             return parameters.Get<int>("@Result");
         }
+        
         /// <summary>
         /// Create Size Repository
         /// </summary>
@@ -95,6 +99,7 @@ namespace Repository.Implement
 
             return parameters.Get<int>("@Result");
         }
+        
         /// <summary>
         ///  Get all images
         /// </summary>
@@ -105,6 +110,18 @@ namespace Repository.Implement
             var result = Query<ImageResponseModel>("SP_GetAllImages", commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
+        
+        /// <summary>
+        /// Get color by id
+        /// </summary>
+        /// <param name="colorId"></param>
+        /// <returns></returns>
+        public ColorResponseModel GetColor(Guid colorId)
+        {
+            var result = QueryFirstOrDefault<ColorResponseModel>("SELECT ColorID,ColorCode,Name,Description FROM dbo.Color(Nolock) WHERE ColorID = @ColorID", new { ColorID = colorId }, commandType: CommandType.Text);
+            return result;
+        }
+
         /// <summary>
         /// get colors repository
         /// </summary>
@@ -114,6 +131,33 @@ namespace Repository.Implement
             var result = Query<ColorResponseModel>("SELECT ColorID, ColorCode,Name, Description FROM [dbo].[Color]", commandType: CommandType.Text).ToList();
             return result;
         }
+        
+        /// <summary>
+        /// get color, size by product repository
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        public ColorSizeRepositoryResponseModel GetColorSizeProduct(Guid productId)
+        {
+            var result = new ColorSizeRepositoryResponseModel();
+            var response = QueryMultiple("sp_LoadSize_Color_By_Product", new { ProductId = productId }, commandType: CommandType.StoredProcedure);
+            result.colors = response.Read<ColorRepositoryModel>().AsList();
+            result.sizes = response.Read<SizeRepositoryModel>().AsList();
+
+            return result;
+        }
+
+        /// <summary>
+        /// get size by id
+        /// </summary>
+        /// <param name="sizeId"></param>
+        /// <returns></returns>
+        public SizeResponseModel GetSize(Guid sizeId)
+        {
+            var result = QueryFirstOrDefault<SizeResponseModel>("SELECT SizeID,Value,Description FROM Size(Nolock) WHERE SizeID = @SizeID", new { SizeID = sizeId }, commandType: CommandType.Text);
+            return result;
+        }
+
         /// <summary>
         /// get sizes repository
         /// </summary>

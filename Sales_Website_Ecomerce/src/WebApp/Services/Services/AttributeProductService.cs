@@ -4,11 +4,12 @@ using Models.RequestModel.AtributeProduct;
 using Models.RequestModel.Product;
 using Models.ResponseModels.AtributeProduct;
 using Models.ResponseModels.Product;
+using System.Drawing;
 using UnitOfWork.Interface;
 
 namespace Services
 {
-    public interface IAtributeProductService
+    public interface IAttributeProductService
     {
         ApiResponse<List<ImageResponseModel>> GetAllImages();
         ApiResponse<List<ColorResponseModel>> GetColors();
@@ -16,14 +17,15 @@ namespace Services
         ApiResponse<int> CreateImages(List<ImageRequestModel> listImage);
         ApiResponse<int> CreateColor(ColorRepositoryRequestModel model);
         ApiResponse<int> CreateSize(SizeRepositoryRequestModel model);
+        ApiResponse<ColorSizeResponseModel> GetColorSizeProduct(Guid productId);
     }
 
-    public class AtributeProductService : IAtributeProductService
+    public class AttributeProductService : IAttributeProductService
     {
         private IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public AtributeProductService(IUnitOfWork unitOfWork, IMapper mapper)
+        public AttributeProductService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -129,6 +131,51 @@ namespace Services
             {
                 var result = context.Repositories.AtributeProductRepository.GetSizes();
                 return ApiResponse<List<SizeResponseModel>>.SuccessResponse(result);
+            }
+        }
+        /// <summary>
+        /// GetColorSizeProduct Service
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        public ApiResponse<ColorSizeResponseModel> GetColorSizeProduct(Guid productId)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var data = context.Repositories.AtributeProductRepository.GetColorSizeProduct(productId);
+                
+                var listColor = data.colors.GroupBy(c => new { c.ColorID, c.ColorCode, c.Name, c.Description })
+                    .Select(group => new ColorModel
+                    {
+                        ColorID = group.Key.ColorID,
+                        ColorCode = group.Key.ColorCode,
+                        Name = group.Key.Name,
+                        Description = group.Key.Description,
+                        TotalStock = group.Sum(c => c.TotalStock),
+                        Sizes = group.Select(c=> new OnlySize { SizeID = c.SizeID, Value = c.Value}).ToList()
+
+                    }).ToList();
+
+                var listSize = data.sizes.GroupBy(s => new { s.SizeID, s.Value, s.Description })
+                    .Select(group => new SizeModel
+                    {
+                        SizeID = group.Key.SizeID,
+                        Value = group.Key.Value,
+                        Description = group.Key.Description,
+                        TotalStock = group.Sum(s => s.TotalStock),
+                        Colors = group.Select(c => new OnlyColor 
+                        { 
+                            ColorID = c.ColorID,
+                            ColorCode = c.ColorCode,
+                            Name = c.Name
+                        }).ToList()
+                    }).ToList();
+
+                return ApiResponse<ColorSizeResponseModel>.SuccessResponse(new ColorSizeResponseModel
+                {
+                    listColor = listColor,
+                    listSize = listSize
+                });
             }
         }
     }

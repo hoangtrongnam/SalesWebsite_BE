@@ -18,7 +18,7 @@ namespace UnitOfWork.Database
         public IOrderRepository OrderRepository { get; }
         public INotificationRepository NotificationRepository { get; }
         public ICommonRepository CommonRepository { get; }
-        public IAtributeProductRepository AtributeProductRepository { get; }
+        public IAttributeProductRepository AtributeProductRepository { get; }
         //public IJobScheduleRepository JobScheduleRepository { get; }
 
         public UnitOfWorkDatabaseRepository(SqlConnection context, SqlTransaction transaction)
@@ -34,7 +34,7 @@ namespace UnitOfWork.Database
             OrderRepository = new OrderRepository(context, transaction);
             NotificationRepository = new NotificationRepository(context, transaction);
             CommonRepository = new CommonRepository(context, transaction);
-            AtributeProductRepository = new AtributeProductRepository(context, transaction);
+            AtributeProductRepository = new AttributeProductRepository(context, transaction);
             //JobScheduleRepository = new JobScheduleRepository(context, transaction);
         }
     }
