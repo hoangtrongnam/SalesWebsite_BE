@@ -3,11 +3,13 @@ using Dapper;
 using Models.RequestModel.AtributeProduct;
 using Models.RequestModel.Product;
 using Models.ResponseModels.AtributeProduct;
+using Models.ResponseModels.AttributeProduct;
 using Models.ResponseModels.Product;
 using Repository.Interface;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using static Models.ResponseModels.OrderResponseModel;
 
 namespace Repository.Implement
 {
@@ -144,6 +146,18 @@ namespace Repository.Implement
             result.colors = response.Read<ColorRepositoryModel>().AsList();
             result.sizes = response.Read<SizeRepositoryModel>().AsList();
 
+            return result;
+        }
+
+        /// <summary>
+        /// Get images by color repository
+        /// </summary>
+        /// <param name="colorId"></param>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        public List<ImageByColorResponseModel> GetImageByColor(Guid productId, Guid colorId)
+        {
+            var result = Query<ImageByColorResponseModel>("sp_GetImageByColorProduct", new{ ProductId = productId, ColorId = colorId }, commandType: CommandType.StoredProcedure).ToList();
             return result;
         }
 

@@ -3,6 +3,7 @@ using Common;
 using Models.RequestModel.AtributeProduct;
 using Models.RequestModel.Product;
 using Models.ResponseModels.AtributeProduct;
+using Models.ResponseModels.AttributeProduct;
 using Models.ResponseModels.Product;
 using System.Drawing;
 using UnitOfWork.Interface;
@@ -18,6 +19,7 @@ namespace Services
         ApiResponse<int> CreateColor(ColorRepositoryRequestModel model);
         ApiResponse<int> CreateSize(SizeRepositoryRequestModel model);
         ApiResponse<ColorSizeResponseModel> GetColorSizeProduct(Guid productId);
+        ApiResponse<List<ImageByColorResponseModel>> GetImageByColor(Guid productId, Guid ColorId);
     }
 
     public class AttributeProductService : IAttributeProductService
@@ -176,6 +178,20 @@ namespace Services
                     listColor = listColor,
                     listSize = listSize
                 });
+            }
+        }
+        /// <summary>
+        /// Get image by color service
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <param name="colorId"></param>
+        /// <returns></returns>
+        public ApiResponse<List<ImageByColorResponseModel>> GetImageByColor(Guid productId, Guid colorId)
+        {
+            using (var context = _unitOfWork.Create())
+            {
+                var result = context.Repositories.AtributeProductRepository.GetImageByColor(productId, colorId);
+                return ApiResponse<List<ImageByColorResponseModel>>.SuccessResponse(result);
             }
         }
     }

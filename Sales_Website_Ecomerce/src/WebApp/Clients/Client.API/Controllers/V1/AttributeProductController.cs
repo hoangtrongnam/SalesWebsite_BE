@@ -60,5 +60,11 @@ namespace Client.API.Controllers.V1
             var result = _atributeProductService.GetColorSizeProduct(productId);
             return Ok(result);
         }
+        [HttpGet("GetImageByColor/{productId}/{colorId}")]
+        public async Task<ActionResult> GetColorSizeProduct([Required] Guid productId, [Required] Guid colorId)
+        {
+            var result = _atributeProductService.GetImageByColor(productId, colorId);
+            return Ok(result);
+        }
     }
 }
