@@ -226,11 +226,12 @@ namespace Repository.Implement
                 sizeId = model.SizeId,
                 promoteId = model.PromoteId
             });
-            parameters.Add("@Err", dbType: DbType.String, direction: ParameterDirection.Output);
-            Execute("SP_ValidateIDExists", parameters, commandType: CommandType.StoredProcedure);
-            err = parameters.Get<string>("@Err");
+            //parameters.Add("@Err", dbType: DbType.String, direction: ParameterDirection.Output);
+            //Execute("SP_ValidateIDExists", parameters, commandType: CommandType.StoredProcedure);
+            err = QueryFirstOrDefault<string>("SP_ValidateIDExists", parameters, commandType: CommandType.StoredProcedure);
+            //err = parameters.Get<string>("@Err");
 
-            return string.IsNullOrEmpty(err) ? false : true;
+            return string.IsNullOrEmpty(err) ? true : false;
         }
     }
 }
