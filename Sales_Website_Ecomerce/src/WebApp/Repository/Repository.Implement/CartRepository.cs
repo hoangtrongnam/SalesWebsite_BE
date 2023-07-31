@@ -209,5 +209,29 @@ namespace Repository.Implement
         //    }
         //    return 0;
         //}
+
+        public bool ValidateIDExists(CartRequestModel model, out string err)
+        {
+            if (model.Quantity <= 0)
+            {
+                err = "Quantity phải lớn hơn không!";
+                return false;
+            }
+
+            var parameters = new DynamicParameters(new
+            {
+                warehouseId = model.WarehouseId,
+                productId = model.ProductId,
+                colorId = model.ColorId,
+                sizeId = model.SizeId,
+                promoteId = model.PromoteId
+            });
+            //parameters.Add("@Err", dbType: DbType.String, direction: ParameterDirection.Output);
+            //Execute("SP_ValidateIDExists", parameters, commandType: CommandType.StoredProcedure);
+            err = QueryFirstOrDefault<string>("SP_ValidateIDExists", parameters, commandType: CommandType.StoredProcedure);
+            //err = parameters.Get<string>("@Err");
+
+            return string.IsNullOrEmpty(err) ? true : false;
+        }
     }
 }

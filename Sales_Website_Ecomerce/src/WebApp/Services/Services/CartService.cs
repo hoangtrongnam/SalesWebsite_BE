@@ -30,6 +30,9 @@ namespace Services
             {
                 using (var context = _unitOfWork.Create())
                 {
+                    if (!context.Repositories.CartRepository.ValidateIDExists(item, out string err))
+                        return ApiResponse<int>.ErrorResponse(err);
+
                     int efectRow = 0;
                     Guid cartId = context.Repositories.CartRepository.GetCartIDByCustomerID(item.CustomerId);
 
@@ -294,6 +297,6 @@ namespace Services
             {
                 throw new Exception(ex.Message);
             }
-        }
+        }        
     }
 }
