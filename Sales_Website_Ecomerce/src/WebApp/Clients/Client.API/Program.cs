@@ -1,4 +1,5 @@
 using Client.API.Utils;
+using Microsoft.AspNetCore.Http.Features;
 using Product.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,12 @@ builder.Services.AddCors(options =>
                           policy.WithOrigins("http://example.com",
                                               "http://www.contoso.com");
                       });
+});
+
+builder.Services.Configure<FormOptions>(x =>
+{
+    x.ValueLengthLimit = int.MaxValue;
+    x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
 });
 
 //builder.Services.AddFluentValidation();

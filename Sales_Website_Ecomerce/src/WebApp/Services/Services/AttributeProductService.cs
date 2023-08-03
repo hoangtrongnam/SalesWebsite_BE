@@ -10,7 +10,7 @@ using UnitOfWork.Interface;
 
 namespace Services
 {
-    public interface IAttributeProductService
+    public interface IProductAttributeService
     {
         ApiResponse<List<ImageResponseModel>> GetAllImages();
         ApiResponse<List<ColorResponseModel>> GetColors();
@@ -22,7 +22,7 @@ namespace Services
         ApiResponse<List<ImageByColorResponseModel>> GetImageByColor(Guid productId, Guid ColorId);
     }
 
-    public class AttributeProductService : IAttributeProductService
+    public class AtributeProductService : IProductAttributeService
     {
         private IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
