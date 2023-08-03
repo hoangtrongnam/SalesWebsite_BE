@@ -103,6 +103,36 @@ namespace Client.API.Controllers.V1
         //    return filePath.Replace(rootPath, "");
         //}
         
-        
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile(List<IFormFile> files)
+        {
+            if(files.Count == 0 || files == null)
+            {
+                return Ok(ApiResponse<List<string>>.ErrorResponse("File is required"));
+            }
+            var listPath = new List<string>();
+            foreach (var item in files)
+            {
+                string rootPath = _commonService.GetConfigValueService((int)Common.Enum.ConfigKey.KeyPath);
+
+                string uploadPath = Path.Combine(rootPath, "uploads");
+
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                string fileName = $"{Guid.NewGuid()}_{item.FileName}";
+                string filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await item.CopyToAsync(stream);
+                }
+                listPath.Add(filePath.Replace(rootPath, "").Replace("\\","/"));
+            }
+
+            return Ok(ApiResponse<List<string>>.SuccessResponse(listPath));
+        }
     }
 }

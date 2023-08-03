@@ -114,7 +114,7 @@ namespace Product.API.Extensions
             services.AddTransient<IProductStockService, ProductStockService>();
             services.AddTransient<ICommonService, CommonService>();
             services.AddTransient<OrderServices>();
-            services.AddTransient<IProductAttributeService, AtributeProductService>();
+            services.AddTransient<IAttributeProductService, AttributeProductService>();
             return services;
         }
     }
