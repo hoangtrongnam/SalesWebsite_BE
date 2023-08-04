@@ -16,6 +16,7 @@ namespace Services
         ApiResponse<List<ColorResponseModel>> GetColors();
         ApiResponse<List<SizeResponseModel>> GetSizes();
         ApiResponse<int> CreateImages(List<ImageRequestModel> listImage);
+        ApiResponse<int> CreateSingleImage(ImageRequestModel image);
         ApiResponse<int> CreateColor(ColorRepositoryRequestModel model);
         ApiResponse<int> CreateSize(SizeRepositoryRequestModel model);
         ApiResponse<ColorSizeResponseModel> GetColorSizeProduct(Guid productId);
@@ -145,7 +146,7 @@ namespace Services
             using (var context = _unitOfWork.Create())
             {
                 var data = context.Repositories.AtributeProductRepository.GetColorSizeProduct(productId);
-                
+
                 var listColor = data.colors.GroupBy(c => new { c.ColorID, c.ColorCode, c.Name, c.Description })
                     .Select(group => new ColorModel
                     {
@@ -154,7 +155,7 @@ namespace Services
                         Name = group.Key.Name,
                         Description = group.Key.Description,
                         TotalStock = group.Sum(c => c.TotalStock),
-                        Sizes = group.Select(c=> new OnlySize { SizeID = c.SizeID, Value = c.Value}).ToList()
+                        Sizes = group.Select(c => new OnlySize { SizeID = c.SizeID, Value = c.Value }).ToList()
 
                     }).ToList();
 
@@ -165,8 +166,8 @@ namespace Services
                         Value = group.Key.Value,
                         Description = group.Key.Description,
                         TotalStock = group.Sum(s => s.TotalStock),
-                        Colors = group.Select(c => new OnlyColor 
-                        { 
+                        Colors = group.Select(c => new OnlyColor
+                        {
                             ColorID = c.ColorID,
                             ColorCode = c.ColorCode,
                             Name = c.Name
@@ -192,6 +193,34 @@ namespace Services
             {
                 var result = context.Repositories.AtributeProductRepository.GetImageByColor(productId, colorId);
                 return ApiResponse<List<ImageByColorResponseModel>>.SuccessResponse(result);
+            }
+        }
+
+        public ApiResponse<int> CreateSingleImage(ImageRequestModel image)
+        {
+            var listImage = new List<ImageRequestModel>() { image };
+            using (var context = _unitOfWork.Create())
+            {
+                var imagesRepository = new List<ImageRepositoryRequestModel>();
+                _mapper.Map(listImage, imagesRepository);
+
+                var codeGenOld = context.Repositories.CommonRepository.GetCodeGenerate(Parameters.tables["Image"].TableName, Parameters.tables["Image"].ColumnName);
+
+                for (int i = 0; i < listImage.Count; i++)
+                {
+                    codeGenOld = GenerateCode.GenCode(codeGenOld);
+                    imagesRepository[i].ImageCode = codeGenOld;
+                    imagesRepository[i].ImageID = Guid.NewGuid();
+                    imagesRepository[i].CreateBy = Parameters.CreateBy;
+                }
+
+                //Create multiple image 
+                var result = context.Repositories.AtributeProductRepository.CreateImages(imagesRepository);
+                if (result <= 0)
+                    return ApiResponse<int>.ErrorResponse("Create images Fail");
+
+                context.SaveChanges();
+                return ApiResponse<int>.SuccessResponse(result);
             }
         }
     }
