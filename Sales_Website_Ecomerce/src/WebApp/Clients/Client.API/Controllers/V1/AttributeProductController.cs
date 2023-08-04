@@ -1,8 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common;
+using Microsoft.AspNetCore.Mvc;
 using Models.RequestModel.AtributeProduct;
 using Models.RequestModel.Product;
+using Models.ResponseModels.AtributeProduct;
+using Models.ResponseModels.AttributeProduct;
+using Models.ResponseModels.Product;
 using Services;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.Intrinsics.X86;
 
 namespace Client.API.Controllers.V1
 {
@@ -37,30 +42,35 @@ namespace Client.API.Controllers.V1
             return Ok(result);
         }
         [HttpGet("GetAllImages")]
+        [ProducesResponseType(typeof(ApiResponse<List<ImageResponseModel>>), 200)]
         public async Task<ActionResult> GetAllImages()
         {
             var result = _atributeProductService.GetAllImages();
             return Ok(result);
         }
         [HttpGet("GetColors")]
+        [ProducesResponseType(typeof(ApiResponse<List<ColorResponseModel>>), 200)]
         public async Task<ActionResult> GetColors()
         {
             var result = _atributeProductService.GetColors();
             return Ok(result);
         }
         [HttpGet("GetSizes")]
+        [ProducesResponseType(typeof(ApiResponse<List<SizeResponseModel>>), 200)]
         public async Task<ActionResult> GetSizes()
         {
             var result = _atributeProductService.GetSizes();
             return Ok(result);
         }
         [HttpGet("GetColorSizeProduct/{productId}")]
+        [ProducesResponseType(typeof(ApiResponse<ColorSizeResponseModel>), 200)]
         public async Task<ActionResult> GetColorSizeProduct([Required] Guid productId)
         {
             var result = _atributeProductService.GetColorSizeProduct(productId);
             return Ok(result);
         }
         [HttpGet("GetImageByColor/{productId}/{colorId}")]
+        [ProducesResponseType(typeof(ApiResponse<List<ImageByColorResponseModel>>), 200)]
         public async Task<ActionResult> GetColorSizeProduct([Required] Guid productId, [Required] Guid colorId)
         {
             var result = _atributeProductService.GetImageByColor(productId, colorId);
