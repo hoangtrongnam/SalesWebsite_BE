@@ -47,7 +47,8 @@ namespace Client.API.Controllers.V1
                 {
                     await item.CopyToAsync(stream);
                 }
-                listPath.Add(filePath.Replace(rootPath, "").Replace("\\", "/"));
+                filePath = filePath.Replace(rootPath, "").Replace("\\", "/");
+                listPath.Add(filePath);
                 //
                 var imageModel = new ImageRequestModel();
                 imageModel.SortOrder = 0;
