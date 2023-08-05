@@ -29,7 +29,7 @@ namespace Client.API.Controllers.V1
             }
             var listPath = new List<string>();
 
-            foreach (var item in files)
+            for(var i = 0; i < files.Count; i++)
             {
                 string rootPath = _commonService.GetConfigValueService((int)Common.Enum.ConfigKey.KeyPath);
 
@@ -40,22 +40,22 @@ namespace Client.API.Controllers.V1
                     Directory.CreateDirectory(uploadPath);
                 }
 
-                string fileName = $"{Guid.NewGuid()}_{item.FileName}";
+                string fileName = $"{Guid.NewGuid()}_{files[i].FileName}";
                 string filePath = Path.Combine(uploadPath, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await item.CopyToAsync(stream);
+                    await files[i].CopyToAsync(stream);
                 }
                 filePath = filePath.Replace(rootPath, "").Replace("\\", "/");
                 listPath.Add(filePath);
                 //
                 var imageModel = new ImageRequestModel();
-                imageModel.SortOrder = 0;
+                imageModel.SortOrder = i;
                 imageModel.Name = fileName;
                 imageModel.Url = filePath;
                 imageModel.Description = fileName;
-                imageModel.Type = item.ContentType;
+                imageModel.Type = files[i].ContentType;
                 _atributeProductService.CreateSingleImage(imageModel);
             }
 
