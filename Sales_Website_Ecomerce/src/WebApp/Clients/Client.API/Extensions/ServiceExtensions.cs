@@ -100,7 +100,7 @@ namespace Product.API.Extensions
             });
             services.Configure<FormOptions>(options =>
             {
-                options.MultipartBodyLengthLimit = 10000; // Giới hạn 10MB
+                options.MultipartBodyLengthLimit = 1024 * 1024 * 10; // Giới hạn 10MB
             });
             services.AddAutoMapper(typeof(MappingProfile));
             return services;
